@@ -1,0 +1,60 @@
+digraph G{
+	label = "expandbox"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_8\nmove	r13	r5	\nmove	r12	r6	\nla	r19	nd#1309	\nmove	r5	r13	\nmove	r6	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_6\nmove	r11	r9	\nmove	r27	r0	\nsne	r28	r11	r27	\nmove	r5	r0	\nseq	r6	r28	r5	\nbeqz	expandbox.L1\n"];
+	Node3 -> {Node4 Node27 }
+	Node4 [label = "B4_7\nexpandbox.L4:\nli	r7	nd#1325	\naddu	r8	r12	r7	\nl.d	r40	nd#1328	\nli.d	r52	nd#1332	\nli	r9	nd#1334	\nc.lt.d	r40	r52	\nbc1t	expandbox.L15\n"];
+	Node4 -> {Node5 Node6 }
+	Node5 [label = "B5_1\nmove	r9	r0	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_3\nexpandbox.L15:\nmove	r10	r0	\nseq	r19	r9	r10	\nbeqz	expandbox.L5\n"];
+	Node6 -> {Node7 Node9 }
+	Node7 [label = "B7_6\nla	r19	nd#1344	\nla	r5	nd#1346	\nli	r6	nd#1348	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_5\nla	r19	nd#1354	\nmove	r5	r0	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_1\nexpandbox.L5:\nmove	r20	r0	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_19\nexpandbox.L13:\nla	r21	nd#1366	\nli	r22	nd#1368	\nmult	r20	r22	\nmflo	r23	\naddu	r24	r21	r23	\nli	r25	nd#1373	\nmult	r20	r25	\nmflo	r26	\naddu	r27	r12	r26	\nl.d	r54	nd#1378	\nli.d	r56	nd#1381	\nmul.d	r58	r56	r40	\nadd.d	r60	r54	r58	\ns.d	nd#1385	r60	\nli	r28	nd#1388	\naddu	r20	r20	r28	\nli	r5	nd#1391	\nsle	r6	r5	r20	\nbeqz	expandbox.L13\n"];
+	Node10 -> {Node11 Node10 }
+	Node11 [label = "B11_1\nmove	r9	r0	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_16\nexpandbox.L14:\nli	r7	nd#1400	\naddu	r24	r13	r7	\nli	r8	nd#1403	\nmult	r9	r8	\nmflo	r10	\naddu	r10	r24	r10	\nl.d	r62	nd#1408	\nla	r19	nd#1411	\nli	r20	nd#1413	\nmult	r9	r20	\nmflo	r21	\naddu	r22	r19	r21	\nl.d	r32	nd#1418	\nli	r23	nd#1421	\nc.lt.d	r62	r32	\nbc1t	expandbox.L16\n"];
+	Node12 -> {Node13 Node14 }
+	Node13 [label = "B13_1\nmove	r23	r0	\n"];
+	Node13 -> {Node14 }
+	Node14 [label = "B14_1\nexpandbox.L16:\nbeqz	expandbox.L10\n"];
+	Node14 -> {Node15 Node16 }
+	Node15 [label = "B15_11\nli	r24	nd#1429	\nmult	r9	r24	\nmflo	r25	\naddu	r26	r12	r25	\nl.d	r34	nd#1434	\nli	r27	nd#1438	\nmult	r9	r27	\nmflo	r28	\naddu	r5	r12	r28	\nsub.d	r36	r34	r40	\ns.d	nd#1444	r36	\n"];
+	Node15 -> {Node16 }
+	Node16 [label = "B16_5\nexpandbox.L10:\nli	r6	nd#1448	\naddu	r9	r9	r6	\nli	r7	nd#1451	\nsle	r8	r7	r9	\nbeqz	expandbox.L14\n"];
+	Node16 -> {Node17 Node12 }
+	Node17 [label = "B17_14\nli	r9	nd#1456	\naddu	r10	r12	r9	\nli.d	r38	nd#1459	\nmul.d	r52	r38	r40	\ns.d	nd#1462	r52	\nli	r19	nd#1466	\naddu	r20	r12	r19	\nl.d	r40	nd#1469	\nli	r21	nd#1473	\naddu	r22	r12	r21	\nlw	r23	nd#1476	\nla	r24	nd#1479	\nsne	r25	r23	r24	\nbeqz	expandbox.L11\n"];
+	Node17 -> {Node18 Node26 }
+	Node18 [label = "B18_5\nla	r19	nd#1485	\nmove	r5	r0	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node18 -> {Node19 }
+	Node19 [label = "B19_17\nmove	r11	r9	\nla	r19	nd#1493	\nla	r26	nd#1495	\nl.d	r34	nd#1497	\nla	r27	nd#1500	\nl.d	r54	nd#1502	\nla	r28	nd#1505	\nl.d	r56	nd#1507	\nla	r5	nd#1510	\nmfc1	r7	r34	\nmfc1	r8	r35	\nmove	r4	r2	\nfst	r2	\ns.d	nd#1516	r54	\ns.d	nd#1519	r56	\nsw	nd#1522	r12	\njalr	\n"];
+	Node19 -> {Node20 }
+	Node20 [label = "B20_7\nla	r5	nd#1527	\nlh	r25	nd#1529	\nmove	r6	r0	\nsne	r7	r25	r6	\nmove	r8	r0	\nseq	r9	r7	r8	\nbeqz	expandbox.L12\n"];
+	Node20 -> {Node21 Node23 }
+	Node21 [label = "B21_6\nla	r19	nd#1538	\nla	r5	nd#1540	\nli	r6	nd#1542	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node21 -> {Node22 }
+	Node22 [label = "B22_5\nla	r19	nd#1548	\nmove	r5	r0	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node22 -> {Node23 }
+	Node23 [label = "B23_11\nexpandbox.L12:\nla	r19	nd#1556	\nli	r10	nd#1558	\nla	r20	nd#1561	\nlw	r5	nd#1563	\nlw	r6	nd#1566	\nlw	r7	nd#1569	\nlw	r8	nd#1572	\nmove	r4	r2	\nfst	r2	\nsw	nd#1578	r10	\njalr	\n"];
+	Node23 -> {Node24 }
+	Node24 [label = "B24_19\nli	r20	nd#1583	\naddu	r26	r11	r20	\nli	r21	nd#1586	\nmult	r9	r21	\nmflo	r22	\naddu	r23	r26	r22	\nli	r24	nd#1591	\naddu	r25	r12	r24	\nlw	r26	nd#1594	\nsw	nd#1597	r26	\nli	r27	nd#1601	\naddu	r28	r12	r27	\nsw	nd#1604	r11	\nla	r19	nd#1608	\nmove	r5	r13	\nmove	r6	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node24 -> {Node25 }
+	Node25 [label = "B25_1\nmove	r11	r9	\n"];
+	Node25 -> {Node26 }
+	Node26 [label = "B26_5\nexpandbox.L11:\nmove	r5	r0	\nsne	r6	r11	r5	\nmove	r7	r0	\nseq	r8	r6	r7	\nbnez	expandbox.L4\n"];
+	Node26 -> {Node27 Node4 }
+	Node27 [label = "B27_1\nexpandbox.L1:\njr	\n"];
+	Node27 -> {Node1 }
+}

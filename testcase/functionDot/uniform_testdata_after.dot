@@ -1,0 +1,128 @@
+digraph G{
+	label = "uniform_testdata"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_14\nmove	r13	r5	\nmove	r12	r6	\nmove	r11	r7	\nli.d	r52	nd#2807	\nmtc1	r54	r8	\ncvt.d.w	r56	r54	\nmul.d	r42	r52	r56	\nli.d	r58	nd#2813	\nla	r19	nd#2816	\nli.d	r60	nd#2818	\ndiv.d	r32	r60	r58	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_2\nmov.d	r40	r36	\nmove	r21	r0	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_22\nuniform_testdata.L26:\nloopbegin	uniform_testdata.L40\nspawn	uniform_testdata.L41\nuniform_testdata.L40:\nla	r22	nd#2830	\nli	r23	nd#2832	\nmult	r21	r23	\nmflo	r24	\naddu	r25	r22	r24	\nli.d	r62	nd#2837	\ns.d	nd#2839	r62	\nli	r26	nd#2842	\naddu	r21	r21	r26	\nli	r27	nd#2845	\nsle	r28	r27	r21	\ncqip	uniform_testdata.L41\nuniform_testdata.L41:\npslice_entry	uniform_testdata.L41\nli	r26	nd#0	\naddu	r21	r21	r26	\nli	r27	nd#0	\nsle	r28	r27	r21	\npslice_exit	uniform_testdata.L41\nbeqz	uniform_testdata.L26\nloopend	uniform_testdata.L40\n"];
+	Node4 -> {Node5 Node4 }
+	Node5 [label = "B5_1\nmove	r5	r0	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_22\nuniform_testdata.L27:\nloopbegin	uniform_testdata.L42\nspawn	uniform_testdata.L43\nuniform_testdata.L42:\nla	r6	nd#2855	\nli	r7	nd#2857	\nmult	r5	r7	\nmflo	r8	\naddu	r9	r6	r8	\nli.d	r32	nd#2862	\ns.d	nd#2864	r32	\nli	r10	nd#2867	\naddu	r5	r5	r10	\nli	r19	nd#2870	\nsle	r20	r19	r5	\ncqip	uniform_testdata.L43\nuniform_testdata.L43:\npslice_entry	uniform_testdata.L43\nli	r10	nd#0	\naddu	r5	r5	r10	\nli	r19	nd#0	\nsle	r20	r19	r5	\npslice_exit	uniform_testdata.L43\nbeqz	uniform_testdata.L27\nloopend	uniform_testdata.L42\n"];
+	Node6 -> {Node7 Node6 }
+	Node7 [label = "B7_5\nla	r19	nd#2876	\nmove	r5	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_5\nmove	r15	r9	\nmove	r14	r15	\nmove	r21	r0	\nslt	r22	r21	r11	\nbeqz	uniform_testdata.L34\n"];
+	Node8 -> {Node9 Node53 }
+	Node9 [label = "B9_1\nmove	r17	r0	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_6\nuniform_testdata.L35:\nloopbegin	uniform_testdata.L44\nuniform_testdata.L44:\nla	r19	nd#2892	\nmove	r5	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_4\nmove	r16	r9	\nla	r23	nd#2900	\nseq	r24	r16	r23	\nbeqz	uniform_testdata.L7\n"];
+	Node11 -> {Node12 Node13 }
+	Node12 [label = "B12_5\nla	r19	nd#2906	\nla	r5	nd#2908	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_20\nuniform_testdata.L7:\nli	r25	nd#2915	\naddu	r26	r14	r25	\nsw	nd#2918	r16	\nmove	r14	r16	\nmove	r27	r0	\naddu	r28	r16	r27	\nli	r5	nd#2926	\nsh	nd#2928	r5	\nli	r6	nd#2932	\naddu	r7	r16	r6	\nli.d	r34	nd#2935	\nmtc1	r36	r11	\ncvt.d.w	r38	r36	\ndiv.d	r52	r34	r38	\ns.d	nd#2940	r52	\nla	r19	nd#2944	\nmov.d	r32	r42	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node13 -> {Node14 }
+	Node14 [label = "B14_8\nmov.d	r42	r36	\nla	r19	nd#2952	\nli.d	r32	nd#2954	\nli.d	r34	nd#2956	\nmove	r4	r2	\nfst	r2	\ns.d	nd#2960	r42	\njalr	\n"];
+	Node14 -> {Node15 }
+	Node15 [label = "B15_6\nla	r19	nd#2965	\nli.d	r34	nd#2967	\nmov.d	r32	r36	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node15 -> {Node16 }
+	Node16 [label = "B16_7\nli.d	r54	nd#2973	\nsub.d	r32	r36	r54	\nli.d	r44	nd#2977	\nla	r19	nd#2979	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_3\ndiv.d	r44	r44	r36	\nli.d	r46	nd#2986	\nmove	r18	r0	\n"];
+	Node17 -> {Node18 }
+	Node18 [label = "B18_7\nuniform_testdata.L28:\nloopbegin	uniform_testdata.L45\nuniform_testdata.L45:\nla	r19	nd#2992	\nmov.d	r32	r42	\nmove	r4	r2	\nfst	r2	\nspawn	uniform_testdata.L46\njalr	\n"];
+	Node18 -> {Node19 }
+	Node19 [label = "B19_8\nmov.d	r42	r36	\nla	r19	nd#3000	\nli.d	r32	nd#3002	\nli.d	r34	nd#3004	\nmove	r4	r2	\nfst	r2	\ns.d	nd#3008	r42	\njalr	\n"];
+	Node19 -> {Node20 }
+	Node20 [label = "B20_19\nmov.d	r44	r36	\nli	r8	nd#3014	\naddu	r5	r16	r8	\nli	r9	nd#3017	\nmult	r18	r9	\nmflo	r10	\naddu	r19	r5	r10	\nmul.d	r56	r46	r44	\ns.d	nd#3023	r56	\ncqip	uniform_testdata.L46\nuniform_testdata.L46:\npslice_entry	uniform_testdata.L46\nmov.d	r42	r36	\npslice_exit	uniform_testdata.L46\nli	r20	nd#3026	\naddu	r18	r18	r20	\nli	r21	nd#3029	\nsle	r22	r21	r18	\nbeqz	uniform_testdata.L28\nloopend	uniform_testdata.L45\n"];
+	Node20 -> {Node21 Node18 }
+	Node21 [label = "B21_1\nmove	r21	r0	\n"];
+	Node21 -> {Node22 }
+	Node22 [label = "B22_35\nuniform_testdata.L29:\nloopbegin	uniform_testdata.L47\nspawn	uniform_testdata.L48\nuniform_testdata.L47:\nla	r23	nd#3038	\nli	r24	nd#3040	\nmult	r21	r24	\nmflo	r25	\naddu	r26	r23	r25	\nla	r27	nd#3045	\nli	r28	nd#3047	\nmult	r21	r28	\nmflo	r5	\naddu	r6	r27	r5	\nl.d	r58	nd#3052	\nli	r7	nd#3055	\naddu	r6	r16	r7	\nli	r8	nd#3058	\nmult	r21	r8	\nmflo	r9	\naddu	r10	r6	r9	\nl.d	r60	nd#3063	\nadd.d	r62	r58	r60	\ns.d	nd#3067	r62	\nli	r19	nd#3070	\naddu	r21	r21	r19	\nli	r20	nd#3073	\nsle	r22	r20	r21	\ncqip	uniform_testdata.L48\nuniform_testdata.L48:\npslice_entry	uniform_testdata.L48\nli	r19	nd#0	\naddu	r21	r21	r19	\nli	r20	nd#0	\nsle	r22	r20	r21	\npslice_exit	uniform_testdata.L48\nbeqz	uniform_testdata.L29\nloopend	uniform_testdata.L47\n"];
+	Node22 -> {Node23 Node22 }
+	Node23 [label = "B23_0\n"];
+	Node23 -> {Node24 }
+	Node24 [label = "B24_6\nuniform_testdata.L14:\nloopbegin	uniform_testdata.L49\nuniform_testdata.L49:\nla	r19	nd#3081	\nmov.d	r32	r42	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node24 -> {Node25 }
+	Node25 [label = "B25_8\nmov.d	r42	r36	\nla	r19	nd#3089	\nli.d	r32	nd#3091	\nli.d	r34	nd#3093	\nmove	r4	r2	\nfst	r2	\ns.d	nd#3097	r42	\njalr	\n"];
+	Node25 -> {Node26 }
+	Node26 [label = "B26_6\nmov.d	r50	r36	\nla	r19	nd#3103	\nmov.d	r32	r42	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node26 -> {Node27 }
+	Node27 [label = "B27_8\nmov.d	r42	r36	\nla	r19	nd#3111	\nli.d	r32	nd#3113	\nli.d	r34	nd#3115	\nmove	r4	r2	\nfst	r2	\ns.d	nd#3119	r42	\njalr	\n"];
+	Node27 -> {Node28 }
+	Node28 [label = "B28_11\nspawn	uniform_testdata.L50\nmov.d	r48	r36	\nla	r19	nd#3125	\nla	r5	nd#3127	\nmov.d	r34	r50	\nmfc1	r7	r34	\nmfc1	r8	r35	\nmove	r4	r2	\nfst	r2	\ns.d	nd#3134	r48	\njalr	\n"];
+	Node28 -> {Node29 }
+	Node29 [label = "B29_8\nla	r19	nd#3139	\nla	r5	nd#3141	\nmov.d	r34	r42	\nmfc1	r7	r34	\nmfc1	r8	r35	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node29 -> {Node30 }
+	Node30 [label = "B30_9\nmul.d	r46	r50	r50	\nla	r19	nd#3150	\nli.d	r32	nd#3152	\nmul.d	r34	r50	r50	\nsub.d	r32	r32	r34	\nli.d	r34	nd#3156	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node30 -> {Node31 }
+	Node31 [label = "B31_4\nmul.d	r36	r46	r36	\nli	r23	nd#3162	\nc.lt.d	r36	r48	\nbc1t	uniform_testdata.L37\n"];
+	Node31 -> {Node32 Node33 }
+	Node32 [label = "B32_1\nmove	r23	r0	\n"];
+	Node32 -> {Node33 }
+	Node33 [label = "B33_6\nuniform_testdata.L37:\ncqip	uniform_testdata.L50\nuniform_testdata.L50:\npslice_entry	uniform_testdata.L50\nmove	r23	r0	\npslice_exit	uniform_testdata.L50\nbnez	uniform_testdata.L14\nloopend	uniform_testdata.L49\n"];
+	Node33 -> {Node34 Node24 }
+	Node34 [label = "B34_5\nla	r19	nd#3170	\nli.d	r32	nd#3172	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node34 -> {Node35 }
+	Node35 [label = "B35_9\nmul.d	r46	r36	r50	\nla	r19	nd#3178	\nli.d	r38	nd#3180	\nmul.d	r52	r44	r44	\nadd.d	r32	r38	r52	\nli.d	r34	nd#3184	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node35 -> {Node36 }
+	Node36 [label = "B36_2\ndiv.d	r54	r46	r36	\nmul.d	r44	r40	r54	\n"];
+	Node36 -> {Node37 }
+	Node37 [label = "B37_2\nuniform_testdata.L17:\nloopbegin	uniform_testdata.L51\nuniform_testdata.L51:\nmove	r18	r0	\n"];
+	Node37 -> {Node38 }
+	Node38 [label = "B38_7\nuniform_testdata.L30:\nloopbegin	uniform_testdata.L53\nuniform_testdata.L53:\nla	r19	nd#3197	\nmov.d	r32	r42	\nmove	r4	r2	\nfst	r2	\nspawn	uniform_testdata.L54\njalr	\n"];
+	Node38 -> {Node39 }
+	Node39 [label = "B39_15\nmov.d	r42	r36	\nli	r24	nd#3205	\naddu	r7	r16	r24	\nli	r25	nd#3208	\nmult	r18	r25	\nmflo	r26	\naddu	r10	r7	r26	\nsw	nd#3213	r10	\nla	r19	nd#3215	\nli.d	r32	nd#3217	\nli.d	r34	nd#3219	\nmove	r4	r2	\nfst	r2	\ns.d	nd#3223	r42	\njalr	\n"];
+	Node39 -> {Node40 }
+	Node40 [label = "B40_12\nlw	r9	nd#3227	\ns.d	nd#3229	r36	\ncqip	uniform_testdata.L54\nuniform_testdata.L54:\npslice_entry	uniform_testdata.L54\nmov.d	r42	r36	\npslice_exit	uniform_testdata.L54\nli	r27	nd#3232	\naddu	r18	r18	r27	\nli	r28	nd#3235	\nsle	r5	r28	r18	\nbeqz	uniform_testdata.L30\nloopend	uniform_testdata.L53\n"];
+	Node40 -> {Node41 Node38 }
+	Node41 [label = "B41_2\nli.d	r32	nd#3241	\nmove	r6	r0	\n"];
+	Node41 -> {Node42 }
+	Node42 [label = "B42_29\nuniform_testdata.L31:\nloopbegin	uniform_testdata.L55\nspawn	uniform_testdata.L56\nuniform_testdata.L55:\nli	r7	nd#3247	\naddu	r9	r16	r7	\nli	r8	nd#3250	\nmult	r6	r8	\ncqip	uniform_testdata.L56\nuniform_testdata.L56:\npslice_entry	uniform_testdata.L56\nli	r7	nd#0	\naddu	r9	r16	r7	\npslice_exit	uniform_testdata.L56\nmflo	r10	\naddu	r10	r9	r10	\nl.d	r56	nd#3255	\nli	r19	nd#3258	\naddu	r8	r16	r19	\nli	r20	nd#3261	\nmult	r6	r20	\nmflo	r21	\naddu	r22	r8	r21	\nl.d	r58	nd#3266	\nmul.d	r60	r56	r58	\nadd.d	r32	r32	r60	\nli	r23	nd#3271	\naddu	r6	r6	r23	\nli	r24	nd#3274	\nsle	r25	r24	r6	\nbeqz	uniform_testdata.L31\nloopend	uniform_testdata.L55\n"];
+	Node42 -> {Node43 Node42 }
+	Node43 [label = "B43_5\nspawn	uniform_testdata.L52\nli.d	r62	nd#3280	\nli	r26	nd#3282	\nc.lt.d	r62	r32	\nbc1t	uniform_testdata.L38\n"];
+	Node43 -> {Node44 Node45 }
+	Node44 [label = "B44_4\ncqip	uniform_testdata.L52\nuniform_testdata.L52:\npslice_entry	uniform_testdata.L52\npslice_exit	uniform_testdata.L52\nmove	r26	r0	\n"];
+	Node44 -> {Node45 }
+	Node45 [label = "B45_2\nuniform_testdata.L38:\nbnez	uniform_testdata.L17\nloopend	uniform_testdata.L51\n"];
+	Node45 -> {Node46 Node37 }
+	Node46 [label = "B46_4\nla	r19	nd#3290	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node46 -> {Node47 }
+	Node47 [label = "B47_2\ndiv.d	r32	r44	r36	\nmove	r27	r0	\n"];
+	Node47 -> {Node48 }
+	Node48 [label = "B48_30\nuniform_testdata.L32:\nloopbegin	uniform_testdata.L57\nspawn	uniform_testdata.L58\nuniform_testdata.L57:\nli	r28	nd#3301	\naddu	r19	r16	r28	\nli	r5	nd#3304	\nmult	r27	r5	\nmflo	r6	\naddu	r7	r19	r6	\nli	r8	nd#3309	\naddu	r10	r16	r8	\nli	r9	nd#3312	\nmult	r27	r9	\nmflo	r19	\naddu	r19	r10	r19	\nl.d	r34	nd#3317	\nmul.d	r36	r34	r32	\ns.d	nd#3321	r36	\nli	r20	nd#3324	\naddu	r27	r27	r20	\nli	r21	nd#3327	\nsle	r22	r21	r27	\ncqip	uniform_testdata.L58\nuniform_testdata.L58:\npslice_entry	uniform_testdata.L58\nli	r20	nd#0	\naddu	r27	r27	r20	\nli	r21	nd#0	\nsle	r22	r21	r27	\npslice_exit	uniform_testdata.L58\nbeqz	uniform_testdata.L32\nloopend	uniform_testdata.L57\n"];
+	Node48 -> {Node49 Node48 }
+	Node49 [label = "B49_1\nmove	r21	r0	\n"];
+	Node49 -> {Node50 }
+	Node50 [label = "B50_35\nuniform_testdata.L33:\nloopbegin	uniform_testdata.L59\nspawn	uniform_testdata.L60\nuniform_testdata.L59:\nla	r23	nd#3337	\nli	r24	nd#3339	\nmult	r21	r24	\nmflo	r25	\naddu	r26	r23	r25	\nla	r27	nd#3344	\nli	r28	nd#3346	\nmult	r21	r28	\nmflo	r5	\naddu	r6	r27	r5	\nl.d	r38	nd#3351	\nli	r7	nd#3354	\naddu	r20	r16	r7	\nli	r8	nd#3357	\nmult	r21	r8	\nmflo	r9	\naddu	r10	r20	r9	\nl.d	r52	nd#3362	\nadd.d	r54	r38	r52	\ns.d	nd#3366	r54	\nli	r19	nd#3369	\naddu	r21	r21	r19	\nli	r20	nd#3372	\nsle	r22	r20	r21	\ncqip	uniform_testdata.L60\nuniform_testdata.L60:\npslice_entry	uniform_testdata.L60\nli	r19	nd#0	\naddu	r21	r21	r19	\nli	r20	nd#0	\nsle	r22	r20	r21	\npslice_exit	uniform_testdata.L60\nbeqz	uniform_testdata.L33\nloopend	uniform_testdata.L59\n"];
+	Node50 -> {Node51 Node50 }
+	Node51 [label = "B51_5\nli	r23	nd#3378	\naddu	r17	r17	r23	\nsle	r24	r11	r17	\nbeqz	uniform_testdata.L35\nloopend	uniform_testdata.L44\n"];
+	Node51 -> {Node52 Node10 }
+	Node52 [label = "B52_1\nuniform_testdata.L39:\nj	uniform_testdata.__done36\n"];
+	Node52 -> {Node54 }
+	Node53 [label = "B53_1\nuniform_testdata.L34:\nmove	r17	r0	\n"];
+	Node53 -> {Node54 }
+	Node54 [label = "B54_42\nuniform_testdata.__done36:\nli	r25	nd#3389	\naddu	r26	r14	r25	\nla	r27	nd#3392	\nsw	nd#3395	r27	\nla	r28	nd#3399	\nli	r5	nd#3401	\naddu	r6	r15	r5	\nlw	r7	nd#3404	\nsw	nd#3407	r7	\nla	r8	nd#3411	\nsw	nd#3413	r14	\nla	r9	nd#3418	\nla	r10	nd#3420	\nlw	r19	nd#3423	\nlw	r20	nd#3426	\nlw	r21	nd#3429	\nsw	nd#3432	r19	\nsw	nd#3435	r20	\nsw	nd#3438	r21	\nlw	r22	nd#3441	\nlw	r23	nd#3444	\nlw	r24	nd#3447	\nsw	nd#3450	r22	\nsw	nd#3453	r23	\nsw	nd#3456	r24	\nlw	r25	nd#3459	\nlw	r26	nd#3462	\nlw	r27	nd#3465	\nsw	nd#3468	r25	\nsw	nd#3471	r26	\nsw	nd#3474	r27	\nlw	r28	nd#3477	\nlw	r5	nd#3480	\nlw	r6	nd#3483	\nsw	nd#3486	r28	\nsw	nd#3489	r5	\nsw	nd#3492	r6	\nlw	r7	nd#3495	\nlw	r8	nd#3498	\nsw	nd#3501	r7	\nsw	nd#3504	r8	\njr	\n"];
+	Node54 -> {Node1 }
+	Node4 [shape = ellipse ,style=filled ,color=blue];
+	Node6 [shape = ellipse ,style=filled ,color=blue];
+	Node18 [shape = box ,style=filled ,color=red];
+	Node22 [shape = ellipse ,style=filled ,color=blue];
+	Node28 [shape = box ,style=filled ,color=red];
+	Node38 [shape = box ,style=filled ,color=red];
+	Node42 [shape = ellipse ,style=filled ,color=blue];
+	Node43 [shape = box ,style=filled ,color=red];
+	Node48 [shape = ellipse ,style=filled ,color=blue];
+	Node50 [shape = ellipse ,style=filled ,color=blue];
+	Node20 [shape = polygon ,style=filled ,color=yellow];
+	Node33 [shape = polygon ,style=filled ,color=yellow];
+	Node40 [shape = polygon ,style=filled ,color=yellow];
+	Node44 [shape = polygon ,style=filled ,color=yellow];
+}

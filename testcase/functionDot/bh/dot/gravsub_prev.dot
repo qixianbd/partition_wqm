@@ -1,0 +1,28 @@
+digraph G{
+	label = "gravsub"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_5\nmove	r12	r5	\nmove	r11	r6	\nsw	nd#1179	r7	\nsw	nd#1181	r8	\nmove	r20	r0	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_25\ngravsub.L10:\nla	r21	nd#1188	\nli	r22	nd#1190	\nmult	r20	r22	\nmflo	r23	\naddu	r24	r21	r23	\nli	r25	nd#1195	\naddu	r19	r11	r25	\nli	r26	nd#1198	\nmult	r20	r26	\nmflo	r27	\naddu	r28	r19	r27	\nl.d	r52	nd#1203	\nla	r5	nd#1206	\nli	r6	nd#1208	\nmult	r20	r6	\nmflo	r7	\naddu	r8	r5	r7	\nl.d	r54	nd#1213	\nsub.d	r56	r52	r54	\ns.d	nd#1217	r56	\nli	r9	nd#1220	\naddu	r20	r20	r9	\nli	r10	nd#1223	\nsle	r19	r10	r20	\nbeqz	gravsub.L10\n"];
+	Node3 -> {Node4 Node3 }
+	Node4 [label = "B4_2\nli.d	r40	nd#1230	\nmove	r20	r0	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_19\ngravsub.L11:\nla	r21	nd#1236	\nli	r22	nd#1238	\nmult	r20	r22	\nmflo	r23	\naddu	r24	r21	r23	\nl.d	r58	nd#1243	\nla	r25	nd#1246	\nli	r26	nd#1248	\nmult	r20	r26	\nmflo	r27	\naddu	r28	r25	r27	\nl.d	r60	nd#1253	\nmul.d	r62	r58	r60	\nadd.d	r40	r40	r62	\nli	r5	nd#1258	\naddu	r20	r20	r5	\nli	r6	nd#1261	\nsle	r7	r6	r20	\nbeqz	gravsub.L11\n"];
+	Node5 -> {Node6 Node5 }
+	Node6 [label = "B6_7\nli.d	r32	nd#1267	\nadd.d	r40	r40	r32	\nla	r19	nd#1271	\nmov.d	r32	r40	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_11\nli	r8	nd#1278	\naddu	r9	r11	r8	\nl.d	r34	nd#1281	\ndiv.d	r36	r34	r36	\nla	r10	nd#1286	\nla	r19	nd#1288	\nl.d	r38	nd#1290	\nsub.d	r52	r38	r36	\ns.d	nd#1294	r52	\ndiv.d	r54	r36	r40	\nmove	r20	r0	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_18\ngravsub.L12:\nla	r21	nd#1304	\nli	r22	nd#1306	\nmult	r20	r22	\nmflo	r23	\naddu	r24	r21	r23	\nla	r25	nd#1311	\nli	r26	nd#1313	\nmult	r20	r26	\nmflo	r27	\naddu	r28	r25	r27	\nl.d	r56	nd#1318	\nmul.d	r58	r56	r54	\ns.d	nd#1322	r58	\nli	r5	nd#1325	\naddu	r20	r20	r5	\nli	r6	nd#1328	\nsle	r7	r6	r20	\nbeqz	gravsub.L12\n"];
+	Node8 -> {Node9 Node8 }
+	Node9 [label = "B9_1\nmove	r8	r0	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_24\ngravsub.L13:\nla	r9	nd#1338	\nli	r10	nd#1340	\nmult	r8	r10	\nmflo	r19	\naddu	r20	r9	r19	\nla	r21	nd#1345	\nli	r22	nd#1347	\nmult	r8	r22	\nmflo	r23	\naddu	r24	r21	r23	\nl.d	r60	nd#1352	\nla	r25	nd#1355	\nli	r26	nd#1357	\nmult	r8	r26	\nmflo	r27	\naddu	r28	r25	r27	\nl.d	r62	nd#1362	\nadd.d	r32	r60	r62	\ns.d	nd#1366	r32	\nli	r5	nd#1369	\naddu	r8	r8	r5	\nli	r6	nd#1372	\nsle	r7	r6	r8	\nbeqz	gravsub.L13\n"];
+	Node10 -> {Node11 Node10 }
+	Node11 [label = "B11_35\nla	r8	nd#1380	\nla	r9	nd#1382	\nlw	r10	nd#1385	\nlw	r19	nd#1388	\nlw	r20	nd#1391	\nsw	nd#1394	r10	\nsw	nd#1397	r19	\nsw	nd#1400	r20	\nlw	r21	nd#1403	\nlw	r22	nd#1406	\nlw	r23	nd#1409	\nsw	nd#1412	r21	\nsw	nd#1415	r22	\nsw	nd#1418	r23	\nlw	r24	nd#1421	\nlw	r25	nd#1424	\nlw	r26	nd#1427	\nsw	nd#1430	r24	\nsw	nd#1433	r25	\nsw	nd#1436	r26	\nlw	r27	nd#1439	\nlw	r28	nd#1442	\nlw	r5	nd#1445	\nsw	nd#1448	r27	\nsw	nd#1451	r28	\nsw	nd#1454	r5	\nlw	r6	nd#1457	\nlw	r7	nd#1460	\nlw	r10	nd#1463	\nsw	nd#1466	r6	\nsw	nd#1469	r7	\nsw	nd#1472	r10	\nlw	r10	nd#1475	\nsw	nd#1478	r10	\njr	\n"];
+	Node11 -> {Node1 }
+}

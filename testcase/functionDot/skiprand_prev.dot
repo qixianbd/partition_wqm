@@ -1,0 +1,16 @@
+digraph G{
+	label = "skiprand"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_5\nmove	r9	r5	\nmove	r11	r6	\nmove	r7	r0	\nsne	r8	r11	r7	\nbeqz	skiprand.L4\n"];
+	Node2 -> {Node3 Node5 }
+	Node3 [label = "B3_5\nskiprand.L3:\nla	r19	nd#122	\nmove	r5	r9	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_5\nli	r10	nd#129	\nsubu	r11	r11	r10	\nmove	r10	r0	\nsne	r19	r11	r10	\nbnez	skiprand.L3\n"];
+	Node4 -> {Node5 Node3 }
+	Node5 [label = "B5_1\nskiprand.L4:\njr	\n"];
+	Node5 -> {Node1 }
+}

@@ -1,0 +1,344 @@
+digraph G{
+subgraph cluster_0{
+	label = "dealwithargs"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_3"];
+	Node2 -> {Node3 Node5 }
+	Node3 [label = "B3_5"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_6"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_8"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_2"];
+	Node6 -> {Node1 }
+ }
+subgraph cluster_1{
+	label = "my_rand"	style = "dashed";
+	color = purple;
+	Node7 [label = "Begin"];
+	Node7 -> {Node9 }
+	Node8 [label = "End"];
+	Node8 -> {}
+	Node9 [label = "B2_20"];
+	Node9 -> {Node10 Node11 }
+	Node10 [label = "B3_2"];
+	Node10 -> {Node11 }
+	Node11 [label = "B4_5"];
+	Node11 -> {Node8 }
+ }
+subgraph cluster_2{
+	label = "generate_patient"	style = "dashed";
+	color = purple;
+	Node12 [label = "Begin"];
+	Node12 -> {Node14 }
+	Node13 [label = "End"];
+	Node13 -> {}
+	Node14 [label = "B2_8"];
+	Node14 -> {Node15 }
+	Node15 [label = "B3_14"];
+	Node15 -> {Node16 Node17 }
+	Node16 [label = "B4_1"];
+	Node16 -> {Node17 }
+	Node17 [label = "B5_1"];
+	Node17 -> {Node18 Node20 }
+	Node18 [label = "B6_5"];
+	Node18 -> {Node19 }
+	Node19 [label = "B7_16"];
+	Node19 -> {Node13 }
+	Node20 [label = "B8_2"];
+	Node20 -> {Node13 }
+ }
+subgraph cluster_3{
+	label = "put_in_hosp"	style = "dashed";
+	color = purple;
+	Node21 [label = "Begin"];
+	Node21 -> {Node23 }
+	Node22 [label = "End"];
+	Node22 -> {}
+	Node23 [label = "B2_15"];
+	Node23 -> {Node24 Node26 }
+	Node24 [label = "B3_15"];
+	Node24 -> {Node25 }
+	Node25 [label = "B4_13"];
+	Node25 -> {Node27 }
+	Node26 [label = "B5_7"];
+	Node26 -> {Node27 }
+	Node27 [label = "B6_1"];
+	Node27 -> {Node22 }
+ }
+subgraph cluster_4{
+	label = "addList"	style = "dashed";
+	color = purple;
+	Node28 [label = "Begin"];
+	Node28 -> {Node30 }
+	Node29 [label = "End"];
+	Node29 -> {}
+	Node30 [label = "B2_5"];
+	Node30 -> {Node31 Node32 }
+	Node31 [label = "B3_7"];
+	Node31 -> {Node32 Node31 }
+	Node32 [label = "B4_5"];
+	Node32 -> {Node33 }
+	Node33 [label = "B5_14"];
+	Node33 -> {Node29 }
+ }
+subgraph cluster_5{
+	label = "removeList"	style = "dashed";
+	color = purple;
+	Node34 [label = "Begin"];
+	Node34 -> {Node36 }
+	Node35 [label = "End"];
+	Node35 -> {}
+	Node36 [label = "B2_5"];
+	Node36 -> {Node37 Node38 }
+	Node37 [label = "B3_8"];
+	Node37 -> {Node38 Node37 }
+	Node38 [label = "B4_15"];
+	Node38 -> {Node39 Node40 }
+	Node39 [label = "B5_9"];
+	Node39 -> {Node40 }
+	Node40 [label = "B6_1"];
+	Node40 -> {Node35 }
+ }
+subgraph cluster_6{
+	label = "sim"	style = "dashed";
+	color = purple;
+	Node41 [label = "Begin"];
+	Node41 -> {Node43 }
+	Node42 [label = "End"];
+	Node42 -> {}
+	Node43 [label = "B2_4"];
+	Node43 -> {Node44 Node45 }
+	Node44 [label = "B3_2"];
+	Node44 -> {Node42 }
+	Node45 [label = "B4_4"];
+	Node45 -> {Node46 }
+	Node46 [label = "B5_14"];
+	Node46 -> {Node47 }
+	Node47 [label = "B6_6"];
+	Node47 -> {Node48 Node46 }
+	Node48 [label = "B7_8"];
+	Node48 -> {Node49 }
+	Node49 [label = "B8_4"];
+	Node49 -> {Node50 }
+	Node50 [label = "B9_9"];
+	Node50 -> {Node51 Node55 }
+	Node51 [label = "B10_6"];
+	Node51 -> {Node52 Node55 }
+	Node52 [label = "B11_9"];
+	Node52 -> {Node53 }
+	Node53 [label = "B12_14"];
+	Node53 -> {Node54 }
+	Node54 [label = "B13_3"];
+	Node54 -> {Node55 Node52 }
+	Node55 [label = "B14_5"];
+	Node55 -> {Node56 Node50 }
+	Node56 [label = "B15_9"];
+	Node56 -> {Node57 }
+	Node57 [label = "B16_9"];
+	Node57 -> {Node58 }
+	Node58 [label = "B17_10"];
+	Node58 -> {Node59 }
+	Node59 [label = "B18_5"];
+	Node59 -> {Node60 }
+	Node60 [label = "B19_4"];
+	Node60 -> {Node61 Node62 }
+	Node61 [label = "B20_10"];
+	Node61 -> {Node62 }
+	Node62 [label = "B21_2"];
+	Node62 -> {Node42 }
+ }
+subgraph cluster_7{
+	label = "check_patients_inside"	style = "dashed";
+	color = purple;
+	Node63 [label = "Begin"];
+	Node63 -> {Node65 }
+	Node64 [label = "End"];
+	Node64 -> {}
+	Node65 [label = "B2_5"];
+	Node65 -> {Node66 Node70 }
+	Node66 [label = "B3_17"];
+	Node66 -> {Node67 Node69 }
+	Node67 [label = "B4_15"];
+	Node67 -> {Node68 }
+	Node68 [label = "B5_7"];
+	Node68 -> {Node69 }
+	Node69 [label = "B6_6"];
+	Node69 -> {Node70 Node66 }
+	Node70 [label = "B7_1"];
+	Node70 -> {Node64 }
+ }
+subgraph cluster_8{
+	label = "check_patients_assess"	style = "dashed";
+	color = purple;
+	Node71 [label = "Begin"];
+	Node71 -> {Node73 }
+	Node72 [label = "End"];
+	Node72 -> {}
+	Node73 [label = "B2_6"];
+	Node73 -> {Node74 Node88 }
+	Node74 [label = "B3_20"];
+	Node74 -> {Node75 Node87 }
+	Node75 [label = "B4_7"];
+	Node75 -> {Node76 }
+	Node76 [label = "B5_14"];
+	Node76 -> {Node77 Node78 }
+	Node77 [label = "B6_1"];
+	Node77 -> {Node78 }
+	Node78 [label = "B7_1"];
+	Node78 -> {Node79 Node80 }
+	Node79 [label = "B8_1"];
+	Node79 -> {Node81 }
+	Node80 [label = "B9_2"];
+	Node80 -> {Node81 }
+	Node81 [label = "B10_1"];
+	Node81 -> {Node82 Node85 }
+	Node82 [label = "B11_7"];
+	Node82 -> {Node83 }
+	Node83 [label = "B12_7"];
+	Node83 -> {Node84 }
+	Node84 [label = "B13_13"];
+	Node84 -> {Node87 }
+	Node85 [label = "B14_17"];
+	Node85 -> {Node86 }
+	Node86 [label = "B15_6"];
+	Node86 -> {Node87 }
+	Node87 [label = "B16_6"];
+	Node87 -> {Node88 Node74 }
+	Node88 [label = "B17_2"];
+	Node88 -> {Node72 }
+ }
+subgraph cluster_9{
+	label = "check_patients_waiting"	style = "dashed";
+	color = purple;
+	Node89 [label = "Begin"];
+	Node89 -> {Node91 }
+	Node90 [label = "End"];
+	Node90 -> {}
+	Node91 [label = "B2_5"];
+	Node91 -> {Node92 Node98 }
+	Node92 [label = "B3_9"];
+	Node92 -> {Node93 Node96 }
+	Node93 [label = "B4_27"];
+	Node93 -> {Node94 }
+	Node94 [label = "B5_7"];
+	Node94 -> {Node95 }
+	Node95 [label = "B6_1"];
+	Node95 -> {Node97 }
+	Node96 [label = "B7_8"];
+	Node96 -> {Node97 }
+	Node97 [label = "B8_6"];
+	Node97 -> {Node98 Node92 }
+	Node98 [label = "B9_1"];
+	Node98 -> {Node90 }
+ }
+subgraph cluster_10{
+	label = "get_results"	style = "dashed";
+	color = purple;
+	Node99 [label = "Begin"];
+	Node99 -> {Node101 }
+	Node100 [label = "End"];
+	Node100 -> {}
+	Node101 [label = "B2_14"];
+	Node101 -> {Node102 Node103 }
+	Node102 [label = "B3_15"];
+	Node102 -> {Node100 }
+	Node103 [label = "B4_1"];
+	Node103 -> {Node104 }
+	Node104 [label = "B5_15"];
+	Node104 -> {Node105 }
+	Node105 [label = "B6_19"];
+	Node105 -> {Node106 Node104 }
+	Node106 [label = "B7_9"];
+	Node106 -> {Node107 }
+	Node107 [label = "B8_15"];
+	Node107 -> {Node108 }
+	Node108 [label = "B9_38"];
+	Node108 -> {Node109 Node108 }
+	Node109 [label = "B10_6"];
+	Node109 -> {Node110 Node111 }
+	Node110 [label = "B11_35"];
+	Node110 -> {Node111 Node110 }
+	Node111 [label = "B12_15"];
+	Node111 -> {Node100 }
+ }
+subgraph cluster_11{
+	label = "alloc_tree"	style = "dashed";
+	color = purple;
+	Node112 [label = "Begin"];
+	Node112 -> {Node114 }
+	Node113 [label = "End"];
+	Node113 -> {}
+	Node114 [label = "B2_8"];
+	Node114 -> {Node115 Node116 }
+	Node115 [label = "B3_2"];
+	Node115 -> {Node113 }
+	Node116 [label = "B4_5"];
+	Node116 -> {Node117 }
+	Node117 [label = "B5_2"];
+	Node117 -> {Node118 }
+	Node118 [label = "B6_25"];
+	Node118 -> {Node119 }
+	Node119 [label = "B7_6"];
+	Node119 -> {Node120 Node118 }
+	Node120 [label = "B8_16"];
+	Node120 -> {Node121 }
+	Node121 [label = "B9_26"];
+	Node121 -> {Node122 }
+	Node122 [label = "B10_46"];
+	Node122 -> {Node123 }
+	Node123 [label = "B11_16"];
+	Node123 -> {Node124 Node123 }
+	Node124 [label = "B12_2"];
+	Node124 -> {Node113 }
+ }
+subgraph cluster_12{
+	label = "main"	style = "dashed";
+	color = purple;
+	Node125 [label = "Begin"];
+	Node125 -> {Node127 }
+	Node126 [label = "End"];
+	Node126 -> {}
+	Node127 [label = "B2_4"];
+	Node127 -> {Node128 }
+	Node128 [label = "B3_9"];
+	Node128 -> {Node129 }
+	Node129 [label = "B4_6"];
+	Node129 -> {Node130 }
+	Node130 [label = "B5_5"];
+	Node130 -> {Node131 }
+	Node131 [label = "B6_4"];
+	Node131 -> {Node132 Node138 }
+	Node132 [label = "B7_1"];
+	Node132 -> {Node133 }
+	Node133 [label = "B8_6"];
+	Node133 -> {Node134 Node135 }
+	Node134 [label = "B9_6"];
+	Node134 -> {Node135 }
+	Node135 [label = "B10_5"];
+	Node135 -> {Node136 }
+	Node136 [label = "B11_5"];
+	Node136 -> {Node137 Node133 }
+	Node137 [label = "B12_1"];
+	Node137 -> {Node139 }
+	Node138 [label = "B13_1"];
+	Node138 -> {Node139 }
+	Node139 [label = "B14_6"];
+	Node139 -> {Node140 }
+	Node140 [label = "B15_11"];
+	Node140 -> {Node141 }
+	Node141 [label = "B16_8"];
+	Node141 -> {Node142 }
+	Node142 [label = "B17_8"];
+	Node142 -> {Node143 }
+	Node143 [label = "B18_8"];
+	Node143 -> {Node144 }
+	Node144 [label = "B19_2"];
+	Node144 -> {Node126 }
+ }
+}

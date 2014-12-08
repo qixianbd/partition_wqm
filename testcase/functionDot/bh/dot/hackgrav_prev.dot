@@ -1,0 +1,24 @@
+digraph G{
+	label = "hackgrav"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7\nlw	r6	nd#942	\nmove	r11	r5	\nmtc1	r34	r7	\nmtc1	r35	r8	\nla	r22	nd#948	\nsw	nd#950	r11	\nmove	r23	r0	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_18\nhackgrav.L7:\nla	r24	nd#958	\nli	r25	nd#960	\nmult	r23	r25	\nmflo	r26	\naddu	r27	r24	r26	\nli	r28	nd#965	\naddu	r20	r11	r28	\nli	r5	nd#968	\nmult	r23	r5	\nmflo	r7	\naddu	r7	r20	r7	\nl.d	r52	nd#973	\ns.d	nd#976	r52	\nli	r8	nd#979	\naddu	r23	r23	r8	\nli	r9	nd#982	\nsle	r10	r9	r23	\nbeqz	hackgrav.L7\n"];
+	Node3 -> {Node4 Node3 }
+	Node4 [label = "B4_4\nla	r19	nd#988	\nli.d	r52	nd#990	\ns.d	nd#992	r52	\nmove	r20	r0	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_12\nhackgrav.L8:\nla	r21	nd#1000	\nli	r22	nd#1002	\nmult	r20	r22	\nmflo	r23	\naddu	r24	r21	r23	\nli.d	r54	nd#1007	\ns.d	nd#1009	r54	\nli	r25	nd#1012	\naddu	r20	r20	r25	\nli	r26	nd#1015	\nsle	r27	r26	r20	\nbeqz	hackgrav.L8\n"];
+	Node5 -> {Node6 Node5 }
+	Node6 [label = "B6_46\nmul.d	r34	r34	r34	\nla	r19	nd#1023	\nli.d	r56	nd#1025	\nmove	r27	r0	\nla	r5	nd#1028	\nmfc1	r7	r34	\nmfc1	r8	r35	\nmove	r4	r2	\nfst	r2	\ns.d	nd#1034	r56	\nla	r28	nd#1038	\nla	r12	nd#1040	\nlw	r9	nd#1043	\nlw	r10	nd#1046	\nlw	r20	nd#1049	\nsw	nd#1052	r9	\nsw	nd#1055	r10	\nsw	nd#1058	r20	\nlw	r9	nd#1061	\nlw	r10	nd#1064	\nlw	r20	nd#1067	\nsw	nd#1070	r9	\nsw	nd#1073	r10	\nsw	nd#1076	r20	\nlw	r20	nd#1079	\nlw	r21	nd#1082	\nlw	r22	nd#1085	\nsw	nd#1088	r20	\nsw	nd#1091	r21	\nsw	nd#1094	r22	\nlw	r22	nd#1097	\nlw	r23	nd#1100	\nlw	r24	nd#1103	\nsw	nd#1106	r22	\nsw	nd#1109	r23	\nsw	nd#1112	r24	\nlw	r25	nd#1115	\nlw	r26	nd#1118	\nlw	r9	nd#1121	\nsw	nd#1124	r25	\nsw	nd#1127	r26	\nsw	nd#1130	r9	\nlw	r9	nd#1133	\nsw	nd#1136	r9	\nsw	nd#1140	r27	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_6\nli	r6	nd#1145	\naddu	r7	r11	r6	\nla	r8	nd#1148	\nl.d	r58	nd#1150	\ns.d	nd#1153	r58	\nmove	r9	r0	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_18\nhackgrav.L9:\nli	r10	nd#1161	\naddu	r21	r11	r10	\nli	r19	nd#1164	\nmult	r9	r19	\nmflo	r20	\naddu	r21	r21	r20	\nla	r22	nd#1169	\nli	r23	nd#1171	\nmult	r9	r23	\nmflo	r24	\naddu	r25	r22	r24	\nl.d	r60	nd#1176	\ns.d	nd#1179	r60	\nli	r26	nd#1182	\naddu	r9	r9	r26	\nli	r27	nd#1185	\nsle	r28	r27	r9	\nbeqz	hackgrav.L9\n"];
+	Node8 -> {Node9 Node8 }
+	Node9 [label = "B9_1\njr	\n"];
+	Node9 -> {Node1 }
+}

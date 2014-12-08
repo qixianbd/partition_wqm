@@ -1,0 +1,496 @@
+@c This file is part of the SUIF reference manual
+
+@node Other, Appendix, Generics, Top
+@chapter Other Features of the SUIF Library
+
+This chapter describes various features of the SUIF library that are too
+small to warrant separate chapters.  These include immediate values and
+symbolic addresses, which are used in annotations and @code{ldc}
+instructions, the @code{lexicon}, in which almost all character strings
+are entered, the @code{machine_params} structure, which records a
+variety of parameters for the target architecture, and a variety of
+functions for initializing the library, handling errors, and iterating
+through procedures.
+
+@menu
+* Immeds::                      Immediate values.
+* Symbolic Addresses::          Symbolic addresses used in immediate values.
+* Lexicon::                     All character strings are stored in this table.
+* Target Machine Parameters::   Various parameters for the target architecture.
+* Initialization::              Initializing and finalizing SUIF libraries.
+* Command-Line Parser::         Extracting options from the command-line.
+* Error Handling::              Errors, warnings, and assertions.
+* Procedure Iterators::         Code for visiting all procedures in a program.
+@end menu
+
+
+@node Immeds, Symbolic Addresses,  , Other
+@section Immediate Values
+@cindex immediate values
+
+@tindex immed
+An immediate value may be an integer constant, string constant,
+floating-point constant, SUIF type, symbolic address, expression
+operand, or instruction, or it can be undefined.  It can be used as
+the source of an @code{ldc} (load constant) instruction (@pxref{Load
+Constant Instructions}) or as an element of an annotation
+(@pxref{Annotations}).  Only integers, floating-point values, and
+symbolic addresses may be used in @code{ldc} instructions, while any
+kind of immediate value may appear in an annotation.  Immediate values
+are implemented by the @code{immed} class defined in the files
+@file{immed.h} and @file{immed.cc}.
+
+@tindex immed_kinds
+The kind of value in an @code{immed} is identified by the @code{kind}
+method.  This returns a member of the @code{immed_kinds} enumerated
+type.  The members of this enumeration are:
+
+@table @code
+@item im_int
+@findex immed, is_integer
+@findex immed, integer
+Integer.  The @code{is_integer} method tests for this kind of immediate
+and the @code{integer} method returns the integer value.
+
+@item im_string
+@findex immed, is_string
+@findex immed, string
+Character string.  The string is automatically entered in the lexicon
+(@pxref{Lexicon}) when the @code{immed} is created.  The
+@code{is_string} method checks if an @code{immed} is a string, and the
+@code{string} method returns a pointer to the string.
+
+@item im_float
+@findex immed, is_flt
+@findex immed, flt
+Floating-point value.  The SUIF library stores all floating-point values
+using the @code{double} type, so the precision is limited by the
+precision for the @code{double} type.  The @code{is_flt} method checks
+for this kind of immediate, and the @code{flt} method returns the value.
+
+@item im_symbol
+@findex immed, is_symbol
+@findex immed, addr
+@findex immed, symbol
+@findex immed, offset
+Symbolic address.  @xref{Symbolic Addresses}.  The @code{is_symbol}
+method checks if an @code{immed} is a symbolic address.  The @code{addr}
+method returns the entire @code{sym_addr} object, but the @code{symbol}
+and @code{offset} methods are also available to retrieve the symbol
+pointer and integer offset separately.
+
+@item im_type
+@findex immed, is_type
+@findex immed, type
+SUIF type.  The @code{is_type} method checks for this kind of immediate,
+and the @code{type} method returns a pointer to the SUIF type node.
+
+@item im_op
+@findex immed, is_op
+@findex immed, op
+Expression operand.  The immed is considered to ``own'' the entire
+expression tree when it's in an annotation, so the same expression
+shouldn't be used in another annotation or as the source for an
+instruction; instead a copy should be made with the @code{clone}
+method.  The @code{is_op} method checks for this kind of immediate,
+and the @code{op} method returns the expression.
+
+@item im_instr
+@findex immed, is_instr
+@findex immed, instr
+SUIF instruction.  The immed is considered to ``own'' the instruction
+and its expression trees when it's in an annotation, so the same
+instruction shouldn't be used in another annotation or in a
+@code{tree_node} or expression; instead a copy should be made with the
+@code{clone} method.  The @code{is_instr} method checks for this kind
+of immediate, and the @code{instr} method returns the instruction.
+
+@item im_undef
+@findex immed, is_error
+Undefined value.  This is included to signal errors by marking an
+immediate as undefined.  The @code{is_error} method also checks for this
+condition.
+@end table
+
+Since an immediate value is small, there are no methods to change the
+value of an @code{immed}.  Instead a variety of constructors are
+provided to make it easy to create new immediate values.  That is, you
+can initialize different kinds of immediates by providing arguments of
+various types to constructors.
+
+@findex immed, print
+@findex immed, rawprint
+The @code{immed} class provides two print methods, @code{print} and
+@code{rawprint}.  The difference between them is that the latter doesn't
+escape @samp{"} and @samp{\} when printing strings.
+
+
+@node Symbolic Addresses, Lexicon, Immeds, Other
+@section Symbolic Addresses
+@cindex symbolic addresses
+@cindex addresses, symbolic
+
+@tindex sym_addr
+Symbolic addresses are currently only used in immediate values
+(@pxref{Immeds}).  A symbolic address has two parts, a symbol and an
+integer offset.  In many cases, the offset is set to zero, but for an
+aggregate data structure the offset may specify the number of bits from
+the beginning of the data structure to a particular field.  The
+@code{sym_addr} class defined in the @file{symaddr.h} and
+@file{symaddr.cc} files implements these symbolic addresses.
+
+@findex sym_addr, symbol
+@findex sym_addr, offset
+@findex sym_addr, print
+The @code{symbol} method returns a pointer to the symbol in a symbolic
+address, and the @code{offset} method returns the integer offset.  As
+with most other offsets in SUIF, the offset is in @emph{bits}.  Be
+careful to avoid treating this as a byte or word offset.  As with
+immediate values, there are no methods to change the contents of a
+symbolic address.  Because these are small structures, it is just as
+easy to create new @code{sym_addr} objects whenever they are needed.  To
+print a symbolic address, use the @code{print} method.
+
+
+@node Lexicon, Target Machine Parameters, Symbolic Addresses, Other
+@section Lexicon
+@cindex string table
+@cindex lexicon
+
+@vindex lexicon
+@tindex string_table
+Almost all character strings in SUIF are entered in a hash table called
+the @code{lexicon}.  This table removes duplicate strings so that string
+comparisons can be reduced to simple pointer comparisons.  The
+@code{lexicon} is an object of the @code{string_table} class defined in
+the @file{stringtable.h} and @file{stringtable.cc} files.
+
+@tindex string_e
+@findex string_table, enter
+A @code{string_table} is an open hash table; each bucket is a linked
+list of string entries represented by objects of the @code{string_e}
+class.  The only public method in the @code{string_table} class is
+called @code{enter}.  This method searches the table for a specified
+string.  If the string is found, @code{enter} returns a pointer to the
+existing @code{string_e} entry.  Otherwise, it creates a new entry and
+adds it to the table.  In either case, the actual character string
+pointer can be retrieved directly from the @code{sp} field of the
+resulting @code{string_e} entry.
+
+None of the strings in the @code{lexicon} are deallocated until a SUIF
+program terminates.  Consequently, when adding a new string to the
+table, it is copied to the heap in case the original string is stored on
+the stack.  If the string is known to be allocated on the heap and will
+never be modified or deallocated, this string copy can be avoided by
+setting the optional @code{fixed} flag when calling @code{enter}.
+
+
+@node Target Machine Parameters, Initialization, Lexicon, Other
+@section Target Machine Parameters
+@cindex target machine parameters
+
+@vindex target
+@tindex machine_params
+The SUIF library includes a structure to record various parameters of
+the target machine.  The back-end of the compiler may be either a code
+generator for a specific processor or the system's C compiler, using the
+SUIF-to-C translator.  Thus, the target machine parameters include
+fields that deal both with hardware requirements and with details of the
+back-end C compiler.  These parameters are stored in the @code{target}
+@code{machine_params} structure.  The front-end is responsible for
+setting the target parameters, but they are then saved in the SUIF files
+and passed along to all subsequent passes of the compiler.
+
+The first fields in the @code{machine_params} structure deal with the
+addressing in the underlying hardware.  The @code{is_big_endian} field
+specifies the byte order, and the @code{addressable_size} field
+specifies the size in bits of the smallest addressable unit.  Since most
+machines are byte-addressable, the @code{addressable_size} is usually
+set to eight.
+
+@tindex C_types
+Next, the sizes and alignments for various C types are specified.  The
+possible C types are listed in the @code{C_types} enumeration:
+
+@table @code
+@item C_char
+@item C_short
+@item C_int
+@item C_long
+@item C_longlong
+@item C_float
+@item C_double
+@item C_longdouble
+@item C_ptr
+@end table
+
+@noindent
+The @code{size} and @code{align} fields of the @code{machine_params}
+structure are arrays containing the size and alignment for each C type.
+Both are specified in bits (not bytes).  Some C compilers require
+additional alignment restrictions for arrays and structures.  The
+@code{array_align} and @code{struct_align} fields contain these
+alignment requirements in bits.  Note that these do not replace the
+alignment restrictions for the components of an array or structure; the
+most restrictive alignments must always be maintained.
+
+The remaining fields are only applicable to the back-end C compiler.
+The @code{char_is_signed} field specifies if the default @code{char}
+type is signed.  This is just to allow the SUIF-to-C translator to avoid
+cluttering up the C code by explicitly putting @code{signed} or
+@code{unsigned} in every declaration of a @code{char} type.  When two
+pointers are subtracted in C, the result type is implementation defined.
+The @code{ptr_diff_type} field in @code{machine_params} specifies the
+type produced by such pointer subtractions for use in SUIF-to-C.
+
+
+@node Initialization, Command-Line Parser, Target Machine Parameters, Other
+@section Initialization and Finalization
+@cindex initialization
+@cindex standard options
+@cindex options, standard
+
+@findex init_suif
+Before using any features of the SUIF library, a program must first
+initialize it.  The @code{init_suif} function, defined in the
+@file{initsuif.h} and @file{initsuif.cc} files, performs this
+initialization.  The @code{main} function of a SUIF program should call
+@code{init_suif} first.  The @code{argc} and @code{argv} parameters are
+passed to @code{init_suif} so that it can check for the following
+standard options:
+
+@table @code
+@item -version
+Print the version numbers and compilation information for the program
+and for any libraries with which it is linked.  The
+@code{prog_ver_string} and @code{prog_who_string} strings contain the
+version number and compilation information for the program.  They are
+usually set automatically by the standard SUIF makefiles.  Similarly,
+the @code{libsuif1_ver_string} and @code{libsuif1_who_string} strings
+are used for the SUIF library.  Information for other libraries is
+recorded when they are registered (as described below).
+
+@item -print-flat
+Do not print structured annotations (@pxref{Structured Annotes}) using
+the user-defined printing functions.  If all annotations are printed as
+flat lists of immediate values, the output could be parsed and converted
+back to a binary SUIF file.
+
+@item -no-types
+Do not print the result types for instructions.  This is just to help
+make the output more readable in situations where the result types are
+not of interest.
+
+@item -no-symtabs
+Do not print out symbol tables.  If the symbolic information is not
+needed, this makes the output shorter and easier to read.
+@end table
+
+@noindent
+These options are potentially applicable to all SUIF programs, so they
+are included in the library.
+
+@findex exit_suif
+At the end of a SUIF program, the data structures in the SUIF library
+may be deallocated.  Although this is not absolutely necessary, it may
+simplify debugging by making it easier to read the output from Purify
+and other tools.  Besides deallocating the data structures, it may
+someday be useful to perform other actions at the end of a SUIF program.
+The @code{exit_suif} function is provided to perform this finalization.
+If used, it should be called at the very end of the program.
+
+@tindex lib_init_f
+@tindex lib_exit_f
+@findex register_library
+Besides the base SUIF library, many SUIF programs are linked with other
+libraries that also need to be initialized.  Rather than just
+initializing them directly, they are registered with the SUIF library
+along with initialization and finalization functions.  The
+initialization functions are then called automatically by
+@code{init_suif} and the finalization functions by @code{exit_suif}.
+This allows the SUIF library to record and print version numbers and
+other information for all of the libraries linked with a program.  The
+@code{register_library} function records the name, version, and
+compilation information for a library along with pointers to the
+functions to initialize and finalize that library.  The initialization
+function must match the @code{lib_init_f} type, which takes the
+@code{argc} and @code{argv} parameters for the command line and returns
+@code{void}.  Similarly, the finalization function must match the
+@code{lib_exit_f} type, which takes no arguments and returns
+@code{void}.  The parameters for the name, version, and compilation
+information are required, but the initialization and finalization
+functions are optional.  The libraries must be registered, in the order
+in which they should be initialized, before calling @code{init_suif}.
+The finalization functions are called in the reverse order in which the
+libraries were registered.
+
+@findex LIBRARY
+@findex start_suif
+The situation is much simpler if you use the standard SUIF makefiles.
+These makefiles automatically generate strings holding the version and
+compilation information.  The @code{LIBRARY} macro may be used to
+register a library using these version strings.  You only need to
+specify the base name of the library and the names of the initialization
+and finalization functions @footnote{Unlike when calling
+@code{register_library} directly, the function arguments are required
+when using the @code{LIBRARY} macro.}.  To make things even easier, the
+SUIF makefiles also generate a new function called @code{start_suif}.
+This function automatically registers all of the libraries linked with
+the program and then calls @code{init_suif}.  So to make a long story
+short, if a SUIF program begins with a call to @code{start_suif} all of
+the libraries will be automatically registered and initialized.
+
+
+@node Command-Line Parser, Error Handling, Initialization, Other
+@section Command-Line Parser
+@cindex command-line arguments
+@cindex arguments, command-line
+@vindex parse_cmd_line
+@tindex cmd_line_option
+@tindex cmd_line_option_kind
+
+The SUIF library provides a generic interface for a command line parser.
+The parser is defined and implemented in the files @file{cmdparse.h} and
+@file{cmdparse.cc}.  The SUIF program can provide a structure that
+contains a list of command line options, the type of arguments these
+options can handle, and pointers to data where the argument values will
+be stored.  The data locations will be initialized to default values
+specified in the options table before parsing begins.  The
+@code{parse_cmd_line} function is called with @code{argc}, @code{argv},
+the options table, and the number of options in the table.  If the
+parser finds one of the options on the command line, the option (and its
+argument, if any) are removed from @code{argv} and @code{argc} is
+appropriately adjusted.  Thus when parsing is finished, @code{argv}
+contains only unrecognized options (such as file names).
+
+The following types of arguments are supported:
+
+@table @code
+@item CLO_NOARG
+No argument is expected.  The default value is 0.  If the argument is
+present, the value becomes 1.
+
+@item CLO_INT
+A single integer is expected.
+
+@item CLO_STRING
+A single string is expected.
+
+@item CLO_MULTI_STRING
+A single string is expected for each occurrence of this option, but
+the option can be repeated with different arguments.
+@end table
+
+For example:
+
+@example
+static boolean quiet;
+static int size;
+static cmd_line_option my_options[] = @{
+    @{ CLO_NOARG, "-quiet", "", &quiet @},
+    @{ CLO_INT, "-size", "8", &size @}
+@};
+
+parse_cmd_line(argc, argv, my_options,
+               sizeof(my_options)/sizeof(cmd_line_option));
+@end example
+
+
+@node Error Handling, Procedure Iterators, Command-Line Parser, Other
+@section Error Handling
+@cindex assertions
+@cindex errors
+@cindex warnings
+
+The SUIF library includes a number of functions for error handling.
+These functions handle three kinds of problems: errors, warnings, and
+assertions.  Assertions are tests for things that should never occur in
+a correct program.  Any problem that could potentially occur in a
+correct program due to bad input or other external conditions should be
+treated as an error rather than an assertion failure.  Warnings are used
+to report potentially troublesome conditions that are not serious enough
+to cause a fatal error.
+
+@findex assert
+@findex assert_msg
+Two macros are available to implement assertions.  The @code{assert}
+macro takes a single expression as an argument.  If the expression
+evaluates to zero, a message is printed showing the current line number,
+file name, and the expression that failed, and then the @code{abort}
+function is called to terminate the program.  The @code{assert_msg}
+macro is similar except that it also prints a user-defined message if
+the assertion fails.  Besides the expression to be tested,
+@code{assert_msg} takes an argument that contains the message to
+be printed.  This second argument must hold the @code{printf} format
+string and the arguments for the call to @code{printf}, separated by
+commas.  To keep the commas from splitting up the second argument, it
+must be surrounded by parentheses.  For example:
+
+@example
+assert_msg(sym->parent(), ("no parent for %s", sym->name()));
+@end example
+
+@findex error_line
+@findex verror_line
+Errors may be reported using the @code{error_line} function.  The
+@code{return_code} parameter specifies the method of terminating the
+program.  If the return code is negative, the @code{abort} function is
+called.  If it is greater than zero, the @code{exit} function is called
+with the specified return code.  If the return code is zero, the error
+message will be printed but the program will not terminate.  The
+@code{the_node} parameter is optional and may be set to @code{NULL}.  If
+used, it points to the AST node closest to the point where the error was
+detected, and the library tries to use it to find and print the
+corresponding source line number.  Finally, the @code{fmt} parameter
+specifies the @code{printf} format string used to print the error
+message and any additional parameters are passed on to @code{printf}.
+The @code{verror_line} function is identical to @code{error_line} except
+that it passes the variable arguments for @code{printf} using a
+@code{varargs}-style list.  This is just like the standard
+@code{vprintf} function.
+
+@findex warning_line
+@findex vwarning_line
+The @code{warning_line} and @code{vwarning_line} functions are just like
+the corresponding error functions, except that they print warning
+messages and do not terminate the program.  Consequently, they do not
+have @code{return_code} parameters.
+
+@node Procedure Iterators,  , Error Handling, Other
+@section Procedure Iterators
+@cindex procedure iterators
+@cindex iterators, procedure
+
+@findex suif_proc_iter
+Most SUIF programs work on one procedure at a time.  These programs
+require basically the same code to iterate through the file set entries
+and procedures.  The @code{suif_proc_iter} routine is provided to handle
+this common case.
+
+Before calling the procedure iterator, you must initialize the SUIF
+library (@pxref{Initialization}), which also parses and removes some
+standard options from the command-line arguments.  Either the SUIF
+library's command-line parser (@pxref{Command-Line Parser}) or the
+@code{getopt} function (from the standard C library) may be called
+before the procedure iterator to parse command-line options not removed
+by the library initialization.  The @code{suif_proc_iter} function then
+reads the input and output file names from the command-line.  The first
+file name on the command line is treated as an input file.  If the
+@code{writeback} flag is set, the second file is treated as an output
+file and any additional file names on the command line are alternately
+treated as input and output files.  If the @code{writeback} flag is not
+set, all the file names are treated as input files.
+
+@tindex prociter_f
+The procedure bodies are then read one at a time and processed by a
+user-specified function.  This function must be of the type
+@code{prociter_f}, which takes a single @code{tree_proc} argument and
+has a @code{void} return type.  When a procedure is read, the
+@code{exp_trees} and @code{use_fortran_form} parameters are passed on to
+the @code{read_proc} method for the @code{proc_sym}.  The
+@code{exp_trees} argument specifies whether the procedure bodies are
+converted to expression trees (@pxref{Expression Trees}), and the
+@code{use_fortran_form} argument determines whether Fortran form is used
+(@pxref{Fortran}).  The defaults are to create expression trees but not
+to use Fortran form.  If the @code{writeback} flag is set, the procedure
+bodies are written to the output files after they have been processed.

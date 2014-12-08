@@ -1,0 +1,12 @@
+digraph G{
+	label = "gen_uniform_double"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_4\n# .loc\nla\nmove\nfst\njalr\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_1jr\n"];
+	Node3 -> {Node1 }
+}

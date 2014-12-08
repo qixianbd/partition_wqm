@@ -1,0 +1,18 @@
+digraph G{
+	label = "skiprand"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_5\nmove	r9	r5	\nmove	r11	r6	\nmove	r7	r0	\nsne	r8	r11	r7	\nbeqz	skiprand.L4\n"];
+	Node2 -> {Node3 Node5 }
+	Node3 [label = "B3_7\nskiprand.L3:\nloopbegin	skiprand.L5\nspawn	skiprand.L6\nskiprand.L5:\nla	r19	nd#122	\nmove	r5	r9	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_12\nli	r10	nd#129	\nsubu	r11	r11	r10	\ncqip	skiprand.L6\nskiprand.L6:\npslice_entry	skiprand.L6\nla	r19	nd#0	\nli	r10	nd#0	\nsubu	r11	r11	r10	\npslice_exit	skiprand.L6\nmove	r10	r0	\nsne	r19	r11	r10	\nbnez	skiprand.L3\nloopend	skiprand.L5\n"];
+	Node4 -> {Node5 Node3 }
+	Node5 [label = "B5_1\nskiprand.L4:\njr	\n"];
+	Node5 -> {Node1 }
+	Node3 [shape = box ,style=filled ,color=red];
+	Node4 [shape = polygon ,style=filled ,color=yellow];
+}

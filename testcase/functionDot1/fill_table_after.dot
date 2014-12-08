@@ -1,0 +1,29 @@
+digraph G{
+	label = "fill_table"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_5\nmove\nmove\n# .loc\nmove\nslt\nbeqz\n"];
+	Node2 -> {Node3 Node10 }
+	Node3 [label = "B3_1move\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_9\n# .loc\nli\nmult\nmflo\naddu\nla\nli\nmove\nfst\njalr\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_12sw\n# .loc\nli\nmult\nmflo\naddu\nlw\nmove\naddu\nla\nmove\nfst\njalr\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_14spawn\ns.d\n# .loc\nli\nmult\nmflo\naddu\nlw\nli\naddu\nmove\nsw\n# .loc\nmove\nslt\nbeqz\n"];
+	Node6 -> {Node7 Node8 }
+	Node7 [label = "B7_15# .loc\nli\nmult\nmflo\nli\nsubu\naddu\nlw\nli\naddu\nli\nmult\nmflo\naddu\nlw\nsw\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_9\nli\naddu\ncqip\n\npslice_entry\nli\naddu\npslice_exit\nsle\nbeqz\n"];
+	Node8 -> {Node9 Node4 }
+	Node9 [label = "B9_1\nj\n"];
+	Node9 -> {Node11 }
+	Node10 [label = "B10_1\nmove\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_12\n# .loc\nli\nmult\nmflo\nli\nsubu\naddu\nlw\nli\naddu\nla\nsw\n# .loc\njr\n"];
+	Node11 -> {Node1 }
+	Node6 [shape = polygon ,style=filled ,color=blue];
+}

@@ -1,0 +1,366 @@
+/* file "x86.data" */
+
+/*  Copyright (c) 1994 Stanford University
+
+    All rights reserved.
+
+    Copyright (c) 1996-1997 The President and Fellows of Harvard University
+
+    All rights reserved.
+
+    This software is provided under the terms described in
+    the "suif_copyright.h" include file. */
+
+#include <suif_copyright.h>
+
+/*
+ * Complete listing of the x86 assembly opcodes and pseudo-ops,
+ * and the code generator/schedulers pseudo-ops.
+ *
+ * To ensure alignment, this table collects all data about
+ * each opcode.  To use it, redefine the "xx" macro to format
+ * the appropriate fields.  Then include this file in your
+ * source file.
+ */
+
+#ifndef xx
+#define xx(opcode, string, format)
+#endif
+
+/** Null (mif_xx) instruction -- placeholder in instruction stream */
+xx(xo_null,		"",		mif_xx) /* null instruction */	
+
+/** Label (mif_lab) "opcode" */
+xx(xo_lab,		"",		mif_lab)
+
+/** Pseudo-opcode (mif_xx) instructions */
+xx(xo_align,	".align",	mif_xx)	/* alignment location counter */
+xx(xo_ascii,	".ascii",	mif_xx)	/* assemble strings into successive locs */
+xx(xo_byte,		".byte",	mif_xx)	/* assemble expressions into succ. bytes */
+xx(xo_comm,		".comm",	mif_xx) /* global common symbol */
+xx(xo_data,		".data",	mif_xx)	/* subsequent data to data section */
+xx(xo_double,	".double",	mif_xx)	/* initialize 64-bit floating-point numbers */
+xx(xo_endr,		".endr",	mif_xx)	/* end of repeat */
+xx(xo_file,		".file",	mif_xx) /* source file name */
+xx(xo_float,	".float",	mif_xx)	/* initialize 32-bit floating-point numbers */
+xx(xo_globl,	".globl",	mif_xx) /* makes a name external */
+xx(xo_lcomm,	".lcomm",	mif_xx)	/* makes name's data type bss */
+xx(xo_loc,		"# .loc",	mif_xx) /* specifies source and line number */
+xx(xo_long,		".long",	mif_xx)	/* assemble expressions into succ. 32-bits */
+xx(xo_repeat,	".rept",	mif_xx)	/* begin repeat directive */
+xx(xo_text,		".text",	mif_xx)	/* subsequent code to text section */
+xx(xo_word,		".word",	mif_xx)	/* assemble expressions into succ. 16-bits */
+
+/* Load/store (mif_rr) instructions */
+xx(xo_lds,		"lds",		mif_rr) /* load full pointer (DS) */
+xx(xo_lea,		"lea",		mif_rr) /* load effective address */
+xx(xo_les,		"les",		mif_rr) /* load full pointer (ES) */	
+xx(xo_lfs,		"lfs",		mif_rr) /* load full pointer (FS) */
+xx(xo_lgs,		"lgs",		mif_rr) /* load full pointer (GS) */
+xx(xo_lss, 		"lss",		mif_rr) /* load full pointer (SS) */
+xx(xo_lods, 		"lods",		mif_rr) /* load string */
+xx(xo_lodsb, 		"lodsb",	mif_rr) /* load string (byte) */
+xx(xo_lodsd, 		"lodsd",	mif_rr) /* load string (doubleword) */
+xx(xo_lodsw, 		"lodsw",	mif_rr) /* load string (word) */
+xx(xo_mov, 		"mov",		mif_rr) /* load/store operation */
+xx(xo_movs, 		"movs",		mif_rr) /* move data from string to string */
+xx(xo_movsb, 		"movsb",	mif_rr) /* move data from string to string (byte) */
+xx(xo_movsd, 		"movsd",	mif_rr) /* move data from string to string (doubleword) */
+xx(xo_movsw, 		"movsw",	mif_rr) /* move data from string to string (word) */
+xx(xo_movsx, 		"movs",		mif_rr) /* move with sign-extend (MOVSX in Intel syntax) */
+xx(xo_movzx, 		"movz",		mif_rr) /* move with zero-extend (MOVZX in Intel syntax) */
+xx(xo_seta, 		"seta",		mif_rr) /* set if above */
+xx(xo_setae, 		"setae",	mif_rr) /* set if above or equal */
+xx(xo_setb, 		"setb",		mif_rr) /* set if below */
+xx(xo_setbe, 		"setbe",	mif_rr) /* set if below or equal */
+xx(xo_setc, 		"setc",		mif_rr) /* set if carry */
+xx(xo_sete, 		"sete",		mif_rr) /* set if equal */
+xx(xo_setg, 		"setg",		mif_rr) /* set if greater */
+xx(xo_setge, 		"setge",	mif_rr) /* set if greater or equal */
+xx(xo_setl, 		"setl",		mif_rr) /* set if less */
+xx(xo_setle, 		"setle",	mif_rr) /* set if less or equal */
+xx(xo_setna, 		"setna",	mif_rr) /* set if not above */
+xx(xo_setnae, 		"setnae",	mif_rr) /* set if not above or equal */
+xx(xo_setnb, 		"setnb",	mif_rr) /* set if not below */
+xx(xo_setnbe, 		"setnbe",	mif_rr) /* set if not below or equal */
+xx(xo_setnc, 		"setnc",	mif_rr) /* set if not carry */
+xx(xo_setne,		"setne",	mif_rr) /* set if not equal */
+xx(xo_setng, 		"setng",	mif_rr) /* set if not greater */
+xx(xo_setnge,		"setnge",	mif_rr) /* set if not greater or equal */
+xx(xo_setnl,		"setnl",	mif_rr) /* set if not less */
+xx(xo_setnle,		"setnle",	mif_rr) /* set if not less or equal */
+xx(xo_setno,		"setno",	mif_rr) /* set if not overflow */
+xx(xo_setnp,		"setnp",	mif_rr) /* set if not parity */
+xx(xo_setns,		"setns",	mif_rr) /* set if not sign */
+xx(xo_setnz,		"setnz", 	mif_rr) /* set if not zero */
+xx(xo_seto,		"seto",		mif_rr) /* set if overflow */
+xx(xo_setp,		"setp",		mif_rr) /* set if parity */
+xx(xo_setpe,		"setpe",	mif_rr) /* set if parity even */
+xx(xo_setpo,		"setpo",	mif_rr) /* set if parity odd */
+xx(xo_sets,		"sets",		mif_rr) /* set if sign */
+xx(xo_setz,		"setz",		mif_rr) /* set if zero */
+xx(xo_stos,		"stos",		mif_rr) /* store string data */
+xx(xo_stosb,		"stosb",	mif_rr) /* store string data (byte) */
+xx(xo_stosd,		"stosd",	mif_rr) /* store string data (doubleword) */
+xx(xo_stosw,		"stosw",	mif_rr) /* store string data (word) */
+xx(xo_xchg,		"xchg",		mif_rr) /* exchange */
+xx(xo_xlat,		"xlat",		mif_rr) /* table look-up translation */
+xx(xo_xlatb,		"xlatb",	mif_rr) /* table look-up translation (no operand) */
+
+xx(xo_cg_lrec,		"cg_lrec",	mif_rr) /* load record for 1st pass of code gen */
+xx(xo_cg_srec,		"cg_srec",	mif_rr) /* load record for 1st pass of code gen */
+
+/* General computational (mif_rr) instructions */
+xx(xo_adc,		"adc",		mif_rr) /* add with carry */
+xx(xo_add,		"add",		mif_rr) /* add */
+xx(xo_and,		"and",		mif_rr) /* and */
+xx(xo_bsf,		"bsf",		mif_rr) /* bit scan forward */
+xx(xo_bsr,		"bsr",		mif_rr) /* bit scan reverse */
+xx(xo_bswap, 		"bswap",	mif_rr) /* byte swap (for little/big endian conversion */
+xx(xo_bt,		"bt",		mif_rr) /* bit test */
+xx(xo_btc,		"btc",		mif_rr) /* bit test and complement */
+xx(xo_btr,		"btr",		mif_rr) /* bit test and reset */
+xx(xo_bts,		"bts",		mif_rr) /* bit test and set */
+xx(xo_cbw,		"cbtw",		mif_rr) /* convert byte to word */
+xx(xo_cdq,		"cltd",		mif_rr) /* convert doubleword to quadword */
+xx(xo_cmp,		"cmp",		mif_rr) /* compare */
+xx(xo_cmps,		"cmps",		mif_rr) /* compare string operands */
+xx(xo_cmpsb,		"cmpsb",	mif_rr) /* compare string operands (byte) */
+xx(xo_cmpsw,		"cmpsw",	mif_rr) /* compare string operands (word) */
+xx(xo_cmpsd,		"cmpsd",	mif_rr) /* compare string operands (doubleword) */
+xx(xo_cmpxchg,		"cmpxchg",	mif_rr) /* compare and exchange */
+xx(xo_cwd,		"cwtd",		mif_rr) /* convert word to doubleword */
+xx(xo_cwde,		"cwtl",		mif_rr) /* convert word to doubleword (alternate) */
+xx(xo_dec,		"dec",		mif_rr) /* decrement */
+xx(xo_div, 		"div",		mif_rr) /* unsigned divide */
+xx(xo_idiv,		"idiv",		mif_rr) /* signed divide */
+xx(xo_imul,		"imul",		mif_rr) /* signed multiply */
+xx(xo_inc,		"inc",		mif_rr) /* increment */
+xx(xo_mul,		"mul",		mif_rr) /* unsigned multiply */
+xx(xo_neg, 		"neg",		mif_rr) /* negation */
+xx(xo_not,		"not",		mif_rr) /* one's complement negation */
+xx(xo_or,		"or",		mif_rr) /* or */
+xx(xo_rcl,		"rcl",		mif_rr) /* rotate left (with carry flag) */
+xx(xo_rcr,		"rcr",		mif_rr) /* rotate right (with carry flag) */
+xx(xo_rol,		"rol",		mif_rr) /* rotate left */
+xx(xo_ror,		"ror", 		mif_rr) /* rotate right */
+xx(xo_sal,		"sal",		mif_rr) /* shift left */
+xx(xo_sar,		"sar",		mif_rr) /* shift right */
+xx(xo_sbb,		"sbb",		mif_rr) /* subtract with borrow */
+xx(xo_shl,		"shl",		mif_rr) /* shift left */
+xx(xo_shr,		"shr",		mif_rr) /* shift right */
+xx(xo_scas,		"scas",		mif_rr) /* compare string data */
+xx(xo_scasb,		"scasb",	mif_rr) /* compare string data (byte) */
+xx(xo_scasd,		"scasd",	mif_rr) /* compare string data (doubleword) */
+xx(xo_scasw,		"scasw",	mif_rr) /* compare string data (word) */
+xx(xo_shld,		"shld",		mif_rr) /* double precision shift left */
+xx(xo_shrd,		"shrd",		mif_rr) /* double precision shift right */
+xx(xo_sub,		"sub",		mif_rr) /* subtract */
+xx(xo_test,		"test",		mif_rr) /* bitwise compare */
+xx(xo_xadd,		"xadd",		mif_rr) /* exchange and add */
+xx(xo_xor,		"xor",		mif_rr) /* exclusive or */
+
+/* BCD math (mif_rr) instructions */
+xx(xo_aaa,		"aaa",		mif_rr) /* ASCII adjust after addition */
+xx(xo_aad,		"aad",		mif_rr) /* ASCII adjust before division */
+xx(xo_aam,		"aam",		mif_rr) /* ASCII adjust after multiplication */
+xx(xo_aas,		"aas",		mif_rr) /* ASCII adjust after subtraction */
+xx(xo_daa,		"daa",		mif_rr) /* decimal adjust after addition */
+xx(xo_das,		"das",		mif_rr) /* decimal adjust after subtraction */
+
+/* Branch (mif_bj) instructions */
+xx(xo_ja,		"ja",		mif_bj) /* jump if above */
+xx(xo_jae,		"jae",		mif_bj) /* jump if above or equal */
+xx(xo_jb,		"jb",		mif_bj) /* jump if below */
+xx(xo_jbe,		"jbe",		mif_bj) /* jump if below or equal */
+xx(xo_jc,		"jc",		mif_bj) /* jump if carry */
+xx(xo_je,		"je",		mif_bj) /* jump if equal */
+xx(xo_jg,		"jg",		mif_bj) /* jump if greater */
+xx(xo_jge,		"jge",		mif_bj) /* jump if greater or equal */
+xx(xo_jl,		"jl",		mif_bj) /* jump if less */
+xx(xo_jle,		"jle",		mif_bj) /* jump if less or equal */
+xx(xo_jna,		"jna",		mif_bj) /* jump if not above */
+xx(xo_jnae,		"jnae",		mif_bj) /* jump if not above or equal */
+xx(xo_jnb,		"jnb",		mif_bj) /* jump if not below */
+xx(xo_jnbe,		"jnbe",		mif_bj) /* jump if not below or equal */
+xx(xo_jnc,		"jnc",		mif_bj) /* jump if not carry */
+xx(xo_jne,		"jne",		mif_bj) /* jump if not equal */
+xx(xo_jng,		"jng",		mif_bj) /* jump if not greater */
+xx(xo_jnge,		"jnge",		mif_bj) /* jump if not greater or equal */
+xx(xo_jnl,		"jnl",		mif_bj) /* jump if not less */
+xx(xo_jnle,		"jnle",		mif_bj) /* jump if not less or equal */
+xx(xo_jno,		"jno",		mif_bj) /* jump if not overflow */
+xx(xo_jnp,		"jnp",		mif_bj) /* jump if not parity */
+xx(xo_jns,		"jns",		mif_bj) /* jump if not sign */
+xx(xo_jnz,		"jnz",		mif_bj) /* jump if not zero */
+xx(xo_jo,		"jo",		mif_bj) /* jump if overflow */
+xx(xo_jp,		"jp",		mif_bj) /* jump if parity */
+xx(xo_jpe,		"jpe",		mif_bj) /* jump if parity even */
+xx(xo_jpo,		"jpo",		mif_bj) /* jump if parity odd */
+xx(xo_js,		"js",		mif_bj) /* jump if sign */
+xx(xo_jz,		"jz",		mif_bj) /* jump if zero */
+
+xx(xo_jecxz,		"jecxz",	mif_bj) /* jump if ECX = 0 */
+xx(xo_loop,		"loop",		mif_bj) /* loop */
+xx(xo_loope,		"loope",	mif_bj) /* loop if equal */
+xx(xo_loopne,		"loopne",	mif_bj) /* loop if not equal */
+xx(xo_loopnz,		"loopnz",	mif_bj) /* loop if not zero */
+xx(xo_loopz,		"loopz",	mif_bj) /* loop if zero */
+
+/* Jump (mif_bj) instructions */
+xx(xo_call, 		"call",		mif_bj) /* call procedure */
+xx(xo_jmp,		"jmp",		mif_bj) /* jump */
+
+/* Flag manipulation (mif_rr) instructions */
+xx(xo_clc, 		"clc",		mif_rr) /* clear carry flag */
+xx(xo_cld,		"cld",		mif_rr) /* clear direction flag */
+xx(xo_cli,		"cli",		mif_rr) /* clear interrupt flag */
+xx(xo_clts,		"clts",		mif_rr) /* clear task-switched flag */
+xx(xo_cmc,		"cmc",		mif_rr) /* complement carry flag */
+xx(xo_popf,		"popf",		mif_rr) /* pop flags register */
+xx(xo_popfd,		"popfd",	mif_rr) /* pop flags register (32-bit) */
+xx(xo_pushf,		"pushf",	mif_rr) /* push flags register */
+xx(xo_pushfd,		"pushfd",	mif_rr) /* push flags register (32-bit) */
+xx(xo_sahf,		"sahf",		mif_rr) /* store AH in flags */
+xx(xo_stc,		"stc",		mif_rr) /* set carry flag */
+xx(xo_std,		"std",		mif_rr) /* set direction flag */
+xx(xo_sti,		"sti",		mif_rr) /* set interrupt flag */
+
+/* Memory management (mif_rr) */
+xx(xo_arpl,		"arpl",		mif_rr) /* adjust RPL field of selector */
+xx(xo_bound,		"bound",	mif_rr) /* check array index against bounds */
+xx(xo_lar,		"lar", 		mif_rr) /* load selector access rights */
+xx(xo_lgdt,		"lgdt",		mif_rr) /* load global descriptor table register */
+xx(xo_lidt,		"lidt",		mif_rr) /* load interrupt descriptor table register */
+xx(xo_lldt,		"lldt",		mif_rr) /* load local descriptor table register */
+xx(xo_lsl,		"lsl",		mif_rr) /* load segment limit */
+xx(xo_sgdt,		"sgdt",		mif_rr) /* store global descriptor table register */
+xx(xo_sidt,		"sidt",		mif_rr) /* store interrupt descriptor table register */
+xx(xo_sldt,		"sldt",		mif_rr) /* store local descriptor table register */
+xx(xo_verr,		"verr",		mif_rr) /* verify segment for reading */
+xx(xo_verw,		"verw",		mif_rr) /* verify segment for writing */
+
+/* Stack (mif_rr) */
+xx(xo_enter,		"enter",	mif_rr) /* make stack frame for procedure parameters */
+xx(xo_leave,		"leave",	mif_rr) /* leave procedure stack frame */
+xx(xo_pop,		"pop",		mif_rr) /* pop from stack */
+xx(xo_popa,		"popa",		mif_rr) /* pop all registers from stack */
+xx(xo_popad,		"popad",	mif_rr) /* pop all registers from stack (32-bit) */
+xx(xo_push,		"push",		mif_rr) /* push onto stack */
+xx(xo_pusha,		"pusha",	mif_rr) /* push all registers onto stack */
+xx(xo_pushad,		"pushad",	mif_rr) /* push all registers onto stack (32-bit) */
+xx(xo_ret,		"ret",		mif_rr) /* return from procedure */
+
+/* Special (mif_rr) */
+xx(xo_hlt,		"hlt",		mif_rr) /* halt the processor */
+xx(xo_in,		"in",		mif_rr) /* input from port */
+xx(xo_ins,		"ins",		mif_rr) /* input from port to string */
+xx(xo_insb,		"insb",		mif_rr) /* input from port to string (byte) */
+xx(xo_insd,		"insd",		mif_rr) /* input from port to string (doubleword) */
+xx(xo_insw,		"insw",		mif_rr) /* input from port to string (word) */
+xx(xo_int,		"int",		mif_rr) /* interrupt */
+xx(xo_into,		"into",		mif_rr) /* interrupt 4 on overflow */
+xx(xo_invd,		"invd",		mif_rr) /* invalidate cache */
+xx(xo_invlpg,		"invlpg",	mif_rr) /* invalidate TLB entry */
+xx(xo_iret,		"iret",		mif_rr) /* return from interrupt */
+xx(xo_iretd,		"iretd",	mif_rr) /* return from interrupt (32-bit) */
+xx(xo_lmsw,		"lmsw",		mif_rr) /* load machine status word */
+xx(xo_ltr,		"ltr",		mif_rr) /* load task register */
+xx(xo_nop,		"nop",		mif_rr) /* no operation */
+xx(xo_out,		"out",		mif_rr) /* output to port */
+xx(xo_outs,		"outs",		mif_rr) /* output string to port */
+xx(xo_outsb,		"outsb",	mif_rr) /* output string to port (byte) */
+xx(xo_outsd,		"outsd",	mif_rr) /* output string to port (doubleword) */
+xx(xo_outsw,		"outsw",	mif_rr) /* output string to port (word) */
+xx(xo_smsw,		"smsw",		mif_rr) /* store machine status word */
+xx(xo_str,		"str",		mif_rr) /* store task register */
+xx(xo_wait,		"wait",		mif_rr) /* wait for pending numeric exceptions */
+xx(xo_wbinvd,		"binvd",	mif_rr) /* write-back and invalidate cache */
+
+/* Floating point load immediate (mif_ldc) instructions */
+xx(xo_fld1,		"fld1",		mif_rr) /* load 1 */
+xx(xo_fldl2t,		"fldl2t",	mif_rr) /* load log2 of 10 */
+xx(xo_fldl2e,		"fldl2e",	mif_rr) /* load log2 of e */
+xx(xo_fldpi,		"fldpi",	mif_rr) /* load pi */
+xx(xo_fldlg2,		"fldlg2",	mif_rr) /* load log 2 */
+xx(xo_fldln2,		"fldln2",	mif_rr) /* load ln 2 */
+xx(xo_fldz,		"fldz",		mif_rr) /* load 0 */
+xx(xo_fxch,		"fxch",		mif_rr) /* exchange registers */
+
+/* Floating point load/store (mif_rr) instructions */
+xx(xo_fbld,		"fbld",		mif_rr) /* load BCD */
+xx(xo_fbstp,		"fbstp",	mif_rr) /* store binary coded decimal and pop */
+xx(xo_fild,		"fild",		mif_rr) /* load integer */
+xx(xo_fist,		"fist",		mif_rr) /* store integer */
+xx(xo_fistp,		"fistp",	mif_rr) /* store integer and pop */
+xx(xo_fld,		"fld",		mif_rr) /* load real */
+xx(xo_fst,		"fst",		mif_rr) /* store real */
+xx(xo_fstp,		"fstp",		mif_rr) /* store real and pop */
+
+/* Floating point computational (mif_rr) instructions */
+xx(xo_f2xm1,		"f2xm1",	mif_rr) /* compute 2^n - 1 */
+xx(xo_fabs,		"fabs",		mif_rr) /* absolute value */
+xx(xo_fadd,		"fadd",		mif_rr) /* add */
+xx(xo_faddp,		"faddp",	mif_rr) /* add and pop */
+xx(xo_fchs,		"fchs",		mif_rr) /* change sign */
+xx(xo_fcom,		"fcom",		mif_rr) /* compare */
+xx(xo_fcomp,		"fcomp",	mif_rr) /* compare and pop */
+xx(xo_fcompp,		"fcompp",	mif_rr) /* compare and pop twice */
+xx(xo_fcos,		"fcos",		mif_rr) /* cosine */
+xx(xo_fdiv,		"fdiv",		mif_rr) /* divide */
+xx(xo_fdivp,		"fdivp",	mif_rr) /* divide and pop */
+xx(xo_fdivr,		"fdivr",	mif_rr) /* reverse divide */
+xx(xo_fdivpr,		"fdivpr",	mif_rr) /* reverse divide and pop */
+xx(xo_fiadd,		"fiadd",	mif_rr) /* add integer */
+xx(xo_ficom,		"ficom",	mif_rr) /* compare integer */
+xx(xo_ficomp,		"ficomp",	mif_rr) /* compare integer and pop */
+xx(xo_fidiv,		"fidiv",	mif_rr) /* divide integer */
+xx(xo_fidivr,		"fidivr",	mif_rr) /* reverse divide integer */
+xx(xo_fisub,		"fisub",	mif_rr) /* subtract integer */
+xx(xo_fisubr,		"fisubr",	mif_rr) /* reverse subtract integer */
+xx(xo_fmul,		"fmul",		mif_rr) /* multiply */
+xx(xo_fmulp,		"fmulp",	mif_rr) /* multiply and pop */
+xx(xo_fimul,		"fimul",	mif_rr) /* multiply integer */
+xx(xo_fpatan,		"fpatan",	mif_rr) /* partial arctangent */
+xx(xo_fprem,		"fprem",	mif_rr) /* partial remainder (backward compatibility) */
+xx(xo_fprem1,		"fprem1",	mif_rr) /* partial remainder (IEEE) */
+xx(xo_fptan,		"fptan",	mif_rr) /* partial tangent */
+xx(xo_frndint,		"frndint",	mif_rr) /* round to integer */
+xx(xo_fscale,		"fscale",	mif_rr) /* scale (multiple/divide by powers of 2) */
+xx(xo_fsin,		"fsin",		mif_rr) /* sine */
+xx(xo_fsincos,		"fsincos", 	mif_rr) /* sine and cosine */
+xx(xo_fsqrt,		"fsqrt",	mif_rr) /* square root */
+xx(xo_fsub,		"fsub",		mif_rr) /* subtract */
+xx(xo_fsubp,		"fsubp",	mif_rr) /* subtract and pop */
+xx(xo_fsubr,		"fsubr",	mif_rr) /* reverse subtract */
+xx(xo_fsubrp,		"fsubrp",	mif_rr) /* reverse subtract and pop */
+xx(xo_ftst,		"ftst",		mif_rr) /* compare with 0 */
+xx(xo_fucom,		"fucom", 	mif_rr) /* unordered compare real */
+xx(xo_fucomp,		"fucomp",	mif_rr) /* unordered compare real and pop */
+xx(xo_fucompp,		"fucompp",	mif_rr) /* unordered compare real and pop twice */
+xx(xo_fxtract,		"fxtract",	mif_rr) /* extract exponent and mantissa */
+xx(xo_fyl2x,		"fyl2x",	mif_rr) /* y * log2 x */
+xx(xo_fyl2xp1,		"fyl2xp1",	mif_rr) /* y * log2(x + 1) */
+
+/* Floating point special (mif_rr) instructions */
+xx(xo_fclex,		"fclex",	mif_rr) /* clear exceptions */
+xx(xo_fdecstp,		"fdecstp",	mif_rr) /* decrement stack-top pointer */
+xx(xo_ffree,		"ffree",	mif_rr) /* free floating-point register */
+xx(xo_fincstp,		"fincstp",	mif_rr) /* increment stack-top pointer */
+xx(xo_finit,		"finit",	mif_rr) /* initialize FPU */
+xx(xo_fldcw,		"fldcw",	mif_rr) /* load control word */
+xx(xo_fldenv,		"fldenv",	mif_rr) /* load FPU environment */
+xx(xo_fnclex,		"fnclex",	mif_rr) /* clear exceptions (w/o error checks) */
+xx(xo_fninit,		"fninit",	mif_rr) /* initialize FPU (w/o error checks) */
+xx(xo_fnop,		"fnop",		mif_rr) /* no operation */
+xx(xo_fnsave,		"fnsave",	mif_rr) /* store FPU state (w/o error checks) */
+xx(xo_fnstcw,		"fnstcw",	mif_rr) /* store control word (w/o error checks) */
+xx(xo_fnstenv,		"fnstenv",	mif_rr) /* store FPU environment (w/o error checks) */
+xx(xo_fnstsw,		"fnstsw",	mif_rr) /* store status word (w/o error checks) */
+xx(xo_frstor,		"frstor",	mif_rr) /* restore FPU state */
+xx(xo_fsave,		"fsave",	mif_rr) /* store FPU state */
+xx(xo_fstcw,		"fstcw",	mif_rr) /* store control word */
+xx(xo_fstenv,		"fstenv",	mif_rr) /* store FPU environment */
+xx(xo_fstsw,		"fstsw",	mif_rr) /* store status word */
+xx(xo_fwait,		"fwait",	mif_rr) /* wait */
+xx(xo_fxam,		"fxam",		mif_rr) /* examine object type */

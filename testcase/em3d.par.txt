@@ -1,0 +1,4961 @@
+    ****************** GLOBALS ******************
+    Global symbol table: `globals'
+      Types:
+        t:g1: void 0
+        t:g2: int signed 8
+        t:g4: int signed 32
+        t:g8: int unsigned 32
+        t:g11: float 64
+        t:g29: ptr to t:g1
+        t:g30: int signed 32
+        t:g31: function (??) returns t:g4
+        t:g32: const t:g2
+        t:g33: ptr to t:g32
+        t:g34: function (t:g33, ...) returns t:g4
+        t:g35: function (t:g8) returns t:g29
+        t:g36: function (t:g29) returns t:g1
+        t:g38: function () returns t:g4
+        t:g40: function (t:g4) returns t:g1
+        t:g41: ptr to t:g2
+        t:g42: struct node_t (256) { 
+          value offset=0 t:g11
+          next offset=64 t:g43
+          to_nodes offset=96 t:g44
+          from_nodes offset=128 t:g44
+          coeffs offset=160 t:g45
+          from_count offset=192 t:g4
+        }
+        t:g43: ptr to t:g42
+        t:g44: ptr to t:g43
+        t:g45: ptr to t:g11
+        t:g46: struct graph_t (64) { 
+          e_nodes offset=0 t:g43
+          h_nodes offset=32 t:g43
+        }
+        t:g47: function (t:g43) returns t:g1
+        t:g48: function (??) returns t:g1
+        t:g50: function (??) returns t:g4
+        t:g51: function (??) returns t:g11
+        t:g52: function (t:g4) returns t:g1
+        t:g53: function (t:g4) returns t:g4
+        t:g54: ptr to t:g4
+        t:g55: ptr to t:g44
+        t:g58: ptr to t:g45
+        t:g61: ptr to t:g52
+        t:g62: ptr to t:g50
+        t:g63: ptr to t:g51
+        t:g64: ptr to t:g38
+        t:g65: ptr to t:g31
+        t:g66: function (t:g4) returns t:g44
+        t:g67: ptr to t:g35
+        t:g68: function (t:g44, t:g4) returns t:g1
+        t:g69: function (t:g43, t:g44, t:g4, t:g4) returns t:g1
+        t:g70: ptr to t:g53
+        t:g71: function (t:g43, t:g4) returns t:g1
+        t:g72: ptr to t:g34
+        t:g73: array [0..23] of t:g2
+        t:g75: ptr to t:g66
+        t:g76: ptr to t:g68
+        t:g77: ptr to t:g69
+        t:g78: ptr to t:g47
+        t:g79: ptr to t:g71
+        t:g81: ptr to t:g36
+        t:g83: ptr to t:g41
+        t:g84: function (t:g4, t:g83) returns t:g1
+        t:g85: array [0..17] of t:g2
+        t:g87: function (t:g46) returns t:g1
+        t:g88: array [0..16] of t:g2
+        t:g90: array [0..27] of t:g2
+        t:g92: function (t:g4, t:g83) returns t:g4
+        t:g93: ptr to t:g84
+        t:g94: ptr to t:g48
+        t:g95: ptr to t:g87
+        t:g96: array [0..34] of t:g2
+        t:g98: int signed 16
+        t:g99: int signed 64
+        t:g100: int unsigned 8
+        t:g101: int unsigned 16
+        t:g102: int unsigned 64
+        t:g103: float 32
+        t:g104: float 128
+        t:g105: ptr to t:g46
+      Symbols:
+        s:g2: `malloc' proc_sym of t:g35; Unknown extern userdef 
+          ["proc_profile": 82 0]
+        s:g3: `free' proc_sym of t:g36; Unknown extern userdef 
+          ["proc_profile": 2 0]
+        s:g6: `rand' proc_sym of t:g38; Unknown extern userdef 
+          ["proc_profile": 142 0]
+        s:g9: `n_nodes' var_sym with t:g4; addr_taken userdef 
+        s:g10: `d_nodes' var_sym with t:g4; addr_taken userdef 
+        s:g11: `iters' var_sym with t:g4; addr_taken userdef 
+        s:g12: `compute_nodes' proc_sym of t:g47; C userdef 
+          ["proc_profile": 60 1044]
+        s:g13: `initialize_graph' proc_sym of t:g48; C userdef 
+          ["proc_profile": 1 8514]
+        s:g14: `lrand48' proc_sym of t:g50; C userdef 
+          ["proc_profile": 62 3]
+        s:g15: `drand48' proc_sym of t:g51; C userdef 
+          ["proc_profile": 80 6]
+        s:g16: `srand48' proc_sym of t:g52; C userdef 
+          ["proc_profile": 0 0]
+        s:g17: `init_random' proc_sym of t:g40; C userdef 
+          ["proc_profile": 0 0]
+        s:g18: `gen_number' proc_sym of t:g53; C userdef 
+          ["proc_profile": 62 7]
+        s:g19: `gen_signed_number' proc_sym of t:g53; C userdef 
+          ["proc_profile": 0 0]
+        s:g20: `gen_uniform_double' proc_sym of t:g51; C userdef 
+          ["proc_profile": 80 9]
+        s:g21: `check_percent' proc_sym of t:g53; C userdef 
+          ["proc_profile": 0 0]
+        s:g22: `srand' proc_sym of t:g31; Unknown extern userdef 
+          ["proc_profile": 0 0]
+        s:g23: `make_table' proc_sym of t:g66; C userdef 
+          ["proc_profile": 2 7]
+        s:g24: `fill_table' proc_sym of t:g68; C userdef 
+          ["proc_profile": 2 543]
+        s:g25: `make_neighbors' proc_sym of t:g69; C userdef 
+          ["proc_profile": 2 1736]
+        s:g26: `update_from_coeffs' proc_sym of t:g47; C userdef 
+          ["proc_profile": 2 1025]
+        s:g27: `fill_from_fields' proc_sym of t:g71; C userdef 
+          ["proc_profile": 2 925]
+        s:g28: `dealwithargs' proc_sym of t:g84; C userdef 
+          ["proc_profile": 1 16]
+        s:g29: `print_graph' proc_sym of t:g87; C userdef 
+          ["proc_profile": 31 314]
+        s:g30: `main' proc_sym of t:g92; C userdef 
+          ["proc_profile": 1 81427]
+        s:g31: `myprintf' proc_sym of t:g34; Unknown extern userdef 
+          ["proc_profile": 33 0]
+        s:g32: `myprintf1' proc_sym of t:g34; Unknown extern userdef 
+          ["proc_profile": 30 0]
+        s:g37: `myprintf6' proc_sym of t:g34; Unknown extern userdef 
+          ["proc_profile": 620 0]
+      Definitions:
+        <None>
+      Annotations:
+        <None>
+
+
+    ****************** FILE em3d.par ******************
+    ["target_arch": "mips" "1" "dec-ultrix" "2170"]
+    ["history": "/home/seventy/Prophet/i386-redhat-linux/bin/snoot -Tmips-dec-ultrix /tmp/scc27526_0.i testcase/em3d/em3d.snt"]
+    ["version_history": "snoot" "1.3.0.1 (plus local changes)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["source_file_name": "testcase/em3d/em3d.c"]
+    ["history": "porky -defaults /home/seventy/Prophet/testcase/em3d/em3d.snt /home/seventy/Prophet/testcase/em3d/em3d.temp1"]
+    ["version_history": "porky" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "porky -kill-redundant-line-marks /home/seventy/Prophet/testcase/em3d/em3d.temp1 /home/seventy/Prophet/testcase/em3d/em3d.temp2"]
+    ["version_history": "porky" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "porky -Darrays -Difs -Dmbrs -Dblocks -Dfors -Dloops -Dfcmmas -Dmemcpys /home/seventy/Prophet/testcase/em3d/em3d.temp2 /home/seventy/Prophet/testcase/em3d/em3d.temp3"]
+    ["version_history": "porky" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "porky -no-sub-vars -fold -ucf-opt -no-ldc-sym-offsets -only-simple-var-ops /home/seventy/Prophet/testcase/em3d/em3d.temp3 /home/seventy/Prophet/testcase/em3d/em3d.temp4"]
+    ["version_history": "porky" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "porky -defaults /home/seventy/Prophet/testcase/em3d/em3d.temp4 /home/seventy/Prophet/testcase/em3d/em3d.snp"]
+    ["version_history": "porky" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "transform_print /home/seventy/Prophet/testcase/em3d/em3d.snp /home/seventy/Prophet/testcase/em3d/em3d.tp"]
+    ["version_history": "transform_print" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "add_proc_name_to_io_call /home/seventy/Prophet/testcase/em3d/em3d.tp /home/seventy/Prophet/testcase/em3d/em3d.iocal"]
+    ["version_history": "add_proc_name_to_io_call" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "bore -spill-instr-ops -spill-prefix _t /home/seventy/Prophet/testcase/em3d/em3d.iocal /home/seventy/Prophet/testcase/em3d/em3d.bore"]
+    ["version_history": "bore" "1.3.0.1 (plus local changes)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "porky -unused-syms -unused-types -kill-redundant-line-marks /home/seventy/Prophet/testcase/em3d/em3d.bore /home/seventy/Prophet/testcase/em3d/em3d.porky"]
+    ["version_history": "porky" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "suifvm /home/seventy/Prophet/testcase/em3d/em3d.porky"]
+    ["version_history": "suifvm" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)"]
+    ["history": "swighnflew -no-struct-return -mark-struct-alignment -mark-varargs __builtin_va_start /home/seventy/Prophet/testcase/em3d/em3d.pf /home/seventy/Prophet/testcase/em3d/em3d.swig"]
+    ["version_history": "swighnflew" "1.3.0.1 (plus local changes)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)"]
+    ["history": "mgen-gongxiangzhan -ver 1 -impl 2170 -os dec-ultrix /home/seventy/Prophet/testcase/em3d/em3d.swig /home/seventy/Prophet/testcase/em3d/em3d.mgen"]
+    ["version_history": "mgen-gongxiangzhan" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "useful" "1.3.0.1 (plus local changes)" "machine" "1.1.2 (plus local changes)"]
+    ["history": "raga /home/seventy/Prophet/testcase/em3d/em3d.mgen /home/seventy/Prophet/testcase/em3d/em3d.raga"]
+    ["version_history": "raga" "1.1 (plus local changes)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "dfa" "1.2 (plus local changes)" "useful" "1.3.0.1 (plus local changes)" "machine" "1.1.2 (plus local changes)" "cfg" "1.2 (plus local changes)"]
+    ["history": "/home/qmwx/code/eclipseWorkPlace/partition_syj/partition -G -V -S -X testcase/em3d.sche testcase/em3d.par"]
+    ["version_history": "partition" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)" "dfa" "1.2 (plus local changes)" "useful" "1.3.0.1 (plus local changes)" "machine" "1.1.2 (plus local changes)" "cfg" "1.2 (plus local changes)"]
+    ["history": "printsuif em3d.par"]
+    ["version_history": "printsuif" "(unnumbered test version)" "suif distribution" "1.3.0.1" "suif1" "1.3.0.1 (plus local changes)"]
+    File symbol table: `em3d.par'
+      Types:
+        t:f1: void 1
+      Symbols:
+        s:f1: `__tmp_string_0' var_sym with t:g73; addr_taken 
+          ["vsym_info": 0 1]
+        s:f2: `__tmp_string_1' var_sym with t:g85; addr_taken 
+          ["vsym_info": 0 1]
+        s:f3: `__tmp_string_2' var_sym with t:g88; addr_taken 
+          ["vsym_info": 0 1]
+        s:f4: `__tmp_string_3' var_sym with t:g90; addr_taken 
+          ["vsym_info": 0 1]
+        s:f5: `__tmp_string_4' var_sym with t:g90; addr_taken 
+          ["vsym_info": 0 1]
+        s:f6: `__tmp_string_5' var_sym with t:g96; addr_taken 
+          ["vsym_info": 0 1]
+      Definitions:
+        .__tmp_string_0 align=8 
+          ["multi_init": 8 105 110 105 116 105 97 108 105 122 105 110 103 32 103 114 97 112 104 32 46 46 46 10 0]
+        .__tmp_string_1 align=8 
+          ["multi_init": 8 100 101 97 108 119 105 116 104 97 114 103 115 32 46 46 46 10 0]
+        .__tmp_string_2 align=8 
+          ["multi_init": 8 112 114 105 110 116 32 103 114 97 112 104 32 46 46 46 10 0]
+        .__tmp_string_3 align=8 
+          ["multi_init": 8 69 58 32 118 97 108 117 101 32 37 102 44 32 102 114 111 109 95 99 111 117 110 116 32 37 100 10 0]
+        .__tmp_string_4 align=8 
+          ["multi_init": 8 72 58 32 118 97 108 117 101 32 37 102 44 32 102 114 111 109 95 99 111 117 110 116 32 37 100 10 0]
+        .__tmp_string_5 align=8 
+          ["multi_init": 8 67 111 109 112 108 101 116 101 100 32 97 32 99 111 109 112 117 116 97 116 105 111 110 32 112 104 97 115 101 58 32 37 100 10 0]
+        .iters align=32 
+        .d_nodes align=32 
+        .n_nodes align=32 
+      Annotations:
+        <None>
+
+
+    PROC P:.compute_nodes
+    ["line": 4 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 1 0 0 0 0]
+      Procedure symbol table: `compute_nodes'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `nodelist' var_sym with t:g43; param reg userdef 
+            ["vsym_info": 0 10 5]
+            ["reg_num": 5]
+          s:p2: `i' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 7]
+            ["reg_num": 26]
+          s:p5: `L3' label_sym 
+          s:p6: `L4' label_sym 
+          s:p13: `L7' label_sym 
+          s:p14: `L8' label_sym 
+          s:p15: `other_node' var_sym with t:g43; reg userdef 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p16: `coeff' var_sym with t:g11; reg userdef 
+            ["vsym_info": 0 2]
+            ["reg_num": 56]
+          s:p17: `value' var_sym with t:g11; reg userdef 
+            ["vsym_info": 0 2]
+            ["reg_num": 58]
+          s:p18: `suif_tmp' var_sym with t:g45; reg 
+            ["vsym_info": 0 3]
+            ["reg_num": 27]
+          s:p19: `__done9' label_sym 
+          s:p20: `_t' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p21: `_t0' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p22: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p23: `_t2' var_sym with t:g54; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p24: `_t3' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p25: `_t4' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p26: `_t5' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p27: `_t6' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p28: `_t7' var_sym with t:g55; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p29: `_t8' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p30: `_t9' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p31: `_t10' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p32: `_t11' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p33: `_t12' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p34: `_t13' var_sym with t:g58; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p35: `_t14' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p36: `_t15' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p37: `_t16' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p38: `_t17' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p39: `_t18' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p40: `_t19' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p41: `_t20' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p42: `_t21' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 60]
+          s:p43: `_t22' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 62]
+          s:p44: `_t23' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 32]
+          s:p45: `_t24' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p46: `_t25' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p47: `_t26' var_sym with t:g54; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p48: `_t27' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p49: `_t28' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p50: `_t29' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p51: `_t30' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p52: `_t31' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p53: `_t32' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p54: `L10' label_sym 
+          s:p55: `L11' label_sym 
+          s:p56: `L12' label_sym 
+          s:p57: `L13' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          compute_nodes.nodelist
+ 500: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 501: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 7 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 502: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 7 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 503: gen t:g43 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6059 "la"]
+ 504:   e1: add t:g29 (p.32) r0, e2
+ 505:     e2: ldc t:g4 (i.32) 0
+ 506: gen t:g30 (i.32) r20 = mips (r5, r19)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6047 "sne"]
+ 507: gen t:g1 (v.0) <nullop> = mips (r20, <nullop>)
+        ["exec_times": 60]
+        ["instr_profile": 60 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:compute_nodes.L4,0>]
+ 508: lab L:compute_nodes.L3
+        ["machine_instr": "mips" 6002 ""]
+ 509: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 8 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 510: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:compute_nodes.L11,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:compute_nodes.L11,0>]
+ 511: lab L:compute_nodes.L11
+        ["machine_instr": "mips" 6002 ""]
+ 512: gen t:g4 (i.32) r21 = mips (r0, <nullop>)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6067 "move"]
+ 513: gen t:g4 (i.32) r22 = mips (e1, <nullop>)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6039 "li"]
+ 514:   e1: ldc t:g4 (i.32) 24
+ 515: gen t:g54 (p.32) r23 = mips (r5, r22)
+        ["fields": "from_count"]
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6089 "addu"]
+ 516: gen t:g4 (i.32) r24 = mips (e1, <nullop>)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6077 "lw"]
+ 517:   e1: add t:g29 (p.32) r23, e2
+ 518:     e2: ldc t:g4 (i.32) 0
+ 519: gen t:g4 (i.32) r25 = mips (r21, r24)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6126 "slt"]
+ 520: gen t:g1 (v.0) <nullop> = mips (r25, <nullop>)
+        ["exec_times": 600]
+        ["instr_profile": 600 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:compute_nodes.L7,0>]
+ 521: gen t:g4 (i.32) r26 = mips (r0, <nullop>)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6067 "move"]
+ 522: lab L:compute_nodes.L8
+        ["machine_instr": "mips" 6002 ""]
+ 523: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 8 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 524: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:compute_nodes.L13,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:compute_nodes.L13,0>]
+ 525: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:compute_nodes.L12,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:compute_nodes.L12,0>]
+ 526: lab L:compute_nodes.L12
+        ["machine_instr": "mips" 6002 ""]
+ 527: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 9 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 528: gen t:g4 (i.32) r27 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6039 "li"]
+ 529:   e1: ldc t:g4 (i.32) 16
+ 530: gen t:g55 (p.32) r28 = mips (r5, r27)
+        ["fields": "from_nodes"]
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 531: gen t:g44 (p.32) r6 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6077 "lw"]
+ 532:   e1: add t:g29 (p.32) r28, e2
+ 533:     e2: ldc t:g4 (i.32) 0
+ 534: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6039 "li"]
+ 535:   e1: ldc t:g4 (i.32) 4
+ 536: gen t:g1 (v.0) <nullop> = mips (r26, r7)
+        ["machine_instr": "mips" 6098 "mult"]
+ 537: gen t:g4 (i.32) r7 = mips (<nullop>, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 538: gen t:g44 (p.32) r8 = mips (r6, r7)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 539: gen t:g43 (p.32) r9 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6077 "lw"]
+ 540:   e1: add t:g29 (p.32) r8, e2
+ 541:     e2: ldc t:g4 (i.32) 0
+ 542: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 10 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 543: gen t:g4 (i.32) r10 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6039 "li"]
+ 544:   e1: ldc t:g4 (i.32) 20
+ 545: gen t:g58 (p.32) r19 = mips (r5, r10)
+        ["fields": "coeffs"]
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 546: gen t:g45 (p.32) r20 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6077 "lw"]
+ 547:   e1: add t:g29 (p.32) r19, e2
+ 548:     e2: ldc t:g4 (i.32) 0
+ 549: gen t:g4 (i.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6039 "li"]
+ 550:   e1: ldc t:g4 (i.32) 8
+ 551: gen t:g1 (v.0) <nullop> = mips (r26, r21)
+        ["machine_instr": "mips" 6098 "mult"]
+ 552: gen t:g4 (i.32) r22 = mips (<nullop>, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 553: gen t:g45 (p.32) r23 = mips (r20, r22)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 554: gen t:g11 (f.64) r56 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6069 "l.d"]
+ 555:   e1: add t:g29 (p.32) r23, e2
+ 556:     e2: ldc t:g4 (i.32) 0
+ 557: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 11 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 558: gen t:g4 (i.32) r24 = mips (r0, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6067 "move"]
+ 559: gen t:g45 (p.32) r25 = mips (r9, r24)
+        ["fields": "value"]
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 560: gen t:g11 (f.64) r58 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6069 "l.d"]
+ 561:   e1: add t:g29 (p.32) r25, e2
+ 562:     e2: ldc t:g4 (i.32) 0
+ 563: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 13 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 564: gen t:g4 (i.32) r27 = mips (r0, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6067 "move"]
+ 565: gen t:g45 (p.32) r27 = mips (r5, r27)
+        ["fields": "value"]
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 566: gen t:g11 (f.64) r60 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6069 "l.d"]
+ 567:   e1: add t:g29 (p.32) r27, e2
+ 568:     e2: ldc t:g4 (i.32) 0
+ 569: gen t:g11 (f.64) r62 = mips (r56, r58)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6196 "mul.d"]
+ 570: gen t:g11 (f.64) r32 = mips (r60, r62)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6182 "sub.d"]
+ 571: gen t:g11 (f.64) <nullop> = mips (e1, r32, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6071 "s.d"]
+ 572:   e1: add t:g29 (p.32) r27, e2
+ 573:     e2: ldc t:g4 (i.32) 0
+ 574: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6039 "li"]
+ 575:   e1: ldc t:g4 (i.32) 1
+ 576: gen t:g4 (i.32) r26 = mips (r26, r28)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 577: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6039 "li"]
+ 578:   e1: ldc t:g4 (i.32) 24
+ 579: gen t:g54 (p.32) r6 = mips (r5, r6)
+        ["fields": "from_count"]
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 580: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:compute_nodes.L13,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:compute_nodes.L13,0>]
+ 581: lab L:compute_nodes.L13
+        ["machine_instr": "mips" 6002 ""]
+ 582: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:compute_nodes.L13,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:compute_nodes.L13,0>]
+ 583: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6039 "li"]
+ 584:   e1: ldc t:g4 (i.32) 1
+ 585: gen t:g4 (i.32) r26 = mips (r26, r28)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 586: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6039 "li"]
+ 587:   e1: ldc t:g4 (i.32) 24
+ 588: gen t:g54 (p.32) r6 = mips (r5, r6)
+        ["fields": "from_count"]
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6089 "addu"]
+ 589: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:compute_nodes.L13,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:compute_nodes.L13,0>]
+ 590: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6077 "lw"]
+ 591:   e1: add t:g29 (p.32) r6, e2
+ 592:     e2: ldc t:g4 (i.32) 0
+ 593: gen t:g4 (i.32) r8 = mips (r7, r26)
+        ["exec_times": 1800]
+        ["machine_instr": "mips" 6045 "sle"]
+ 594: gen t:g1 (v.0) <nullop> = mips (r8, <nullop>)
+        ["exec_times": 1800]
+        ["instr_profile": 1800 1200]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:compute_nodes.L8,0>]
+ 595: lab L:compute_nodes.L10
+        ["machine_instr": "mips" 6002 ""]
+ 596: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["exec_times": 600]
+        ["instr_profile": 600 600]
+        ["machine_instr": "mips" 6150 "j"]
+        ["instr_bj_target": <L:compute_nodes.__done9,0>]
+ 597: lab L:compute_nodes.L7
+        ["machine_instr": "mips" 6002 ""]
+ 598: gen t:g4 (i.32) r26 = mips (r0, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6067 "move"]
+ 599: lab L:compute_nodes.__done9
+        ["machine_instr": "mips" 6002 ""]
+ 600: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 8 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 601: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 7 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 602: gen t:g4 (i.32) r9 = mips (e1, <nullop>)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6039 "li"]
+ 603:   e1: ldc t:g4 (i.32) 8
+ 604: gen t:g44 (p.32) r10 = mips (r5, r9)
+        ["fields": "next"]
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6089 "addu"]
+ 605: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6077 "lw"]
+ 606:   e1: add t:g29 (p.32) r10, e2
+ 607:     e2: ldc t:g4 (i.32) 0
+ 608: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 7 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 609: gen t:g43 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6059 "la"]
+ 610:   e1: add t:g29 (p.32) r0, e2
+ 611:     e2: ldc t:g4 (i.32) 0
+ 612: gen t:g30 (i.32) r20 = mips (r5, r19)
+        ["exec_times": 600]
+        ["machine_instr": "mips" 6047 "sne"]
+ 613: gen t:g1 (v.0) <nullop> = mips (r20, <nullop>)
+        ["exec_times": 600]
+        ["instr_profile": 600 540]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:compute_nodes.L3,0>]
+ 614: lab L:compute_nodes.L4
+        ["machine_instr": "mips" 6002 ""]
+ 615: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 15 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 616: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 60]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.initialize_graph
+    ["line": 230 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 16 11 12 13]
+      Procedure symbol table: `initialize_graph'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `h_table' var_sym with t:g44; reg userdef 
+            ["vsym_info": 0 8]
+            ["reg_num": 12]
+          s:p2: `e_table' var_sym with t:g44; reg userdef 
+            ["vsym_info": 0 8]
+            ["reg_num": 11]
+          s:p3: `retval' var_sym with t:g46; addr_taken userdef 
+            ["vsym_info": 0 1]
+          s:p4: `_t' var_sym with t:g72; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p5: `_t0' var_sym with t:g33; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p6: `_t1' var_sym with t:g75; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p7: `_t2' var_sym with t:g76; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p8: `_t3' var_sym with t:g75; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p9: `_t4' var_sym with t:g76; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p10: `_t5' var_sym with t:g77; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p11: `_t6' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p12: `_t7' var_sym with t:g77; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p13: `_t8' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p14: `_t9' var_sym with t:g78; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p15: `_t10' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p16: `_t11' var_sym with t:g78; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p17: `_t12' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p18: `_t13' var_sym with t:g79; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p19: `_t14' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p20: `_t15' var_sym with t:g79; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p21: `_t16' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p22: `_t17' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p23: `_t18' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p24: `_t19' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p25: `_t20' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p26: `_t21' var_sym with t:g81; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p27: `_t22' var_sym with t:g29; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 12]
+          s:p28: `_t23' var_sym with t:g81; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p29: `_t24' var_sym with t:g29; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 11]
+          s:p30: `suif_tmp' var_sym with t:g105; param reg 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 13]
+          s:p31: `L1' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          initialize_graph.suif_tmp
+ 807: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 808: gen t:g105 (p.32) r13 = mips (r5, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 809: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 235 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 810: gen t:g72 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 811:   e1: ldc t:g29 (p.32) <P:.myprintf,0>
+ 812: gen t:g33 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 813:   e1: ldc t:g29 (p.32) <.__tmp_string_0,0>
+ 814: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 815: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 816: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "myprintf"]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 817: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 237 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 818: gen t:g75 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 819:   e1: ldc t:g29 (p.32) <P:.make_table,0>
+ 820: gen t:g4 (i.32) r5 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 821:   e1: ldc t:g54 (p.32) <.n_nodes,0>
+ 822: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 823: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 824: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "make_table"]
+        ["call_overhead": 7]
+        ["regs_used": 5]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 825: gen t:g44 (p.32) r12 = mips (r9, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 826: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 238 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 827: gen t:g76 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 828:   e1: ldc t:g29 (p.32) <P:.fill_table,0>
+ 829: gen t:g44 (p.32) r5 = mips (r12, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 830: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 831:   e1: ldc t:g54 (p.32) <.n_nodes,0>
+ 832: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 833: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 834: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "fill_table"]
+        ["call_overhead": 543]
+        ["regs_used": 5 6]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 835: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 241 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 836: gen t:g75 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 837:   e1: ldc t:g29 (p.32) <P:.make_table,0>
+ 838: gen t:g4 (i.32) r5 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 839:   e1: ldc t:g54 (p.32) <.n_nodes,0>
+ 840: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 841: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 842: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "make_table"]
+        ["call_overhead": 7]
+        ["regs_used": 5]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 843: gen t:g44 (p.32) r11 = mips (r9, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 844: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 242 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 845: gen t:g76 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 846:   e1: ldc t:g29 (p.32) <P:.fill_table,0>
+ 847: gen t:g44 (p.32) r5 = mips (r11, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 848: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 849:   e1: ldc t:g54 (p.32) <.n_nodes,0>
+ 850: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 851: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 852: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "fill_table"]
+        ["call_overhead": 543]
+        ["regs_used": 5 6]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 853: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 246 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 854: gen t:g77 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 855:   e1: ldc t:g29 (p.32) <P:.make_neighbors,0>
+ 856: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6077 "lw"]
+ 857:   e1: add t:g29 (p.32) r12, e2
+ 858:     e2: ldc t:g4 (i.32) 0
+ 859: gen t:g44 (p.32) r6 = mips (r11, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 860: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 861:   e1: ldc t:g54 (p.32) <.n_nodes,0>
+ 862: gen t:g4 (i.32) r8 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 863:   e1: ldc t:g54 (p.32) <.d_nodes,0>
+ 864: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 865: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 866: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "make_neighbors"]
+        ["call_overhead": 1695]
+        ["regs_used": 5 6 7 8]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 867: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 247 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 868: gen t:g77 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 869:   e1: ldc t:g29 (p.32) <P:.make_neighbors,0>
+ 870: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6077 "lw"]
+ 871:   e1: add t:g29 (p.32) r11, e2
+ 872:     e2: ldc t:g4 (i.32) 0
+ 873: gen t:g44 (p.32) r6 = mips (r12, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 874: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 875:   e1: ldc t:g54 (p.32) <.n_nodes,0>
+ 876: gen t:g4 (i.32) r8 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 877:   e1: ldc t:g54 (p.32) <.d_nodes,0>
+ 878: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 879: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 880: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "make_neighbors"]
+        ["call_overhead": 1777]
+        ["regs_used": 5 6 7 8]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 881: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 250 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 882: gen t:g78 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 883:   e1: ldc t:g29 (p.32) <P:.update_from_coeffs,0>
+ 884: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6077 "lw"]
+ 885:   e1: add t:g29 (p.32) r12, e2
+ 886:     e2: ldc t:g4 (i.32) 0
+ 887: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 888: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 889: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "update_from_coeffs"]
+        ["call_overhead": 1025]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 890: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 251 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 891: gen t:g78 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 892:   e1: ldc t:g29 (p.32) <P:.update_from_coeffs,0>
+ 893: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6077 "lw"]
+ 894:   e1: add t:g29 (p.32) r11, e2
+ 895:     e2: ldc t:g4 (i.32) 0
+ 896: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 897: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 898: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "update_from_coeffs"]
+        ["call_overhead": 1025]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 899: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 254 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 900: gen t:g79 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 901:   e1: ldc t:g29 (p.32) <P:.fill_from_fields,0>
+ 902: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6077 "lw"]
+ 903:   e1: add t:g29 (p.32) r12, e2
+ 904:     e2: ldc t:g4 (i.32) 0
+ 905: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 906:   e1: ldc t:g54 (p.32) <.d_nodes,0>
+ 907: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 908: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 909: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "fill_from_fields"]
+        ["call_overhead": 925]
+        ["regs_used": 5 6]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 910: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 255 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 911: gen t:g79 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 912:   e1: ldc t:g29 (p.32) <P:.fill_from_fields,0>
+ 913: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6077 "lw"]
+ 914:   e1: add t:g29 (p.32) r11, e2
+ 915:     e2: ldc t:g4 (i.32) 0
+ 916: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 917:   e1: ldc t:g54 (p.32) <.d_nodes,0>
+ 918: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 919: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 920: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "fill_from_fields"]
+        ["call_overhead": 925]
+        ["regs_used": 5 6]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 921: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 257 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 922: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:initialize_graph.L1,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:initialize_graph.L1,0>]
+ 923: gen t:g44 (p.32) r26 = mips (e1, <nullop>)
+        ["fields": "e_nodes"]
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 924:   e1: ldc t:g29 (p.32) <initialize_graph.retval,0>
+ 925: gen t:g43 (p.32) r27 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6077 "lw"]
+ 926:   e1: add t:g29 (p.32) r11, e2
+ 927:     e2: ldc t:g4 (i.32) 0
+ 928: gen t:g43 (p.32) <nullop> = mips (e1, r27, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6084 "sw"]
+ 929:   e1: add t:g29 (p.32) r26, e2
+ 930:     e2: ldc t:g4 (i.32) 0
+ 931: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 258 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 932: gen t:g44 (p.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 933:   e1: ldc t:g29 (p.32) <initialize_graph.retval,32>
+ 934: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6077 "lw"]
+ 935:   e1: add t:g29 (p.32) r12, e2
+ 936:     e2: ldc t:g4 (i.32) 0
+ 937: gen t:g43 (p.32) <nullop> = mips (e1, r5, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6084 "sw"]
+ 938:   e1: add t:g29 (p.32) r28, e2
+ 939:     e2: ldc t:g4 (i.32) 0
+ 940: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 260 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 941: gen t:g81 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 942:   e1: ldc t:g29 (p.32) <P:.free,0>
+ 943: gen t:g29 (p.32) r5 = mips (r12, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 944: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 945: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 946: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "free"]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 947: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:initialize_graph.L1,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:initialize_graph.L1,0>]
+ 948: lab L:initialize_graph.L1
+        ["machine_instr": "mips" 6002 ""]
+ 949: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:initialize_graph.L1,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:initialize_graph.L1,0>]
+ 950: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:initialize_graph.L1,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:initialize_graph.L1,0>]
+ 951: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 261 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 952: gen t:g81 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 953:   e1: ldc t:g29 (p.32) <P:.free,0>
+ 954: gen t:g29 (p.32) r5 = mips (r11, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 955: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 956: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 957: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "free"]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 958: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 263 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 959: gen t:g1 (v.0) <nullop> = mips ()
+        ["comment": "BEGIN structure move"]
+        ["struct alignment": 32]
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6001 ""]
+ 960: gen t:g29 (p.32) r6 = mips (e1, <nullop>)
+        ["struct alignment": 32]
+        ["machine_instr": "mips" 6059 "la"]
+ 961:   e1: ldc t:g29 (p.32) <initialize_graph.retval,0>
+ 962: gen t:g29 (p.32) r7 = mips (e1, <nullop>, <nullop>)
+        ["machine_instr": "mips" 6059 "la"]
+ 963:   e1: add t:g29 (p.32) r13, e2
+ 964:     e2: ldc t:g4 (i.32) 0
+ 965: gen t:g4 (i.32) r8 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 966:   e1: add t:g29 (p.32) r6, e2
+ 967:     e2: ldc t:g4 (i.32) 0
+ 968: gen t:g4 (i.32) r9 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 969:   e1: add t:g29 (p.32) r6, e2
+ 970:     e2: ldc t:g4 (i.32) 4
+ 971: gen t:g4 (i.32) <nullop> = mips (e1, r8, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 972:   e1: add t:g29 (p.32) r7, e2
+ 973:     e2: ldc t:g4 (i.32) 0
+ 974: gen t:g4 (i.32) <nullop> = mips (e1, r9, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 975:   e1: add t:g29 (p.32) r7, e2
+ 976:     e2: ldc t:g4 (i.32) 4
+ 977: gen t:g1 (v.0) <nullop> = mips ()
+        ["comment": "END structure move"]
+        ["machine_instr": "mips" 6001 ""]
+ 978: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 1]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.lrand48
+    ["line": 82 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 0]
+      Procedure symbol table: `lrand48'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `l' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p2: `_t' var_sym with t:g64; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          <None>
+  49: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+  50: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 83 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  51: gen t:g64 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6059 "la"]
+  52:   e1: ldc t:g29 (p.32) <P:.rand,0>
+  53: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+  54: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+  55: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 62]
+        ["proc_name": "rand"]
+        ["regs_used":]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+  56: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 84 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  57: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 62]
+        ["instr_ret": t:g4]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.drand48
+    ["line": 73 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 0]
+      Procedure symbol table: `drand48'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `d' var_sym with t:g11; reg userdef 
+            ["vsym_info": 0 2]
+            ["reg_num": 36]
+          s:p2: `_t' var_sym with t:g64; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p3: `_t0' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p4: `_t1' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 54]
+          s:p5: `_t2' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 56]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          <None>
+  74: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+  75: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 76 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  76: gen t:g64 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 80]
+        ["machine_instr": "mips" 6059 "la"]
+  77:   e1: ldc t:g29 (p.32) <P:.rand,0>
+  78: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+  79: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+  80: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 80]
+        ["proc_name": "rand"]
+        ["regs_used":]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+  81: gen t:g11 (f.64) r52 = mips (r9, <nullop>)
+        ["machine_instr": "mips" 6137 "mtc1"]
+  82: gen t:g11 (f.64) r54 = mips (r52, <nullop>)
+        ["exec_times": 80]
+        ["machine_instr": "mips" 6171 "cvt.d.w"]
+  83: gen t:g11 (f.64) r56 = mips (e1, <nullop>)
+        ["exec_times": 80]
+        ["machine_instr": "mips" 6202 "li.d"]
+  84:   e1: ldc t:g11 (f.64) 3.276700000000000000e+04
+  85: gen t:g11 (f.64) r36 = mips (r54, r56)
+        ["exec_times": 80]
+        ["machine_instr": "mips" 6176 "div.d"]
+  86: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 77 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  87: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 80]
+        ["instr_ret": t:g11]
+        ["regs_used": 36]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.srand48
+    ["line": 88 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 4]
+      Procedure symbol table: `srand48'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `seed' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 5]
+          s:p2: `_t' var_sym with t:g65; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          srand48.seed
+  48: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+  49: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 89 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  50: gen t:g65 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6059 "la"]
+  51:   e1: ldc t:g29 (p.32) <P:.srand,0>
+  52: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+  53: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+  54: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 0]
+        ["proc_name": "srand"]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+  55: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 90 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  56: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 0]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.init_random
+    ["line": 21 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 4]
+      Procedure symbol table: `init_random'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `myid' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 5]
+          s:p2: `_t' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p3: `_t0' var_sym with t:g61; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p4: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          init_random.myid
+  67: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+  68: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 22 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  69: gen t:g61 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6059 "la"]
+  70:   e1: ldc t:g29 (p.32) <P:.srand48,0>
+  71: gen t:g4 (i.32) r22 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6039 "li"]
+  72:   e1: ldc t:g4 (i.32) 45
+  73: gen t:g1 (v.0) <nullop> = mips (r5, r22)
+        ["machine_instr": "mips" 6098 "mult"]
+  74: gen t:g4 (i.32) r5 = mips (<nullop>, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6131 "mflo"]
+  75: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+  76: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+  77: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 0]
+        ["proc_name": "srand48"]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+  78: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 23 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  79: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 0]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.gen_number
+    ["line": 27 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 0 11]
+      Procedure symbol table: `gen_number'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `range' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 11]
+          s:p2: `_t' var_sym with t:g62; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p3: `_t0' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p4: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          gen_number.range
+  54: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+  55: gen t:g4 (i.32) r11 = mips (r5, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+  56: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 28 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  57: gen t:g62 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6059 "la"]
+  58:   e1: ldc t:g29 (p.32) <P:.lrand48,0>
+  59: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+  60: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+  61: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 62]
+        ["proc_name": "lrand48"]
+        ["call_overhead": 3]
+        ["regs_used":]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+  62: gen t:g4 (i.32) r9 = mips (r9, r11)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6113 "rem"]
+  63: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 62]
+        ["instr_ret": t:g4]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.gen_signed_number
+    ["line": 33 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 0 11]
+      Procedure symbol table: `gen_signed_number'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `range' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 3 5]
+            ["reg_num": 11]
+          s:p2: `temp' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p3: `_t' var_sym with t:g62; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p4: `_t0' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p5: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p6: `_t2' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p7: `_t3' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p8: `_t4' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p9: `_t5' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p10: `_t6' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p11: `_t7' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          gen_signed_number.range
+ 110: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 111: gen t:g4 (i.32) r11 = mips (r5, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 112: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 36 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 113: gen t:g62 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6059 "la"]
+ 114:   e1: ldc t:g29 (p.32) <P:.lrand48,0>
+ 115: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 116: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 117: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 0]
+        ["proc_name": "lrand48"]
+        ["regs_used":]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 118: gen t:g4 (i.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6039 "li"]
+ 119:   e1: ldc t:g4 (i.32) 2
+ 120: gen t:g1 (v.0) <nullop> = mips (r23, r11)
+        ["machine_instr": "mips" 6098 "mult"]
+ 121: gen t:g4 (i.32) r24 = mips (<nullop>, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 122: gen t:g4 (i.32) r25 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6039 "li"]
+ 123:   e1: ldc t:g4 (i.32) 1
+ 124: gen t:g4 (i.32) r26 = mips (r24, r25)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6122 "subu"]
+ 125: gen t:g4 (i.32) r27 = mips (r9, r26)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6113 "rem"]
+ 126: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 37 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 127: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6039 "li"]
+ 128:   e1: ldc t:g4 (i.32) 1
+ 129: gen t:g4 (i.32) r5 = mips (r11, r28)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6122 "subu"]
+ 130: gen t:g4 (i.32) r9 = mips (r27, r5)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6122 "subu"]
+ 131: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 0]
+        ["instr_ret": t:g4]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.gen_uniform_double
+    ["line": 42 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 0]
+      Procedure symbol table: `gen_uniform_double'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `_t' var_sym with t:g63; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p2: `_t0' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 36]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          <None>
+  43: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+  44: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 43 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  45: gen t:g63 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 80]
+        ["machine_instr": "mips" 6059 "la"]
+  46:   e1: ldc t:g29 (p.32) <P:.drand48,0>
+  47: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+  48: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+  49: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 80]
+        ["proc_name": "drand48"]
+        ["call_overhead": 6]
+        ["regs_used":]
+        ["regs_defd": 36]
+        ["machine_instr": "mips" 6152 "jalr"]
+  50: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 80]
+        ["instr_ret": t:g11]
+        ["regs_used": 36]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.check_percent
+    ["line": 47 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 0 11]
+      Procedure symbol table: `check_percent'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `percent' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 11]
+          s:p2: `_t' var_sym with t:g63; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p3: `_t0' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 54]
+          s:p4: `_t1' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 56]
+          s:p5: `_t2' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 36]
+          s:p6: `_t3' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 58]
+          s:p7: `_t4' var_sym with t:g30; reg 
+            ["vsym_info": 0 3]
+            ["reg_num": 9]
+          s:p8: `_t5' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p9: `L1' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          check_percent.percent
+ 103: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 104: gen t:g4 (i.32) r11 = mips (r5, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 105: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 48 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 106: gen t:g63 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6059 "la"]
+ 107:   e1: ldc t:g29 (p.32) <P:.drand48,0>
+ 108: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 109: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 110: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 0]
+        ["proc_name": "drand48"]
+        ["regs_used":]
+        ["regs_defd": 36]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 111: gen t:g11 (f.64) r52 = mips (r11, <nullop>)
+        ["machine_instr": "mips" 6137 "mtc1"]
+ 112: gen t:g11 (f.64) r54 = mips (r52, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6171 "cvt.d.w"]
+ 113: gen t:g11 (f.64) r56 = mips (e1, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6202 "li.d"]
+ 114:   e1: ldc t:g11 (f.64) 1.000000000000000000e+02
+ 115: gen t:g11 (f.64) r58 = mips (r54, r56)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6176 "div.d"]
+ 116: gen t:g30 (i.32) r9 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6039 "li"]
+ 117:   e1: ldc t:g30 (i.32) 1
+ 118: gen t:f1 (v.1) <nullop> = mips (r36, r58)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6168 "c.lt.d"]
+ 119: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["machine_instr": "mips" 6205 "bc1t"]
+        ["instr_bj_target": <L:check_percent.L1,0>]
+ 120: gen t:g30 (i.32) r9 = mips (r0, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 121: lab L:check_percent.L1
+        ["machine_instr": "mips" 6002 ""]
+ 122: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 0]
+        ["instr_ret": t:g4]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.make_table
+    ["line": 146 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 4]
+      Procedure symbol table: `make_table'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `size' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 5]
+          s:p2: `retval' var_sym with t:g44; reg userdef 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p3: `_t' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p4: `_t0' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p5: `_t1' var_sym with t:g67; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p6: `_t2' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p7: `_t3' var_sym with t:g29; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          make_table.size
+  76: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+  77: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 149 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  78: gen t:g67 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6059 "la"]
+  79:   e1: ldc t:g29 (p.32) <P:.malloc,0>
+  80: gen t:g8 (u.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6039 "li"]
+  81:   e1: ldc t:g8 (u.32) 4
+  82: gen t:g1 (v.0) <nullop> = mips (r5, r23)
+        ["machine_instr": "mips" 6099 "multu"]
+  83: gen t:g8 (u.32) r5 = mips (<nullop>, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6131 "mflo"]
+  84: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+  85: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+  86: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 2]
+        ["proc_name": "malloc"]
+        ["regs_used": 5]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+  87: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 151 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+  88: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 2]
+        ["instr_ret": t:g44]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.fill_table
+    ["line": 155 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 4 11 12 13 14]
+      Procedure symbol table: `fill_table'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `table' var_sym with t:g44; param reg userdef 
+            ["vsym_info": 0 7 5]
+            ["reg_num": 12]
+          s:p2: `size' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 4 6]
+            ["reg_num": 11]
+          s:p3: `i' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 11]
+            ["reg_num": 13]
+          s:p6: `L3' label_sym 
+          s:p7: `L4' label_sym 
+          s:p8: `L5' label_sym 
+          s:p9: `__done6' label_sym 
+          s:p10: `_t' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p11: `_t0' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p12: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p13: `_t2' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p14: `_t3' var_sym with t:g67; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p15: `_t4' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p16: `_t5' var_sym with t:g29; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p17: `_t6' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 14]
+          s:p18: `_t7' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p19: `_t8' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p20: `_t9' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p21: `_t10' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p22: `_t11' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p23: `_t12' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p24: `_t13' var_sym with t:g63; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p25: `_t14' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 14]
+          s:p26: `_t15' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 36]
+          s:p27: `_t16' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p28: `_t17' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p29: `_t18' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p30: `_t19' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p31: `_t20' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p32: `_t21' var_sym with t:g54; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p33: `_t22' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p34: `_t23' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p35: `_t24' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p36: `_t25' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p37: `_t26' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p38: `_t27' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p39: `_t28' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p40: `_t29' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p41: `_t30' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p42: `_t31' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p43: `_t32' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p44: `_t33' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p45: `_t34' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p46: `_t35' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p47: `_t36' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p48: `_t37' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p49: `_t38' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p50: `_t39' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p51: `_t40' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p52: `_t41' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p53: `_t42' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p54: `_t43' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p55: `_t44' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p56: `_t45' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p57: `_t46' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p58: `_t47' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p59: `L7' label_sym 
+          s:p60: `L8' label_sym 
+          s:p61: `L9' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          fill_table.table
+          fill_table.size
+ 606: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 607: gen t:g44 (p.32) r12 = mips (r5, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 608: gen t:g4 (i.32) r11 = mips (r6, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 609: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 159 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 610: gen t:g4 (i.32) r24 = mips (r0, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6067 "move"]
+ 611: gen t:g4 (i.32) r25 = mips (r24, r11)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6126 "slt"]
+ 612: gen t:g1 (v.0) <nullop> = mips (r25, <nullop>)
+        ["exec_times": 2]
+        ["instr_profile": 2 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:fill_table.L4,0>]
+ 613: gen t:g4 (i.32) r13 = mips (r0, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6067 "move"]
+ 614: lab L:fill_table.L5
+        ["machine_instr": "mips" 6002 ""]
+ 615: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 160 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 616: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:fill_table.L8,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:fill_table.L8,0>]
+ 617: lab L:fill_table.L8
+        ["machine_instr": "mips" 6002 ""]
+ 618: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 619:   e1: ldc t:g4 (i.32) 4
+ 620: gen t:g1 (v.0) <nullop> = mips (r13, r26)
+        ["machine_instr": "mips" 6098 "mult"]
+ 621: gen t:g4 (i.32) r27 = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 622: gen t:g44 (p.32) r14 = mips (r12, r27)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 623: gen t:g67 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6059 "la"]
+ 624:   e1: ldc t:g29 (p.32) <P:.malloc,0>
+ 625: gen t:g8 (u.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 626:   e1: ldc t:g8 (u.32) 32
+ 627: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 628: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 629: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 20]
+        ["proc_name": "malloc"]
+        ["regs_used": 5]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 630: gen t:g43 (p.32) <nullop> = mips (e1, r9, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6084 "sw"]
+ 631:   e1: add t:g29 (p.32) r14, e2
+ 632:     e2: ldc t:g4 (i.32) 0
+ 633: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 161 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 634: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 635:   e1: ldc t:g4 (i.32) 4
+ 636: gen t:g1 (v.0) <nullop> = mips (r13, r28)
+        ["machine_instr": "mips" 6098 "mult"]
+ 637: gen t:g4 (i.32) r5 = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 638: gen t:g44 (p.32) r6 = mips (r12, r5)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 639: gen t:g43 (p.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6077 "lw"]
+ 640:   e1: add t:g29 (p.32) r6, e2
+ 641:     e2: ldc t:g4 (i.32) 0
+ 642: gen t:g4 (i.32) r8 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 643: gen t:g45 (p.32) r14 = mips (r7, r8)
+        ["fields": "value"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 644: gen t:g63 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6059 "la"]
+ 645:   e1: ldc t:g29 (p.32) <P:.gen_uniform_double,0>
+ 646: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 647: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 648: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 20]
+        ["proc_name": "gen_uniform_double"]
+        ["call_overhead": 9]
+        ["regs_used":]
+        ["regs_defd": 36]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 649: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:fill_table.L9,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:fill_table.L9,0>]
+ 650: gen t:g11 (f.64) <nullop> = mips (e1, r36, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6071 "s.d"]
+ 651:   e1: add t:g29 (p.32) r14, e2
+ 652:     e2: ldc t:g4 (i.32) 0
+ 653: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 162 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 654: gen t:g4 (i.32) r9 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 655:   e1: ldc t:g4 (i.32) 4
+ 656: gen t:g1 (v.0) <nullop> = mips (r13, r9)
+        ["machine_instr": "mips" 6098 "mult"]
+ 657: gen t:g4 (i.32) r10 = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 658: gen t:g44 (p.32) r19 = mips (r12, r10)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 659: gen t:g43 (p.32) r20 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6077 "lw"]
+ 660:   e1: add t:g29 (p.32) r19, e2
+ 661:     e2: ldc t:g4 (i.32) 0
+ 662: gen t:g4 (i.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 663:   e1: ldc t:g4 (i.32) 24
+ 664: gen t:g54 (p.32) r22 = mips (r20, r21)
+        ["fields": "from_count"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 665: gen t:g4 (i.32) r23 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 666: gen t:g4 (i.32) <nullop> = mips (e1, r23, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6084 "sw"]
+ 667:   e1: add t:g29 (p.32) r22, e2
+ 668:     e2: ldc t:g4 (i.32) 0
+ 669: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 164 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 670: gen t:g4 (i.32) r24 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 671: gen t:g30 (i.32) r25 = mips (r24, r13)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6126 "slt"]
+ 672: gen t:g1 (v.0) <nullop> = mips (r25, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 2]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:fill_table.L3,0>]
+ 673: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 165 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 674: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6039 "li"]
+ 675:   e1: ldc t:g4 (i.32) 4
+ 676: gen t:g1 (v.0) <nullop> = mips (r13, r26)
+        ["machine_instr": "mips" 6098 "mult"]
+ 677: gen t:g4 (i.32) r27 = mips (<nullop>, <nullop>)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 678: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6039 "li"]
+ 679:   e1: ldc t:g4 (i.32) 4
+ 680: gen t:g4 (i.32) r5 = mips (r27, r28)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6122 "subu"]
+ 681: gen t:g44 (p.32) r6 = mips (r12, r5)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6089 "addu"]
+ 682: gen t:g43 (p.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6077 "lw"]
+ 683:   e1: add t:g29 (p.32) r6, e2
+ 684:     e2: ldc t:g4 (i.32) 0
+ 685: gen t:g4 (i.32) r8 = mips (e1, <nullop>)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6039 "li"]
+ 686:   e1: ldc t:g4 (i.32) 8
+ 687: gen t:g44 (p.32) r9 = mips (r7, r8)
+        ["fields": "next"]
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6089 "addu"]
+ 688: gen t:g4 (i.32) r10 = mips (e1, <nullop>)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6039 "li"]
+ 689:   e1: ldc t:g4 (i.32) 4
+ 690: gen t:g1 (v.0) <nullop> = mips (r13, r10)
+        ["machine_instr": "mips" 6098 "mult"]
+ 691: gen t:g4 (i.32) r19 = mips (<nullop>, <nullop>)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 692: gen t:g44 (p.32) r20 = mips (r12, r19)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6089 "addu"]
+ 693: gen t:g43 (p.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6077 "lw"]
+ 694:   e1: add t:g29 (p.32) r20, e2
+ 695:     e2: ldc t:g4 (i.32) 0
+ 696: gen t:g43 (p.32) <nullop> = mips (e1, r21, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 18]
+        ["machine_instr": "mips" 6084 "sw"]
+ 697:   e1: add t:g29 (p.32) r9, e2
+ 698:     e2: ldc t:g4 (i.32) 0
+ 699: lab L:fill_table.L3
+        ["machine_instr": "mips" 6002 ""]
+ 700: gen t:g4 (i.32) r22 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 701:   e1: ldc t:g4 (i.32) 1
+ 702: gen t:g4 (i.32) r13 = mips (r13, r22)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 703: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:fill_table.L9,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:fill_table.L9,0>]
+ 704: lab L:fill_table.L9
+        ["machine_instr": "mips" 6002 ""]
+ 705: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:fill_table.L9,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:fill_table.L9,0>]
+ 706: gen t:g4 (i.32) r22 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 707:   e1: ldc t:g4 (i.32) 1
+ 708: gen t:g4 (i.32) r13 = mips (r13, r22)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 709: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:fill_table.L9,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:fill_table.L9,0>]
+ 710: gen t:g4 (i.32) r23 = mips (r11, r13)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6045 "sle"]
+ 711: gen t:g1 (v.0) <nullop> = mips (r23, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 18]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:fill_table.L5,0>]
+ 712: lab L:fill_table.L7
+        ["machine_instr": "mips" 6002 ""]
+ 713: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["exec_times": 2]
+        ["instr_profile": 2 2]
+        ["machine_instr": "mips" 6150 "j"]
+        ["instr_bj_target": <L:fill_table.__done6,0>]
+ 714: lab L:fill_table.L4
+        ["machine_instr": "mips" 6002 ""]
+ 715: gen t:g4 (i.32) r13 = mips (r0, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6067 "move"]
+ 716: lab L:fill_table.__done6
+        ["machine_instr": "mips" 6002 ""]
+ 717: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 167 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 718: gen t:g4 (i.32) r24 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6039 "li"]
+ 719:   e1: ldc t:g4 (i.32) 4
+ 720: gen t:g1 (v.0) <nullop> = mips (r11, r24)
+        ["machine_instr": "mips" 6098 "mult"]
+ 721: gen t:g4 (i.32) r25 = mips (<nullop>, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 722: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6039 "li"]
+ 723:   e1: ldc t:g4 (i.32) 4
+ 724: gen t:g4 (i.32) r27 = mips (r25, r26)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6122 "subu"]
+ 725: gen t:g44 (p.32) r28 = mips (r12, r27)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6089 "addu"]
+ 726: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6077 "lw"]
+ 727:   e1: add t:g29 (p.32) r28, e2
+ 728:     e2: ldc t:g4 (i.32) 0
+ 729: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6039 "li"]
+ 730:   e1: ldc t:g4 (i.32) 8
+ 731: gen t:g44 (p.32) r7 = mips (r5, r6)
+        ["fields": "next"]
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6089 "addu"]
+ 732: gen t:g43 (p.32) r8 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6059 "la"]
+ 733:   e1: add t:g29 (p.32) r0, e2
+ 734:     e2: ldc t:g4 (i.32) 0
+ 735: gen t:g43 (p.32) <nullop> = mips (e1, r8, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6084 "sw"]
+ 736:   e1: add t:g29 (p.32) r7, e2
+ 737:     e2: ldc t:g4 (i.32) 0
+ 738: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 168 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 739: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 2]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.make_neighbors
+    ["line": 172 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 4 11 12 13 14 15 16]
+      Procedure symbol table: `make_neighbors'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `nodelist' var_sym with t:g43; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 5]
+          s:p2: `table' var_sym with t:g44; param reg userdef 
+            ["vsym_info": 0 2 6]
+            ["reg_num": 14]
+          s:p3: `tablesz' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 2 7]
+            ["reg_num": 13]
+          s:p4: `degree' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 4 8]
+            ["reg_num": 12]
+          s:p5: `cur_node' var_sym with t:g43; reg userdef 
+            ["vsym_info": 0 8]
+            ["reg_num": 11]
+          s:p8: `L3' label_sym 
+          s:p9: `L4' label_sym 
+          s:p14: `L9' label_sym 
+          s:p22: `other_node' var_sym with t:g43; reg userdef 
+            ["vsym_info": 0 4]
+            ["reg_num": 16]
+          s:p23: `j' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 9]
+            ["reg_num": 15]
+          s:p24: `k' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 7]
+            ["reg_num": 6]
+          s:p25: `suif_tmp' var_sym with t:g54; reg 
+            ["vsym_info": 0 3]
+            ["reg_num": 9]
+          s:p26: `L13' label_sym 
+          s:p27: `L14' label_sym 
+          s:p28: `__done15' label_sym 
+          s:p29: `L15' label_sym 
+          s:p31: `__done17' label_sym 
+          s:p32: `_t' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p33: `_t0' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p34: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p35: `_t2' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 12]
+          s:p36: `_t3' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p37: `_t4' var_sym with t:g67; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p38: `_t5' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p39: `_t6' var_sym with t:g29; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p40: `_t7' var_sym with t:g55; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 15]
+          s:p41: `_t8' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p42: `_t9' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p43: `_t10' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p44: `_t11' var_sym with t:g70; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p45: `_t12' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p46: `_t13' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p47: `_t14' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p48: `_t15' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p49: `_t16' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p50: `_t17' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p51: `_t18' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p52: `_t19' var_sym with t:g55; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p53: `_t20' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p54: `_t21' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p55: `_t22' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p56: `_t23' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p57: `_t24' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p58: `_t25' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p59: `_t26' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p60: `_t27' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p61: `_t28' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p62: `_t29' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p63: `_t30' var_sym with t:g55; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p64: `_t31' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p65: `_t32' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p66: `_t33' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p67: `_t34' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p68: `_t35' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p69: `_t36' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p70: `_t37' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p71: `_t38' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p72: `_t39' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p73: `_t40' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p74: `_t41' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p75: `_t42' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p76: `_t43' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p77: `_t44' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p78: `L16' label_sym 
+          s:p79: `L17' label_sym 
+          s:p80: `L18' label_sym 
+          s:p81: `L19' label_sym 
+          s:p82: `L20' label_sym 
+          s:p83: `L21' label_sym 
+          s:p84: `L22' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          make_neighbors.nodelist
+          make_neighbors.table
+          make_neighbors.tablesz
+          make_neighbors.degree
+ 719: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 720: gen t:g44 (p.32) r14 = mips (r6, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 721: gen t:g4 (i.32) r13 = mips (r7, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 722: gen t:g4 (i.32) r12 = mips (r8, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 723: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 175 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 724: gen t:g43 (p.32) r11 = mips (r5, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6067 "move"]
+ 725: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 175 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 726: gen t:g43 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6059 "la"]
+ 727:   e1: add t:g29 (p.32) r0, e2
+ 728:     e2: ldc t:g4 (i.32) 0
+ 729: gen t:g30 (i.32) r20 = mips (r11, r19)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6047 "sne"]
+ 730: gen t:g1 (v.0) <nullop> = mips (r20, <nullop>)
+        ["exec_times": 2]
+        ["instr_profile": 2 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:make_neighbors.L4,0>]
+ 731: lab L:make_neighbors.L3
+        ["machine_instr": "mips" 6002 ""]
+ 732: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 179 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 733: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:make_neighbors.L18,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:make_neighbors.L18,0>]
+ 734: lab L:make_neighbors.L18
+        ["machine_instr": "mips" 6002 ""]
+ 735: gen t:g4 (i.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 736:   e1: ldc t:g4 (i.32) 12
+ 737: gen t:g55 (p.32) r15 = mips (r11, r21)
+        ["fields": "to_nodes"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 738: gen t:g67 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6059 "la"]
+ 739:   e1: ldc t:g29 (p.32) <P:.malloc,0>
+ 740: gen t:g8 (u.32) r22 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 741:   e1: ldc t:g8 (u.32) 4
+ 742: gen t:g1 (v.0) <nullop> = mips (r12, r22)
+        ["machine_instr": "mips" 6099 "multu"]
+ 743: gen t:g8 (u.32) r5 = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 744: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 745: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 746: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 20]
+        ["proc_name": "malloc"]
+        ["regs_used": 5]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 747: gen t:g44 (p.32) <nullop> = mips (e1, r9, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6084 "sw"]
+ 748:   e1: add t:g29 (p.32) r15, e2
+ 749:     e2: ldc t:g4 (i.32) 0
+ 750: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 181 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 751: gen t:g4 (i.32) r23 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 752: gen t:g4 (i.32) r24 = mips (r23, r12)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6126 "slt"]
+ 753: gen t:g1 (v.0) <nullop> = mips (r24, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:make_neighbors.L15,0>]
+ 754: gen t:g4 (i.32) r15 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 755: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 181 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 756: lab L:make_neighbors.L9
+        ["machine_instr": "mips" 6002 ""]
+ 757: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 184 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 758: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:make_neighbors.L19,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:make_neighbors.L19,0>]
+ 759: lab L:make_neighbors.L19
+        ["machine_instr": "mips" 6002 ""]
+ 760: gen t:g70 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6059 "la"]
+ 761:   e1: ldc t:g29 (p.32) <P:.gen_number,0>
+ 762: gen t:g4 (i.32) r5 = mips (r13, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 763: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 764: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 765: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 62]
+        ["proc_name": "gen_number"]
+        ["call_overhead": 7]
+        ["regs_used": 5]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 766: gen t:g4 (i.32) r25 = mips (e1, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6039 "li"]
+ 767:   e1: ldc t:g4 (i.32) 4
+ 768: gen t:g1 (v.0) <nullop> = mips (r9, r25)
+        ["machine_instr": "mips" 6098 "mult"]
+ 769: gen t:g4 (i.32) r26 = mips (<nullop>, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 770: gen t:g44 (p.32) r27 = mips (r14, r26)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6089 "addu"]
+ 771: gen t:g43 (p.32) r16 = mips (e1, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6077 "lw"]
+ 772:   e1: add t:g29 (p.32) r27, e2
+ 773:     e2: ldc t:g4 (i.32) 0
+ 774: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 185 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 775: gen t:g4 (i.32) r28 = mips (r0, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6067 "move"]
+ 776: gen t:g4 (i.32) r5 = mips (r28, r15)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6126 "slt"]
+ 777: gen t:g1 (v.0) <nullop> = mips (r5, <nullop>)
+        ["exec_times": 62]
+        ["instr_profile": 62 20]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:make_neighbors.L13,0>]
+ 778: gen t:g4 (i.32) r6 = mips (r0, <nullop>)
+        ["exec_times": 42]
+        ["machine_instr": "mips" 6067 "move"]
+ 779: lab L:make_neighbors.L14
+        ["machine_instr": "mips" 6002 ""]
+ 780: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 186 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 781: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:make_neighbors.L22,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:make_neighbors.L22,0>]
+ 782: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:make_neighbors.L21,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:make_neighbors.L21,0>]
+ 783: lab L:make_neighbors.L21
+        ["machine_instr": "mips" 6002 ""]
+ 784: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 64]
+        ["machine_instr": "mips" 6039 "li"]
+ 785:   e1: ldc t:g4 (i.32) 12
+ 786: gen t:g55 (p.32) r8 = mips (r11, r7)
+        ["fields": "to_nodes"]
+        ["exec_times": 64]
+        ["machine_instr": "mips" 6089 "addu"]
+ 787: gen t:g44 (p.32) r9 = mips (e1, <nullop>)
+        ["exec_times": 64]
+        ["machine_instr": "mips" 6077 "lw"]
+ 788:   e1: add t:g29 (p.32) r8, e2
+ 789:     e2: ldc t:g4 (i.32) 0
+ 790: gen t:g4 (i.32) r10 = mips (e1, <nullop>)
+        ["exec_times": 64]
+        ["machine_instr": "mips" 6039 "li"]
+ 791:   e1: ldc t:g4 (i.32) 4
+ 792: gen t:g1 (v.0) <nullop> = mips (r6, r10)
+        ["machine_instr": "mips" 6098 "mult"]
+ 793: gen t:g4 (i.32) r19 = mips (<nullop>, <nullop>)
+        ["exec_times": 64]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 794: gen t:g44 (p.32) r20 = mips (r9, r19)
+        ["exec_times": 64]
+        ["machine_instr": "mips" 6089 "addu"]
+ 795: gen t:g43 (p.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 64]
+        ["machine_instr": "mips" 6077 "lw"]
+ 796:   e1: add t:g29 (p.32) r20, e2
+ 797:     e2: ldc t:g4 (i.32) 0
+ 798: gen t:g30 (i.32) r22 = mips (r16, r21)
+        ["exec_times": 64]
+        ["machine_instr": "mips" 6040 "seq"]
+ 799: gen t:g1 (v.0) <nullop> = mips (r22, <nullop>)
+        ["exec_times": 64]
+        ["instr_profile": 64 2]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:make_neighbors.__done15,0>]
+ 800: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 187 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 801: gen t:g4 (i.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6039 "li"]
+ 802:   e1: ldc t:g4 (i.32) 1
+ 803: gen t:g4 (i.32) r6 = mips (r6, r23)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6089 "addu"]
+ 804: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:make_neighbors.L22,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:make_neighbors.L22,0>]
+ 805: lab L:make_neighbors.L22
+        ["machine_instr": "mips" 6002 ""]
+ 806: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:make_neighbors.L22,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:make_neighbors.L22,0>]
+ 807: gen t:g4 (i.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6039 "li"]
+ 808:   e1: ldc t:g4 (i.32) 1
+ 809: gen t:g4 (i.32) r6 = mips (r6, r23)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6089 "addu"]
+ 810: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:make_neighbors.L22,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:make_neighbors.L22,0>]
+ 811: gen t:g4 (i.32) r24 = mips (r15, r6)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6045 "sle"]
+ 812: gen t:g1 (v.0) <nullop> = mips (r24, <nullop>)
+        ["exec_times": 62]
+        ["instr_profile": 62 22]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:make_neighbors.L14,0>]
+ 813: lab L:make_neighbors.L16
+        ["machine_instr": "mips" 6002 ""]
+ 814: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:make_neighbors.L20,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:make_neighbors.L20,0>]
+ 815: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["exec_times": 40]
+        ["instr_profile": 40 40]
+        ["machine_instr": "mips" 6150 "j"]
+        ["instr_bj_target": <L:make_neighbors.__done15,0>]
+ 816: lab L:make_neighbors.L13
+        ["machine_instr": "mips" 6002 ""]
+ 817: gen t:g4 (i.32) r6 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 818: lab L:make_neighbors.__done15
+        ["machine_instr": "mips" 6002 ""]
+ 819: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 185 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 820: gen t:g30 (i.32) r25 = mips (r6, r15)
+        ["exec_times": 62]
+        ["machine_instr": "mips" 6126 "slt"]
+ 821: gen t:g1 (v.0) <nullop> = mips (r25, <nullop>)
+        ["exec_times": 62]
+        ["instr_profile": 62 2]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:make_neighbors.L9,0>]
+ 822: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 190 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 823: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 824:   e1: ldc t:g4 (i.32) 12
+ 825: gen t:g55 (p.32) r27 = mips (r11, r26)
+        ["fields": "to_nodes"]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 826: gen t:g44 (p.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6077 "lw"]
+ 827:   e1: add t:g29 (p.32) r27, e2
+ 828:     e2: ldc t:g4 (i.32) 0
+ 829: gen t:g4 (i.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 830:   e1: ldc t:g4 (i.32) 4
+ 831: gen t:g1 (v.0) <nullop> = mips (r15, r5)
+        ["machine_instr": "mips" 6098 "mult"]
+ 832: gen t:g4 (i.32) r6 = mips (<nullop>, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 833: gen t:g44 (p.32) r7 = mips (r28, r6)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 834: gen t:g43 (p.32) <nullop> = mips (e1, r16, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6084 "sw"]
+ 835:   e1: add t:g29 (p.32) r7, e2
+ 836:     e2: ldc t:g4 (i.32) 0
+ 837: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 191 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 838: gen t:g4 (i.32) r8 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 839:   e1: ldc t:g4 (i.32) 24
+ 840: gen t:g54 (p.32) r9 = mips (r16, r8)
+        ["fields": "from_count"]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 841: gen t:g4 (i.32) r10 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6077 "lw"]
+ 842:   e1: add t:g29 (p.32) r9, e2
+ 843:     e2: ldc t:g4 (i.32) 0
+ 844: gen t:g4 (i.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 845:   e1: ldc t:g4 (i.32) 1
+ 846: gen t:g4 (i.32) r20 = mips (r10, r19)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 847: gen t:g4 (i.32) <nullop> = mips (e1, r20, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6084 "sw"]
+ 848:   e1: add t:g29 (p.32) r9, e2
+ 849:     e2: ldc t:g4 (i.32) 0
+ 850: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:make_neighbors.L20,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:make_neighbors.L20,0>]
+ 851: lab L:make_neighbors.L20
+        ["machine_instr": "mips" 6002 ""]
+ 852: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:make_neighbors.L20,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:make_neighbors.L20,0>]
+ 853: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:make_neighbors.L20,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:make_neighbors.L20,0>]
+ 854: gen t:g4 (i.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 855:   e1: ldc t:g4 (i.32) 1
+ 856: gen t:g4 (i.32) r15 = mips (r15, r21)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 857: gen t:g4 (i.32) r22 = mips (r12, r15)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6045 "sle"]
+ 858: gen t:g1 (v.0) <nullop> = mips (r22, <nullop>)
+        ["exec_times": 60]
+        ["instr_profile": 60 40]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:make_neighbors.L9,0>]
+ 859: lab L:make_neighbors.L17
+        ["machine_instr": "mips" 6002 ""]
+ 860: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 20]
+        ["machine_instr": "mips" 6150 "j"]
+        ["instr_bj_target": <L:make_neighbors.__done17,0>]
+ 861: lab L:make_neighbors.L15
+        ["machine_instr": "mips" 6002 ""]
+ 862: gen t:g4 (i.32) r15 = mips (r0, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6067 "move"]
+ 863: lab L:make_neighbors.__done17
+        ["machine_instr": "mips" 6002 ""]
+ 864: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 181 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 865: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 175 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 866: gen t:g4 (i.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 867:   e1: ldc t:g4 (i.32) 8
+ 868: gen t:g44 (p.32) r24 = mips (r11, r23)
+        ["fields": "next"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 869: gen t:g43 (p.32) r11 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6077 "lw"]
+ 870:   e1: add t:g29 (p.32) r24, e2
+ 871:     e2: ldc t:g4 (i.32) 0
+ 872: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 175 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 873: gen t:g43 (p.32) r25 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6059 "la"]
+ 874:   e1: add t:g29 (p.32) r0, e2
+ 875:     e2: ldc t:g4 (i.32) 0
+ 876: gen t:g30 (i.32) r26 = mips (r11, r25)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6047 "sne"]
+ 877: gen t:g1 (v.0) <nullop> = mips (r26, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 18]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:make_neighbors.L3,0>]
+ 878: lab L:make_neighbors.L4
+        ["machine_instr": "mips" 6002 ""]
+ 879: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 194 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 880: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 2]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.update_from_coeffs
+    ["line": 197 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 4 11 12 13 14]
+      Procedure symbol table: `update_from_coeffs'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `nodelist' var_sym with t:g43; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 5]
+          s:p2: `cur_node' var_sym with t:g43; reg userdef 
+            ["vsym_info": 0 10]
+            ["reg_num": 11]
+          s:p5: `L3' label_sym 
+          s:p6: `L4' label_sym 
+          s:p11: `from_count' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 5]
+            ["reg_num": 12]
+          s:p12: `k' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 6]
+            ["reg_num": 13]
+          s:p13: `L7' label_sym 
+          s:p14: `L8' label_sym 
+          s:p15: `__done9' label_sym 
+          s:p16: `_t' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p17: `_t0' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p18: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p19: `_t2' var_sym with t:g54; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p20: `_t3' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p21: `_t4' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 12]
+          s:p22: `_t5' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p23: `_t6' var_sym with t:g67; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p24: `_t7' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p25: `_t8' var_sym with t:g29; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p26: `_t9' var_sym with t:g55; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 13]
+          s:p27: `_t10' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p28: `_t11' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p29: `_t12' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 12]
+          s:p30: `_t13' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p31: `_t14' var_sym with t:g67; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p32: `_t15' var_sym with t:g8; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p33: `_t16' var_sym with t:g29; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p34: `_t17' var_sym with t:g58; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 13]
+          s:p35: `_t18' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p36: `_t19' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p37: `_t20' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p38: `_t21' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p39: `_t22' var_sym with t:g58; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p40: `_t23' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p41: `_t24' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p42: `_t25' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p43: `_t26' var_sym with t:g63; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p44: `_t27' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 14]
+          s:p45: `_t28' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 36]
+          s:p46: `_t29' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p47: `_t30' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p48: `_t31' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p49: `_t32' var_sym with t:g54; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p50: `_t33' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p51: `_t34' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p52: `_t35' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p53: `_t36' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p54: `_t37' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p55: `L9' label_sym 
+          s:p56: `L10' label_sym 
+          s:p57: `L11' label_sym 
+          s:p58: `L12' label_sym 
+          s:p59: `L13' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          update_from_coeffs.nodelist
+ 552: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 553: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 201 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 554: gen t:g43 (p.32) r11 = mips (r5, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6067 "move"]
+ 555: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 201 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 556: gen t:g43 (p.32) r27 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6059 "la"]
+ 557:   e1: add t:g29 (p.32) r0, e2
+ 558:     e2: ldc t:g4 (i.32) 0
+ 559: gen t:g30 (i.32) r28 = mips (r11, r27)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6047 "sne"]
+ 560: gen t:g1 (v.0) <nullop> = mips (r28, <nullop>)
+        ["exec_times": 2]
+        ["instr_profile": 2 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:update_from_coeffs.L4,0>]
+ 561: lab L:update_from_coeffs.L3
+        ["machine_instr": "mips" 6002 ""]
+ 562: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 202 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 563: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:update_from_coeffs.L10,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:update_from_coeffs.L10,0>]
+ 564: lab L:update_from_coeffs.L10
+        ["machine_instr": "mips" 6002 ""]
+ 565: gen t:g4 (i.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 566:   e1: ldc t:g4 (i.32) 24
+ 567: gen t:g54 (p.32) r6 = mips (r11, r5)
+        ["fields": "from_count"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 568: gen t:g4 (i.32) r12 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6077 "lw"]
+ 569:   e1: add t:g29 (p.32) r6, e2
+ 570:     e2: ldc t:g4 (i.32) 0
+ 571: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 205 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 572: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 573:   e1: ldc t:g4 (i.32) 16
+ 574: gen t:g55 (p.32) r13 = mips (r11, r7)
+        ["fields": "from_nodes"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 575: gen t:g67 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6059 "la"]
+ 576:   e1: ldc t:g29 (p.32) <P:.malloc,0>
+ 577: gen t:g8 (u.32) r8 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 578:   e1: ldc t:g8 (u.32) 4
+ 579: gen t:g1 (v.0) <nullop> = mips (r12, r8)
+        ["machine_instr": "mips" 6099 "multu"]
+ 580: gen t:g8 (u.32) r5 = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 581: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 582: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 583: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 20]
+        ["proc_name": "malloc"]
+        ["regs_used": 5]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 584: gen t:g44 (p.32) <nullop> = mips (e1, r9, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6084 "sw"]
+ 585:   e1: add t:g29 (p.32) r13, e2
+ 586:     e2: ldc t:g4 (i.32) 0
+ 587: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 207 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 588: gen t:g4 (i.32) r9 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 589:   e1: ldc t:g4 (i.32) 20
+ 590: gen t:g58 (p.32) r13 = mips (r11, r9)
+        ["fields": "coeffs"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 591: gen t:g67 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6059 "la"]
+ 592:   e1: ldc t:g29 (p.32) <P:.malloc,0>
+ 593: gen t:g8 (u.32) r10 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 594:   e1: ldc t:g8 (u.32) 8
+ 595: gen t:g1 (v.0) <nullop> = mips (r12, r10)
+        ["machine_instr": "mips" 6099 "multu"]
+ 596: gen t:g8 (u.32) r5 = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 597: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 598: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 599: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 20]
+        ["proc_name": "malloc"]
+        ["regs_used": 5]
+        ["regs_defd": 9]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 600: gen t:g45 (p.32) <nullop> = mips (e1, r9, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6084 "sw"]
+ 601:   e1: add t:g29 (p.32) r13, e2
+ 602:     e2: ldc t:g4 (i.32) 0
+ 603: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 208 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 604: gen t:g4 (i.32) r19 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 605: gen t:g4 (i.32) r20 = mips (r19, r12)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6126 "slt"]
+ 606: gen t:g1 (v.0) <nullop> = mips (r20, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:update_from_coeffs.L7,0>]
+ 607: gen t:g4 (i.32) r13 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 608: lab L:update_from_coeffs.L8
+        ["machine_instr": "mips" 6002 ""]
+ 609: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 209 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 610: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:update_from_coeffs.L13,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:update_from_coeffs.L13,0>]
+ 611: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:update_from_coeffs.L12,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:update_from_coeffs.L12,0>]
+ 612: lab L:update_from_coeffs.L12
+        ["machine_instr": "mips" 6002 ""]
+ 613: gen t:g4 (i.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 614:   e1: ldc t:g4 (i.32) 20
+ 615: gen t:g58 (p.32) r22 = mips (r11, r21)
+        ["fields": "coeffs"]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 616: gen t:g45 (p.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6077 "lw"]
+ 617:   e1: add t:g29 (p.32) r22, e2
+ 618:     e2: ldc t:g4 (i.32) 0
+ 619: gen t:g4 (i.32) r24 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 620:   e1: ldc t:g4 (i.32) 8
+ 621: gen t:g1 (v.0) <nullop> = mips (r13, r24)
+        ["machine_instr": "mips" 6098 "mult"]
+ 622: gen t:g4 (i.32) r25 = mips (<nullop>, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 623: gen t:g45 (p.32) r14 = mips (r23, r25)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 624: gen t:g63 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6059 "la"]
+ 625:   e1: ldc t:g29 (p.32) <P:.gen_uniform_double,0>
+ 626: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 627: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 628: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 60]
+        ["proc_name": "gen_uniform_double"]
+        ["call_overhead": 9]
+        ["regs_used":]
+        ["regs_defd": 36]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 629: gen t:g11 (f.64) <nullop> = mips (e1, r36, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6071 "s.d"]
+ 630:   e1: add t:g29 (p.32) r14, e2
+ 631:     e2: ldc t:g4 (i.32) 0
+ 632: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 633:   e1: ldc t:g4 (i.32) 1
+ 634: gen t:g4 (i.32) r13 = mips (r13, r26)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 635: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:update_from_coeffs.L13,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:update_from_coeffs.L13,0>]
+ 636: lab L:update_from_coeffs.L13
+        ["machine_instr": "mips" 6002 ""]
+ 637: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:update_from_coeffs.L13,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:update_from_coeffs.L13,0>]
+ 638: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 639:   e1: ldc t:g4 (i.32) 1
+ 640: gen t:g4 (i.32) r13 = mips (r13, r26)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 641: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:update_from_coeffs.L13,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:update_from_coeffs.L13,0>]
+ 642: gen t:g4 (i.32) r27 = mips (r12, r13)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6045 "sle"]
+ 643: gen t:g1 (v.0) <nullop> = mips (r27, <nullop>)
+        ["exec_times": 60]
+        ["instr_profile": 60 40]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:update_from_coeffs.L8,0>]
+ 644: lab L:update_from_coeffs.L9
+        ["machine_instr": "mips" 6002 ""]
+ 645: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:update_from_coeffs.L11,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:update_from_coeffs.L11,0>]
+ 646: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 20]
+        ["machine_instr": "mips" 6150 "j"]
+        ["instr_bj_target": <L:update_from_coeffs.__done9,0>]
+ 647: lab L:update_from_coeffs.L7
+        ["machine_instr": "mips" 6002 ""]
+ 648: gen t:g4 (i.32) r13 = mips (r0, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6067 "move"]
+ 649: lab L:update_from_coeffs.__done9
+        ["machine_instr": "mips" 6002 ""]
+ 650: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 211 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 651: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 652:   e1: ldc t:g4 (i.32) 24
+ 653: gen t:g54 (p.32) r5 = mips (r11, r28)
+        ["fields": "from_count"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 654: gen t:g4 (i.32) r6 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 655: gen t:g4 (i.32) <nullop> = mips (e1, r6, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6084 "sw"]
+ 656:   e1: add t:g29 (p.32) r5, e2
+ 657:     e2: ldc t:g4 (i.32) 0
+ 658: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 201 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 659: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:update_from_coeffs.L11,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:update_from_coeffs.L11,0>]
+ 660: lab L:update_from_coeffs.L11
+        ["machine_instr": "mips" 6002 ""]
+ 661: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:update_from_coeffs.L11,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:update_from_coeffs.L11,0>]
+ 662: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:update_from_coeffs.L11,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:update_from_coeffs.L11,0>]
+ 663: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 664:   e1: ldc t:g4 (i.32) 8
+ 665: gen t:g44 (p.32) r8 = mips (r11, r7)
+        ["fields": "next"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 666: gen t:g43 (p.32) r11 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6077 "lw"]
+ 667:   e1: add t:g29 (p.32) r8, e2
+ 668:     e2: ldc t:g4 (i.32) 0
+ 669: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 201 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 670: gen t:g43 (p.32) r9 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6059 "la"]
+ 671:   e1: add t:g29 (p.32) r0, e2
+ 672:     e2: ldc t:g4 (i.32) 0
+ 673: gen t:g30 (i.32) r10 = mips (r11, r9)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6047 "sne"]
+ 674: gen t:g1 (v.0) <nullop> = mips (r10, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 18]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:update_from_coeffs.L3,0>]
+ 675: lab L:update_from_coeffs.L4
+        ["machine_instr": "mips" 6002 ""]
+ 676: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 213 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 677: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 2]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.fill_from_fields
+    ["line": 216 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 1 0 0 0 0 11]
+      Procedure symbol table: `fill_from_fields'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `nodelist' var_sym with t:g43; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 5]
+          s:p2: `degree' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 3 6]
+            ["reg_num": 6]
+          s:p3: `cur_node' var_sym with t:g43; reg userdef 
+            ["vsym_info": 0 7]
+            ["reg_num": 5]
+          s:p6: `L3' label_sym 
+          s:p7: `L4' label_sym 
+          s:p13: `j' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 6]
+            ["reg_num": 11]
+          s:p14: `other_node' var_sym with t:g43; reg userdef 
+            ["vsym_info": 0 4]
+            ["reg_num": 7]
+          s:p15: `suif_tmp' var_sym with t:g54; reg 
+            ["vsym_info": 0 3]
+            ["reg_num": 24]
+          s:p16: `L7' label_sym 
+          s:p17: `L8' label_sym 
+          s:p18: `__done9' label_sym 
+          s:p19: `_t' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p20: `_t0' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p21: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p22: `_t2' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p23: `_t3' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p24: `_t4' var_sym with t:g55; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p25: `_t5' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p26: `_t6' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p27: `_t7' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p28: `_t8' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p29: `_t9' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p30: `_t10' var_sym with t:g55; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p31: `_t11' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p32: `_t12' var_sym with t:g54; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p33: `_t13' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p34: `_t14' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p35: `_t15' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p36: `_t16' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p37: `_t17' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p38: `_t18' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p39: `_t19' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p40: `_t20' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p41: `_t21' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p42: `_t22' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p43: `_t23' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p44: `_t24' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p45: `_t25' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p46: `_t26' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p47: `_t27' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p48: `L9' label_sym 
+          s:p49: `L10' label_sym 
+          s:p50: `L11' label_sym 
+          s:p51: `L12' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          fill_from_fields.nodelist
+          fill_from_fields.degree
+ 454: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 455: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 218 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 456: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 218 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 457: gen t:g43 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6059 "la"]
+ 458:   e1: add t:g29 (p.32) r0, e2
+ 459:     e2: ldc t:g4 (i.32) 0
+ 460: gen t:g30 (i.32) r20 = mips (r5, r19)
+        ["exec_times": 2]
+        ["machine_instr": "mips" 6047 "sne"]
+ 461: gen t:g1 (v.0) <nullop> = mips (r20, <nullop>)
+        ["exec_times": 2]
+        ["instr_profile": 2 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:fill_from_fields.L4,0>]
+ 462: lab L:fill_from_fields.L3
+        ["machine_instr": "mips" 6002 ""]
+ 463: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 221 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 464: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:fill_from_fields.L10,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:fill_from_fields.L10,0>]
+ 465: lab L:fill_from_fields.L10
+        ["machine_instr": "mips" 6002 ""]
+ 466: gen t:g4 (i.32) r21 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 467: gen t:g4 (i.32) r22 = mips (r21, r6)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6126 "slt"]
+ 468: gen t:g1 (v.0) <nullop> = mips (r22, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:fill_from_fields.L7,0>]
+ 469: gen t:g4 (i.32) r11 = mips (r0, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6067 "move"]
+ 470: lab L:fill_from_fields.L8
+        ["machine_instr": "mips" 6002 ""]
+ 471: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 221 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 472: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:fill_from_fields.L12,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:fill_from_fields.L12,0>]
+ 473: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:fill_from_fields.L11,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:fill_from_fields.L11,0>]
+ 474: lab L:fill_from_fields.L11
+        ["machine_instr": "mips" 6002 ""]
+ 475: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 222 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 476: gen t:g4 (i.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 477:   e1: ldc t:g4 (i.32) 12
+ 478: gen t:g55 (p.32) r24 = mips (r5, r23)
+        ["fields": "to_nodes"]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 479: gen t:g44 (p.32) r25 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6077 "lw"]
+ 480:   e1: add t:g29 (p.32) r24, e2
+ 481:     e2: ldc t:g4 (i.32) 0
+ 482: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 483:   e1: ldc t:g4 (i.32) 4
+ 484: gen t:g1 (v.0) <nullop> = mips (r11, r26)
+        ["machine_instr": "mips" 6098 "mult"]
+ 485: gen t:g4 (i.32) r27 = mips (<nullop>, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 486: gen t:g44 (p.32) r28 = mips (r25, r27)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 487: gen t:g43 (p.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6077 "lw"]
+ 488:   e1: add t:g29 (p.32) r28, e2
+ 489:     e2: ldc t:g4 (i.32) 0
+ 490: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 223 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 491: gen t:g4 (i.32) r8 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 492:   e1: ldc t:g4 (i.32) 16
+ 493: gen t:g55 (p.32) r8 = mips (r7, r8)
+        ["fields": "from_nodes"]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 494: gen t:g44 (p.32) r8 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6077 "lw"]
+ 495:   e1: add t:g29 (p.32) r8, e2
+ 496:     e2: ldc t:g4 (i.32) 0
+ 497: gen t:g4 (i.32) r9 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 498:   e1: ldc t:g4 (i.32) 24
+ 499: gen t:g54 (p.32) r10 = mips (r7, r9)
+        ["fields": "from_count"]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 500: gen t:g4 (i.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6077 "lw"]
+ 501:   e1: add t:g29 (p.32) r10, e2
+ 502:     e2: ldc t:g4 (i.32) 0
+ 503: gen t:g4 (i.32) r20 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 504:   e1: ldc t:g4 (i.32) 4
+ 505: gen t:g1 (v.0) <nullop> = mips (r19, r20)
+        ["machine_instr": "mips" 6098 "mult"]
+ 506: gen t:g4 (i.32) r21 = mips (<nullop>, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6131 "mflo"]
+ 507: gen t:g44 (p.32) r22 = mips (r8, r21)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 508: gen t:g43 (p.32) <nullop> = mips (e1, r5, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6084 "sw"]
+ 509:   e1: add t:g29 (p.32) r22, e2
+ 510:     e2: ldc t:g4 (i.32) 0
+ 511: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 224 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 512: gen t:g4 (i.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 513:   e1: ldc t:g4 (i.32) 24
+ 514: gen t:g54 (p.32) r24 = mips (r7, r23)
+        ["fields": "from_count"]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 515: gen t:g4 (i.32) r25 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6077 "lw"]
+ 516:   e1: add t:g29 (p.32) r24, e2
+ 517:     e2: ldc t:g4 (i.32) 0
+ 518: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 519:   e1: ldc t:g4 (i.32) 1
+ 520: gen t:g4 (i.32) r27 = mips (r25, r26)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 521: gen t:g4 (i.32) <nullop> = mips (e1, r27, <nullop>)
+        ["is_store_ea": 0]
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6084 "sw"]
+ 522:   e1: add t:g29 (p.32) r24, e2
+ 523:     e2: ldc t:g4 (i.32) 0
+ 524: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 525:   e1: ldc t:g4 (i.32) 1
+ 526: gen t:g4 (i.32) r11 = mips (r11, r28)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 527: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:fill_from_fields.L12,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:fill_from_fields.L12,0>]
+ 528: lab L:fill_from_fields.L12
+        ["machine_instr": "mips" 6002 ""]
+ 529: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:fill_from_fields.L12,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:fill_from_fields.L12,0>]
+ 530: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6039 "li"]
+ 531:   e1: ldc t:g4 (i.32) 1
+ 532: gen t:g4 (i.32) r11 = mips (r11, r28)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6089 "addu"]
+ 533: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:fill_from_fields.L12,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:fill_from_fields.L12,0>]
+ 534: gen t:g4 (i.32) r7 = mips (r6, r11)
+        ["exec_times": 60]
+        ["machine_instr": "mips" 6045 "sle"]
+ 535: gen t:g1 (v.0) <nullop> = mips (r7, <nullop>)
+        ["exec_times": 60]
+        ["instr_profile": 60 40]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:fill_from_fields.L8,0>]
+ 536: lab L:fill_from_fields.L9
+        ["machine_instr": "mips" 6002 ""]
+ 537: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 20]
+        ["machine_instr": "mips" 6150 "j"]
+        ["instr_bj_target": <L:fill_from_fields.__done9,0>]
+ 538: lab L:fill_from_fields.L7
+        ["machine_instr": "mips" 6002 ""]
+ 539: gen t:g4 (i.32) r11 = mips (r0, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6067 "move"]
+ 540: lab L:fill_from_fields.__done9
+        ["machine_instr": "mips" 6002 ""]
+ 541: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 221 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 542: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 218 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 543: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6039 "li"]
+ 544:   e1: ldc t:g4 (i.32) 8
+ 545: gen t:g44 (p.32) r7 = mips (r5, r7)
+        ["fields": "next"]
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6089 "addu"]
+ 546: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6077 "lw"]
+ 547:   e1: add t:g29 (p.32) r7, e2
+ 548:     e2: ldc t:g4 (i.32) 0
+ 549: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 218 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 550: gen t:g43 (p.32) r8 = mips (e1, <nullop>)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6059 "la"]
+ 551:   e1: add t:g29 (p.32) r0, e2
+ 552:     e2: ldc t:g4 (i.32) 0
+ 553: gen t:g30 (i.32) r9 = mips (r5, r8)
+        ["exec_times": 20]
+        ["machine_instr": "mips" 6047 "sne"]
+ 554: gen t:g1 (v.0) <nullop> = mips (r9, <nullop>)
+        ["exec_times": 20]
+        ["instr_profile": 20 18]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:fill_from_fields.L3,0>]
+ 555: lab L:fill_from_fields.L4
+        ["machine_instr": "mips" 6002 ""]
+ 556: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 227 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 557: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 2]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.dealwithargs
+    ["line": 269 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 4 11]
+      Procedure symbol table: `dealwithargs'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `argc' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 4 5]
+            ["reg_num": 11]
+          s:p2: `argv' var_sym with t:g83; param reg userdef 
+            ["vsym_info": 0 1 6]
+            ["reg_num": 6]
+          s:p6: `__done4' label_sym 
+          s:p7: `__done5' label_sym 
+          s:p8: `__done6' label_sym 
+          s:p9: `_t' var_sym with t:g72; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p10: `_t0' var_sym with t:g33; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p11: `_t1' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p12: `_t2' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p13: `_t3' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p14: `_t4' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p15: `_t5' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p16: `_t6' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          dealwithargs.argc
+          dealwithargs.argv
+ 228: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 229: gen t:g4 (i.32) r11 = mips (r5, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 230: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 270 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 231: gen t:g72 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 232:   e1: ldc t:g29 (p.32) <P:.myprintf,0>
+ 233: gen t:g33 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 234:   e1: ldc t:g29 (p.32) <.__tmp_string_1,0>
+ 235: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 236: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 237: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "myprintf"]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 238: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 271 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 239: gen t:g4 (i.32) r10 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6039 "li"]
+ 240:   e1: ldc t:g4 (i.32) 1
+ 241: gen t:g30 (i.32) r19 = mips (r10, r11)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6126 "slt"]
+ 242: gen t:g1 (v.0) <nullop> = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["instr_profile": 1 0]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:dealwithargs.__done4,0>]
+ 243: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 274 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 244: gen t:g4 (i.32) r20 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6039 "li"]
+ 245:   e1: ldc t:g4 (i.32) 10
+ 246: gen t:g4 (i.32) <nullop> = mips (e1, r20, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 247:   e1: ldc t:g54 (p.32) <.n_nodes,0>
+ 248: lab L:dealwithargs.__done4
+        ["machine_instr": "mips" 6002 ""]
+ 249: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 277 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 250: gen t:g4 (i.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6039 "li"]
+ 251:   e1: ldc t:g4 (i.32) 2
+ 252: gen t:g30 (i.32) r22 = mips (r21, r11)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6126 "slt"]
+ 253: gen t:g1 (v.0) <nullop> = mips (r22, <nullop>)
+        ["exec_times": 1]
+        ["instr_profile": 1 0]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:dealwithargs.__done5,0>]
+ 254: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 280 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 255: gen t:g4 (i.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6039 "li"]
+ 256:   e1: ldc t:g4 (i.32) 3
+ 257: gen t:g4 (i.32) <nullop> = mips (e1, r23, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 258:   e1: ldc t:g54 (p.32) <.d_nodes,0>
+ 259: lab L:dealwithargs.__done5
+        ["machine_instr": "mips" 6002 ""]
+ 260: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 283 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 261: gen t:g4 (i.32) r24 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6039 "li"]
+ 262:   e1: ldc t:g4 (i.32) 3
+ 263: gen t:g30 (i.32) r25 = mips (r24, r11)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6126 "slt"]
+ 264: gen t:g1 (v.0) <nullop> = mips (r25, <nullop>)
+        ["exec_times": 1]
+        ["instr_profile": 1 0]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:dealwithargs.__done6,0>]
+ 265: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 286 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 266: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6039 "li"]
+ 267:   e1: ldc t:g4 (i.32) 30
+ 268: gen t:g4 (i.32) <nullop> = mips (e1, r26, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 269:   e1: ldc t:g54 (p.32) <.iters,0>
+ 270: lab L:dealwithargs.__done6
+        ["machine_instr": "mips" 6002 ""]
+ 271: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 288 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 272: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 1]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.print_graph
+    ["line": 295 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 20 11]
+      Procedure symbol table: `print_graph'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `graph' var_sym with t:g46; param addr_taken userdef 
+            ["vsym_info": 0 1]
+          s:p2: `cur_node' var_sym with t:g43; reg userdef 
+            ["vsym_info": 0 14]
+            ["reg_num": 11]
+          s:p5: `L3' label_sym 
+          s:p6: `L4' label_sym 
+          s:p9: `L7' label_sym 
+          s:p10: `L8' label_sym 
+          s:p11: `_t' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p12: `_t0' var_sym with t:g72; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p13: `_t1' var_sym with t:g33; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p14: `_t2' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p15: `_t3' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p16: `_t4' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p17: `_t5' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p18: `_t6' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p19: `_t7' var_sym with t:g54; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p20: `_t8' var_sym with t:g72; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p21: `_t9' var_sym with t:g33; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p22: `_t10' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 34]
+          s:p23: `_t11' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p24: `_t12' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p25: `_t13' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p26: `_t14' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 21]
+          s:p27: `_t15' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p28: `_t16' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p29: `_t17' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p30: `_t18' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 25]
+          s:p31: `_t19' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p32: `_t20' var_sym with t:g45; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 27]
+          s:p33: `_t21' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p34: `_t22' var_sym with t:g54; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p35: `_t23' var_sym with t:g72; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p36: `_t24' var_sym with t:g33; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p37: `_t25' var_sym with t:g11; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 34]
+          s:p38: `_t26' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 6]
+          s:p39: `_t27' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 7]
+          s:p40: `_t28' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 8]
+          s:p41: `_t29' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p42: `_t30' var_sym with t:g30; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 10]
+          s:p43: `L9' label_sym 
+          s:p44: `L10' label_sym 
+          s:p45: `L11' label_sym 
+          s:p46: `L12' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          print_graph.graph
+ 582: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 583: gen t:g4 (i.32) <nullop> = mips (e1, r5, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 584:   e1: ldc t:g29 (p.32) <print_graph.graph,0>
+ 585: gen t:g4 (i.32) <nullop> = mips (e1, r6, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 586:   e1: ldc t:g29 (p.32) <print_graph.graph,32>
+ 587: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 297 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 588: gen t:g44 (p.32) r27 = mips (e1, <nullop>)
+        ["fields": "e_nodes"]
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6059 "la"]
+ 589:   e1: ldc t:g29 (p.32) <print_graph.graph,0>
+ 590: gen t:g43 (p.32) r11 = mips (e1, <nullop>)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6077 "lw"]
+ 591:   e1: add t:g29 (p.32) r27, e2
+ 592:     e2: ldc t:g4 (i.32) 0
+ 593: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 298 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 594: gen t:g72 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6059 "la"]
+ 595:   e1: ldc t:g29 (p.32) <P:.myprintf,0>
+ 596: gen t:g33 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6059 "la"]
+ 597:   e1: ldc t:g29 (p.32) <.__tmp_string_2,0>
+ 598: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 599: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 600: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 31]
+        ["proc_name": "myprintf"]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 601: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 299 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 602: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 299 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 603: gen t:g43 (p.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6059 "la"]
+ 604:   e1: add t:g29 (p.32) r0, e2
+ 605:     e2: ldc t:g4 (i.32) 0
+ 606: gen t:g30 (i.32) r5 = mips (r11, r28)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6047 "sne"]
+ 607: gen t:g1 (v.0) <nullop> = mips (r5, <nullop>)
+        ["exec_times": 31]
+        ["instr_profile": 31 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:print_graph.L4,0>]
+ 608: lab L:print_graph.L3
+        ["machine_instr": "mips" 6002 ""]
+ 609: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 300 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 610: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:print_graph.L10,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:print_graph.L10,0>]
+ 611: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:print_graph.L9,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:print_graph.L9,0>]
+ 612: lab L:print_graph.L9
+        ["machine_instr": "mips" 6002 ""]
+ 613: gen t:g72 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6059 "la"]
+ 614:   e1: ldc t:g29 (p.32) <P:.myprintf6,0>
+ 615: gen t:g33 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6059 "la"]
+ 616:   e1: ldc t:g29 (p.32) <.__tmp_string_3,0>
+ 617: gen t:g4 (i.32) r6 = mips (r0, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6067 "move"]
+ 618: gen t:g45 (p.32) r7 = mips (r11, r6)
+        ["fields": "value"]
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6089 "addu"]
+ 619: gen t:g11 (f.64) r34 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6069 "l.d"]
+ 620:   e1: add t:g29 (p.32) r7, e2
+ 621:     e2: ldc t:g4 (i.32) 0
+ 622: gen t:g4 (i.32) r8 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6039 "li"]
+ 623:   e1: ldc t:g4 (i.32) 24
+ 624: gen t:g54 (p.32) r9 = mips (r11, r8)
+        ["fields": "from_count"]
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6089 "addu"]
+ 625: gen t:g4 (i.32) r10 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6077 "lw"]
+ 626:   e1: add t:g29 (p.32) r9, e2
+ 627:     e2: ldc t:g4 (i.32) 0
+ 628: gen t:g8 (u.32) r7 = mips (r34, <nullop>)
+        ["machine_instr": "mips" 6135 "mfc1"]
+ 629: gen t:g8 (u.32) r8 = mips (r35, <nullop>)
+        ["machine_instr": "mips" 6135 "mfc1"]
+ 630: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 631: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 632: gen t:g4 (i.32) <nullop> = mips (e1, r10, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 633:   e1: add t:g29 (p.32) r2, e2
+ 634:     e2: ldc t:g4 (i.32) -20
+ 635: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 310]
+        ["proc_name": "myprintf6"]
+        ["regs_used": 5 34 7 8 34 35]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 636: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 299 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 637: gen t:g4 (i.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6039 "li"]
+ 638:   e1: ldc t:g4 (i.32) 8
+ 639: gen t:g44 (p.32) r20 = mips (r11, r19)
+        ["fields": "next"]
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6089 "addu"]
+ 640: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:print_graph.L10,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:print_graph.L10,0>]
+ 641: lab L:print_graph.L10
+        ["machine_instr": "mips" 6002 ""]
+ 642: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:print_graph.L10,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:print_graph.L10,0>]
+ 643: gen t:g72 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6059 "la"]
+ 644:   e1: ldc t:g29 (p.32) <P:.myprintf6,0>
+ 645: gen t:g4 (i.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6039 "li"]
+ 646:   e1: ldc t:g4 (i.32) 8
+ 647: gen t:g44 (p.32) r20 = mips (r11, r19)
+        ["fields": "next"]
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6089 "addu"]
+ 648: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:print_graph.L10,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:print_graph.L10,0>]
+ 649: gen t:g43 (p.32) r11 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6077 "lw"]
+ 650:   e1: add t:g29 (p.32) r20, e2
+ 651:     e2: ldc t:g4 (i.32) 0
+ 652: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 299 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 653: gen t:g43 (p.32) r21 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6059 "la"]
+ 654:   e1: add t:g29 (p.32) r0, e2
+ 655:     e2: ldc t:g4 (i.32) 0
+ 656: gen t:g30 (i.32) r22 = mips (r11, r21)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6047 "sne"]
+ 657: gen t:g1 (v.0) <nullop> = mips (r22, <nullop>)
+        ["exec_times": 310]
+        ["instr_profile": 310 279]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:print_graph.L3,0>]
+ 658: lab L:print_graph.L4
+        ["machine_instr": "mips" 6002 ""]
+ 659: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 303 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 660: gen t:g44 (p.32) r23 = mips (e1, <nullop>)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6059 "la"]
+ 661:   e1: ldc t:g29 (p.32) <print_graph.graph,32>
+ 662: gen t:g43 (p.32) r11 = mips (e1, <nullop>)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6077 "lw"]
+ 663:   e1: add t:g29 (p.32) r23, e2
+ 664:     e2: ldc t:g4 (i.32) 0
+ 665: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 304 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 666: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 304 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 667: gen t:g43 (p.32) r24 = mips (e1, <nullop>)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6059 "la"]
+ 668:   e1: add t:g29 (p.32) r0, e2
+ 669:     e2: ldc t:g4 (i.32) 0
+ 670: gen t:g30 (i.32) r25 = mips (r11, r24)
+        ["exec_times": 31]
+        ["machine_instr": "mips" 6047 "sne"]
+ 671: gen t:g1 (v.0) <nullop> = mips (r25, <nullop>)
+        ["exec_times": 31]
+        ["instr_profile": 31 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:print_graph.L8,0>]
+ 672: lab L:print_graph.L7
+        ["machine_instr": "mips" 6002 ""]
+ 673: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 305 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 674: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:print_graph.L12,0>]
+        ["machine_instr": "mips" 6210 "spawn"]
+        ["instr_bj_target": <L:print_graph.L12,0>]
+ 675: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:print_graph.L11,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:print_graph.L11,0>]
+ 676: lab L:print_graph.L11
+        ["machine_instr": "mips" 6002 ""]
+ 677: gen t:g72 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6059 "la"]
+ 678:   e1: ldc t:g29 (p.32) <P:.myprintf6,0>
+ 679: gen t:g33 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6059 "la"]
+ 680:   e1: ldc t:g29 (p.32) <.__tmp_string_4,0>
+ 681: gen t:g4 (i.32) r26 = mips (r0, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6067 "move"]
+ 682: gen t:g45 (p.32) r27 = mips (r11, r26)
+        ["fields": "value"]
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6089 "addu"]
+ 683: gen t:g11 (f.64) r34 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6069 "l.d"]
+ 684:   e1: add t:g29 (p.32) r27, e2
+ 685:     e2: ldc t:g4 (i.32) 0
+ 686: gen t:g4 (i.32) r28 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6039 "li"]
+ 687:   e1: ldc t:g4 (i.32) 24
+ 688: gen t:g54 (p.32) r6 = mips (r11, r28)
+        ["fields": "from_count"]
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6089 "addu"]
+ 689: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6077 "lw"]
+ 690:   e1: add t:g29 (p.32) r6, e2
+ 691:     e2: ldc t:g4 (i.32) 0
+ 692: gen t:g8 (u.32) r7 = mips (r34, <nullop>)
+        ["machine_instr": "mips" 6135 "mfc1"]
+ 693: gen t:g8 (u.32) r8 = mips (r35, <nullop>)
+        ["machine_instr": "mips" 6135 "mfc1"]
+ 694: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 695: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 696: gen t:g4 (i.32) <nullop> = mips (e1, r6, <nullop>)
+        ["is_store_ea": 0]
+        ["machine_instr": "mips" 6084 "sw"]
+ 697:   e1: add t:g29 (p.32) r2, e2
+ 698:     e2: ldc t:g4 (i.32) -20
+ 699: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 310]
+        ["proc_name": "myprintf6"]
+        ["regs_used": 5 34 7 8 34 35]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 700: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 304 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 701: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6039 "li"]
+ 702:   e1: ldc t:g4 (i.32) 8
+ 703: gen t:g44 (p.32) r8 = mips (r11, r7)
+        ["fields": "next"]
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6089 "addu"]
+ 704: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["cqip_pos": <L:print_graph.L12,0>]
+        ["machine_instr": "mips" 6211 "cqip"]
+        ["instr_bj_target": <L:print_graph.L12,0>]
+ 705: lab L:print_graph.L12
+        ["machine_instr": "mips" 6002 ""]
+ 706: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_entry_pos": <L:print_graph.L12,0>]
+        ["machine_instr": "mips" 6213 "pslice_entry"]
+        ["instr_bj_target": <L:print_graph.L12,0>]
+ 707: gen t:g72 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6059 "la"]
+ 708:   e1: ldc t:g29 (p.32) <P:.myprintf6,0>
+ 709: gen t:g4 (i.32) r7 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6039 "li"]
+ 710:   e1: ldc t:g4 (i.32) 8
+ 711: gen t:g44 (p.32) r8 = mips (r11, r7)
+        ["fields": "next"]
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6089 "addu"]
+ 712: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["pslice_exit_pos": <L:print_graph.L12,0>]
+        ["machine_instr": "mips" 6214 "pslice_exit"]
+        ["instr_bj_target": <L:print_graph.L12,0>]
+ 713: gen t:g43 (p.32) r11 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6077 "lw"]
+ 714:   e1: add t:g29 (p.32) r8, e2
+ 715:     e2: ldc t:g4 (i.32) 0
+ 716: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 304 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 717: gen t:g43 (p.32) r9 = mips (e1, <nullop>)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6059 "la"]
+ 718:   e1: add t:g29 (p.32) r0, e2
+ 719:     e2: ldc t:g4 (i.32) 0
+ 720: gen t:g30 (i.32) r10 = mips (r11, r9)
+        ["exec_times": 310]
+        ["machine_instr": "mips" 6047 "sne"]
+ 721: gen t:g1 (v.0) <nullop> = mips (r10, <nullop>)
+        ["exec_times": 310]
+        ["instr_profile": 310 279]
+        ["machine_instr": "mips" 6058 "bnez"]
+        ["instr_bj_target": <L:print_graph.L7,0>]
+ 722: lab L:print_graph.L8
+        ["machine_instr": "mips" 6002 ""]
+ 723: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 308 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 724: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 31]
+        ["instr_ret":]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+
+    PROC P:.main
+    ["line": 313 "testcase/em3d/em3d.c"]
+    ["enable_exceptions": "int_divide-by-0"]
+    ["stack_frame_info": 0 0 0 0 8 11]
+      Procedure symbol table: `main'
+        Types:
+          <None>
+        Symbols:
+          s:p1: `argc' var_sym with t:g4; param reg userdef 
+            ["vsym_info": 0 2 5]
+            ["reg_num": 5]
+          s:p2: `argv' var_sym with t:g83; param reg userdef 
+            ["vsym_info": 0 2 6]
+            ["reg_num": 6]
+          s:p3: `i' var_sym with t:g4; reg userdef 
+            ["vsym_info": 0 6]
+            ["reg_num": 11]
+          s:p4: `graph' var_sym with t:g46; addr_taken userdef 
+            ["vsym_info": 0 1]
+          s:p7: `L3' label_sym 
+          s:p8: `L4' label_sym 
+          s:p9: `__done5' label_sym 
+          s:p10: `_t' var_sym with t:g93; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p11: `_t0' var_sym with t:g94; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p12: `_t1' var_sym with t:g95; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p13: `_t2' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 20]
+          s:p14: `_t3' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 22]
+          s:p15: `_t4' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 23]
+          s:p16: `_t5' var_sym with t:g78; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p17: `_t6' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p18: `_t7' var_sym with t:g44; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 24]
+          s:p19: `_t8' var_sym with t:g78; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p20: `_t9' var_sym with t:g43; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p21: `_t10' var_sym with t:g72; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p22: `_t11' var_sym with t:g33; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 5]
+          s:p23: `_t12' var_sym with t:g95; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 19]
+          s:p24: `_t13' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 26]
+          s:p25: `_t14' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 28]
+          s:p26: `_t15' var_sym with t:g4; reg 
+            ["vsym_info": 0 2]
+            ["reg_num": 9]
+          s:p27: `L6' label_sym 
+          s:p28: `L7' label_sym 
+        Definitions:
+          <None>
+        Annotations:
+          <None>
+        Parameters:
+          main.argc
+          main.argv
+ 500: gen t:g1 (v.0) <nullop> = mips ()
+        ["proc_entry":]
+        ["machine_instr": "mips" 6001 ""]
+ 501: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 317 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 502: gen t:g93 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 503:   e1: ldc t:g29 (p.32) <P:.dealwithargs,0>
+ 504: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 505: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 506: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "dealwithargs"]
+        ["call_overhead": 16]
+        ["regs_used": 5 6]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 507: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 318 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 508: gen t:g94 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 509:   e1: ldc t:g29 (p.32) <P:.initialize_graph,0>
+ 510: gen t:g105 (p.32) r5 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6059 "la"]
+ 511:   e1: ldc t:g29 (p.32) <main.graph,0>
+ 512: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 513: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 514: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "initialize_graph"]
+        ["call_overhead": 8514]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 515: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 319 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 516: gen t:g95 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6059 "la"]
+ 517:   e1: ldc t:g29 (p.32) <P:.print_graph,0>
+ 518: gen t:g1 (v.0) <nullop> = mips ()
+        ["comment": "BEGIN structure move in genCall"]
+        ["machine_instr": "mips" 6001 ""]
+ 519: gen t:g29 (p.32) r20 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6059 "la"]
+ 520:   e1: ldc t:g29 (p.32) <main.graph,0>
+ 521: gen t:g4 (i.32) r5 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 522:   e1: add t:g29 (p.32) r20, e2
+ 523:     e2: ldc t:g4 (i.32) 0
+ 524: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 525:   e1: add t:g29 (p.32) r20, e2
+ 526:     e2: ldc t:g4 (i.32) 4
+ 527: gen t:g1 (v.0) <nullop> = mips ()
+        ["comment": "END structure move in genCall"]
+        ["machine_instr": "mips" 6001 ""]
+ 528: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 529: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 530: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 1]
+        ["proc_name": "print_graph"]
+        ["call_overhead": 314]
+        ["struct alignment": 0 32]
+        ["regs_used": 5 6]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 531: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 321 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 532: gen t:g4 (i.32) r20 = mips (r0, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6067 "move"]
+ 533: gen t:g4 (i.32) r21 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 534:   e1: ldc t:g54 (p.32) <.iters,0>
+ 535: gen t:g4 (i.32) r22 = mips (r20, r21)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6126 "slt"]
+ 536: gen t:g1 (v.0) <nullop> = mips (r22, <nullop>)
+        ["exec_times": 1]
+        ["instr_profile": 1 0]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:main.L3,0>]
+ 537: gen t:g4 (i.32) r11 = mips (r0, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6067 "move"]
+ 538: lab L:main.L4
+        ["machine_instr": "mips" 6002 ""]
+ 539: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 322 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 540: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["looppos": <L:main.L7,0>]
+        ["machine_instr": "mips" 6215 "loopbegin"]
+        ["instr_bj_target": <L:main.L7,0>]
+ 541: lab L:main.L7
+        ["machine_instr": "mips" 6002 ""]
+ 542: gen t:g78 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6059 "la"]
+ 543:   e1: ldc t:g29 (p.32) <P:.compute_nodes,0>
+ 544: gen t:g44 (p.32) r23 = mips (e1, <nullop>)
+        ["fields": "e_nodes"]
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6059 "la"]
+ 545:   e1: ldc t:g29 (p.32) <main.graph,0>
+ 546: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6077 "lw"]
+ 547:   e1: add t:g29 (p.32) r23, e2
+ 548:     e2: ldc t:g4 (i.32) 0
+ 549: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 550: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 551: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 30]
+        ["proc_name": "compute_nodes"]
+        ["call_overhead": 1044]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 552: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 323 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 553: gen t:g78 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6059 "la"]
+ 554:   e1: ldc t:g29 (p.32) <P:.compute_nodes,0>
+ 555: gen t:g44 (p.32) r24 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6059 "la"]
+ 556:   e1: ldc t:g29 (p.32) <main.graph,32>
+ 557: gen t:g43 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6077 "lw"]
+ 558:   e1: add t:g29 (p.32) r24, e2
+ 559:     e2: ldc t:g4 (i.32) 0
+ 560: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 561: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 562: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 30]
+        ["proc_name": "compute_nodes"]
+        ["call_overhead": 1044]
+        ["regs_used": 5]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 563: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 324 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 564: gen t:g72 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6059 "la"]
+ 565:   e1: ldc t:g29 (p.32) <P:.myprintf1,0>
+ 566: gen t:g33 (p.32) r5 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6059 "la"]
+ 567:   e1: ldc t:g29 (p.32) <.__tmp_string_5,0>
+ 568: gen t:g4 (i.32) r6 = mips (r11, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 569: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 570: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 571: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 30]
+        ["proc_name": "myprintf1"]
+        ["regs_used": 5 6]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 572: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 325 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 573: gen t:g95 (p.32) r19 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6059 "la"]
+ 574:   e1: ldc t:g29 (p.32) <P:.print_graph,0>
+ 575: gen t:g1 (v.0) <nullop> = mips ()
+        ["comment": "BEGIN structure move in genCall"]
+        ["machine_instr": "mips" 6001 ""]
+ 576: gen t:g29 (p.32) r25 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6059 "la"]
+ 577:   e1: ldc t:g29 (p.32) <main.graph,0>
+ 578: gen t:g4 (i.32) r5 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 579:   e1: add t:g29 (p.32) r25, e2
+ 580:     e2: ldc t:g4 (i.32) 0
+ 581: gen t:g4 (i.32) r6 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 582:   e1: add t:g29 (p.32) r25, e2
+ 583:     e2: ldc t:g4 (i.32) 4
+ 584: gen t:g1 (v.0) <nullop> = mips ()
+        ["comment": "END structure move in genCall"]
+        ["machine_instr": "mips" 6001 ""]
+ 585: gen t:g29 (p.32) r4 = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6067 "move"]
+ 586: gen t:g1 (v.0) <nullop> = mips (r2, <nullop>)
+        ["machine_instr": "mips" 6208 "fst"]
+ 587: gen t:g29 (p.32) r1 = mips (r19, <nullop>)
+        ["exec_times": 30]
+        ["proc_name": "print_graph"]
+        ["call_overhead": 314]
+        ["struct alignment": 0 32]
+        ["regs_used": 5 6]
+        ["machine_instr": "mips" 6152 "jalr"]
+ 588: gen t:g4 (i.32) r26 = mips (e1, <nullop>)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6039 "li"]
+ 589:   e1: ldc t:g4 (i.32) 1
+ 590: gen t:g4 (i.32) r11 = mips (r11, r26)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6089 "addu"]
+ 591: gen t:g4 (i.32) r27 = mips (e1, <nullop>)
+        ["machine_instr": "mips" 6077 "lw"]
+ 592:   e1: ldc t:g54 (p.32) <.iters,0>
+ 593: gen t:g4 (i.32) r28 = mips (r27, r11)
+        ["exec_times": 30]
+        ["machine_instr": "mips" 6045 "sle"]
+ 594: gen t:g1 (v.0) <nullop> = mips (r28, <nullop>)
+        ["exec_times": 30]
+        ["instr_profile": 30 29]
+        ["machine_instr": "mips" 6049 "beqz"]
+        ["instr_bj_target": <L:main.L4,0>]
+ 595: lab L:main.L6
+        ["machine_instr": "mips" 6002 ""]
+ 596: gen t:g1 (v.0) <nullop> = mips (<nullop>, <nullop>)
+        ["exec_times": 1]
+        ["instr_profile": 1 1]
+        ["machine_instr": "mips" 6150 "j"]
+        ["instr_bj_target": <L:main.__done5,0>]
+ 597: lab L:main.L3
+        ["machine_instr": "mips" 6002 ""]
+ 598: gen t:g4 (i.32) r11 = mips (r0, <nullop>)
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6067 "move"]
+ 599: lab L:main.__done5
+        ["machine_instr": "mips" 6002 ""]
+ 600: gen t:g1 (v.0) <nullop> = mips ()
+        ["line": 327 "testcase/em3d/em3d.c"]
+        ["exec_times": 0]
+        ["machine_instr": "mips" 6020 "# .loc"]
+ 601: gen t:g4 (i.32) r9 = mips (r0, <nullop>)
+        ["exec_times": 1]
+        ["machine_instr": "mips" 6067 "move"]
+ 602: gen t:g1 (v.0) <nullop> = mips (r1, <nullop>)
+        ["exec_times": 1]
+        ["instr_ret": t:g4]
+        ["regs_used": 9]
+        ["incomplete_proc_exit":]
+        ["machine_instr": "mips" 6153 "jr"]
+    PROC END
+
+

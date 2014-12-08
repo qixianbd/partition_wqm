@@ -1,0 +1,37 @@
+digraph G{
+	label = "initialize_graph"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_6\nmove\n# .loc\nla\nla\nmove\nfst\njalr\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_5# .loc\nla\nlw\nmove\nfst\njalr\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_7move\n# .loc\nla\nmove\nlw\nmove\nfst\njalr\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_5# .loc\nla\nlw\nmove\nfst\njalr\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_7move\n# .loc\nla\nmove\nlw\nmove\nfst\njalr\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_8# .loc\nla\nlw\nmove\nlw\nlw\nmove\nfst\njalr\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_8# .loc\nla\nlw\nmove\nlw\nlw\nmove\nfst\njalr\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_5# .loc\nla\nlw\nmove\nfst\njalr\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_5# .loc\nla\nlw\nmove\nfst\njalr\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_6# .loc\nla\nlw\nlw\nmove\nfst\njalr\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_6# .loc\nla\nlw\nlw\nmove\nfst\njalr\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_12# .loc\nspawn\nla\nlw\nsw\n# .loc\nla\nlw\nsw\n# .loc\nla\nmove\nmove\nfst\njalr\n"];
+	Node13 -> {Node14 }
+	Node14 [label = "B14_8cqip\n\npslice_entry\npslice_exit\n# .loc\nla\nmove\nmove\nfst\njalr\n"];
+	Node14 -> {Node15 }
+	Node15 [label = "B15_7# .loc\n\nla\nla\nlw\nlw\nsw\nsw\n\njr\n"];
+	Node15 -> {Node1 }
+	Node13 [shape = polygon ,style=filled ,color=blue];
+}

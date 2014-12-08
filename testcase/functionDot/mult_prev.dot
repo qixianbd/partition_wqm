@@ -1,0 +1,10 @@
+digraph G{
+	label = "mult"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_22\nli	r7	nd#135	\ndiv	r8	r5	r7	\nli	r9	nd#139	\nrem	r10	r5	r9	\nli	r19	nd#143	\ndiv	r20	r6	r19	\nli	r21	nd#147	\nrem	r22	r6	r21	\nmult	r10	r20	\nmflo	r23	\nmult	r8	r22	\nmflo	r24	\naddu	r25	r23	r24	\nli	r26	nd#156	\nrem	r27	r25	r26	\nli	r28	nd#159	\nmult	r27	r28	\nmflo	r5	\nmult	r10	r22	\nmflo	r6	\naddu	r9	r5	r6	\njr	\n"];
+	Node2 -> {Node1 }
+}

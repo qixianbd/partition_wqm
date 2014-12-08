@@ -1,0 +1,44 @@
+digraph G{
+	label = "make_neighbors"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7\nmove\nmove\nmove\n# .loc\nmove\n# .loc\nla\nsne\nbeqz\n"];
+	Node2 -> {Node3 Node18 }
+	Node3 [label = "B3_9\n# .loc\nli\naddu\nla\nli\nmultu\nmflo\nmove\nfst\njalr\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_4sw\n# .loc\nmove\nslt\nbeqz\n"];
+	Node4 -> {Node5 Node16 }
+	Node5 [label = "B5_1move\n# .loc\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_5\n# .loc\nla\nmove\nmove\nfst\njalr\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_8li\nmult\nmflo\naddu\nlw\n# .loc\nmove\nslt\nbeqz\n"];
+	Node7 -> {Node8 Node12 }
+	Node8 [label = "B8_1move\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_11\n# .loc\nspawn\nli\naddu\nlw\nli\nmult\nmflo\naddu\nlw\nseq\nbnez\n"];
+	Node9 -> {Node10 Node13 }
+	Node10 [label = "B10_9# .loc\nli\naddu\ncqip\n\npslice_entry\nli\naddu\npslice_exit\nsle\nbeqz\n"];
+	Node10 -> {Node11 Node9 }
+	Node11 [label = "B11_2\nspawn\nj\n"];
+	Node11 -> {Node13 }
+	Node12 [label = "B12_1\nmove\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_2\n# .loc\nslt\nbnez\n"];
+	Node13 -> {Node14 Node6 }
+	Node14 [label = "B14_21# .loc\nli\naddu\nlw\nli\nmult\nmflo\naddu\nsw\n# .loc\nli\naddu\nlw\nli\naddu\nsw\ncqip\n\npslice_entry\npslice_exit\nli\naddu\nsle\nbeqz\n"];
+	Node14 -> {Node15 Node6 }
+	Node15 [label = "B15_1\nj\n"];
+	Node15 -> {Node17 }
+	Node16 [label = "B16_1\nmove\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_6\n# .loc\n# .loc\nli\naddu\nlw\n# .loc\nla\nsne\nbnez\n"];
+	Node17 -> {Node18 Node3 }
+	Node18 [label = "B18_1\n# .loc\njr\n"];
+	Node18 -> {Node1 }
+	Node9 [shape = polygon ,style=filled ,color=blue];
+	Node11 [shape = polygon ,style=filled ,color=blue];
+}

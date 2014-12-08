@@ -1,0 +1,263 @@
+\section{Mapping Registers and Symbols to Bit-vector Indices}
+\label{secOperandBitManager}
+
+Specific solvers of bit-vector problems need to be told how large to make
+the vectors and how to map a variable or expression in the program to one or
+more bits in a bit vector.  For the common case in which the program
+entities of interest are register and symbol operands, an {\em operand bit
+manager} serves these purposes.  Before analysis, as the program to be
+analyzed is first scanned, it assigns bit indices to operands.  During
+analysis, as operands are revisited, it provides efficient lookup of their
+indices.
+
+In general, a bit manager may assign more than one bit to an operand.  A
+hard-register operand's type may indicate that it spans more than one
+natural (i.e., physical) register.  In that case, the bit manager gives it
+a range of indices covering the physical registers it represents.  For
+architectures with addressable subregisters, many analyzers want to treat
+subregister grains \cite{bibmachsuif} as potentially independent resources.
+In that case, the bit manager associates a range of indices with each
+natural register in the bank.  The indices for a particular hard register
+operand are again a function of both its register number and its type.
+As a special case, a hard register operand with [[type_void]] as its type
+is treated as though its type had size equal to the natural width of the
+register.
+
+For example, on the MIPS-I architecture, {\em machsuif} might refer to
+register [[$f4]] using the integer $52$.  An operand having that register
+number and [[type_double]] as its type is assigned the bit range
+{\tt[}52,53{\tt]}, since a [[double]] spans two registers in the
+floating-point bank.  On the $x86$, a register operand with
+number 8 refers to general-purpose register [[A]].  With [[type_signed]]
+(or [[type_void]]) as its type, the bit range given to it is
+{\tt[}8,11{\tt]}.  With [[type_char]] instead, its bit range is the
+singleton {\tt[}8{\tt]}.
+
+Virtual registers and symbols always have single-bit ranges, but the
+same methods are used for dealing with them as for hard registers.
+
+The class of operand bit managers is declared as follows:
+
+<<class [[operand_bit_manager]]>>=
+class hard_reg_map;
+
+class operand_bit_manager {
+  public:
+    typedef boolean (*filter_f)(operand);
+
+    operand_bit_manager(filter_f = NULL, hard_reg_map * = NULL,
+			int hash_table_size = 1024,
+			boolean reverse_map = FALSE);
+    ~operand_bit_manager();
+
+    <<[[operand_bit_manager]] public>>
+    
+  private:
+    <<[[operand_bit_manager]] private>>
+};
+@
+
+\paragraph{Constructing an [[operand_bit_manager]].}
+
+As can be seen above, the constructor for class [[operand_bit_manager]]
+takes four arguments.  All are optional.
+%
+\begin{enumerate}
+\item An optional filter predicate, a boolean function taking an operand
+      as argument.  If the filter is provided, the bit manager ignores any
+      operand for which the filter returns false.
+\item \label{enumObmCtorHrm}
+      An optional replacement for the map assigning index ranges to hard
+      registers.  By default, the first index in the range for a hard
+      register operand is its abstract register number, and each bit stands
+      for one addressable grain.  Section~\ref{secHardRegMap} describes how
+      to override this assignment by supplying a customized hard register
+      map, and tells why that might be useful.
+\item An optional bucket count for the bit manager's hash table.
+      Overriding the default value may affect performance, but not the
+      table's capacity.
+\item An optional flag that, if true, causes the manager to build a reverse
+      map from operands to their starting indices.
+\end{enumerate}
+
+
+\paragraph{Using an [[operand_bit_manager]].}
+
+The public methods of an operand bit manager object are declared as
+follows:
+
+<<[[operand_bit_manager]] public>>=
+int num_bits() { return next_index; }
+
+boolean enroll(operand, int *index_ptr = NULL, int *count_ptr = NULL);
+void    enroll(instruction *);
+
+boolean lookup(operand, int *index_ptr = NULL, int *count_ptr = NULL);
+boolean forget(operand);
+
+boolean insert(operand, bit_set *);
+boolean remove(operand, bit_set *);
+
+operand retrieve(int index, int skip);
+void print_entries(bit_set *, FILE *);
+
+boolean intersects(operand, bit_set *);
+boolean dst_intersects(instruction *, bit_set *);
+boolean src_intersects(instruction *, bit_set *);
+@
+\noindent
+Here's how the above methods are used.
+\begin{itemize}
+\item [[num_bits()]] returns the total number of bits allocated so far for
+      all enrolled symbols and registers, including hard registers (which
+      are enrolled automatically when the manager is constructed).  This is
+      the method that a data flow analyzer calls to find out how many bits
+      to allocate in each bit vector.
+\item [[enroll(operand opd, int *index_ptr, int *count_ptr)]] tries to put
+      [[opd]] under management. It returns true exactly when the operand is
+      new and is entered successfully (not filtered out).  In addition, if
+      the method's optional arguments [[index_ptr]] and/or [[count_ptr]]
+      are supplied, it uses them to return the bit range for the operand,
+      if it has one.  The first index is stored through [[index_ptr]]; the
+      length of the range, through [[count_ptr]].  Return of the bit range
+      via the optional result parameters may occur whether the operand is
+      new or old.  In particular, if a hard register has a bit range, it
+      will be returned, although a hard register is never considered
+      ``new'' to the manager.
+\item [[enroll(instruction *)]] tries to enroll all the operands of its
+      instruction argument.  It returns nothing.
+\item [[lookup(operand opd, int *index_ptr, int *count_ptr)]] returns true
+      if [[opd]] is under management, and in that case, optionally returns
+      its bit range through result parameters.  It is similar to
+      [[enroll(opd, index_ptr, count_ptr)]], but it doesn't enroll a new
+      operand, and it returns true exactly when the [[opd]] is already
+      under management.  Thus it can return true for a hard register
+      operand that passes the filter and has an associated bit range.
+\item [[forget(operand opd)]] removes [[opd]] from management without
+      affecting the index assignents of other operands.  It does nothing
+      if [[opd]] represents a hard register.  It returns true exactly when
+      it makes a change, i.e., when it causes [[opd]] to be forgotten.
+\item [[insert(operand opd, bit_set *bv)]] uses the bit manager to turn on
+      the bits for an [[opd]] in bit vector [[bv]].  It returns true unless
+      [[opd]] is not under management.
+\item [[remove(operand opd, bit_set *bv)]] is like [[insert(opd, *bv)]],
+      but it turns the bits for [[opd]] in [[bv]] off instead of on.
+\item [[retrieve(int index, int skip)]] returns the operand whose index
+      range begins at [[index]], or else the null operand, if no such
+      operand has been recorded.  Since it is possible for more than one
+      operand's range to begin at the same index, parameter [[skip]] says
+      how many to skip before returning one.  Note that [[retrieve]] can
+      only return a non-null operand if the [[reverse_map]] option is true
+      when the bit manager is created.
+\item [[print_entries(bit_set *bv, FILE *file)]] prints on [[file]] a
+      representation of the operands whose index ranges are covered by
+      [[bv]].  Requires that the manager was created with the
+      [[reverse_map]] option true.
+\item [[intersects(operand opd, bit_set *bv)]] returns true exactly when
+      any of the bits for [[opd]] are turned on in bit vector [[bv]].
+\item [[dst_intersects(instruction *instr, bit_set *bv)]] returns true if
+      there is any destination operand [[opd]] in [[instr]] such that
+      [[intersects(opd, bv)]] is true.
+\item [[src_intersects(instruction *instr, bit_set *bv)]] is like
+      [[dst_intersects(instr, bv)]], but for the source operands of
+      [[instr]].
+\end{itemize}
+
+
+\subsection{Changing the index assignments for hard registers}
+\label{secHardRegMap}
+
+In some applications of class [[operand_bit_manager]], it's not necessary
+to allocate space in bit vectors for every addressable grain of every hard
+register bank.  The register allocator [[raga]], for example, processes one
+bank at a time, and it never treats subregister grains independently.
+Furthermore, its observed performance is quite sensitive to the sizes of
+the bit vectors in use.  That's the reason for the optional
+argument~(\ref{enumObmCtorHrm}) of [[operand_bit_manager]]'s constructor.
+It lets the client control which subset of the architecture's registers are
+considered ``under management'' and exactly which bit ranges are assigned
+to each.
+
+Class [[hard_reg_map]] provides this information, albeit in a slightly
+indirect way.  An instance of [[hard_reg_map]] maps an abstract register
+number to a pair ([[index]], [[size]]), where [[index]] is to be the
+start of the register's assigned bit range, and [[size]] is the amount of
+register turf (in bits) to be represented by each bit in the range.  For
+example, suppose the mapping for the $x86$'s register 20, which is 
+general-purpose register [[B]], has the entry $(16, 8)$.  Then a register
+operand with register number 20 and type [[type_signed]] is
+given the index range $[16,19]$ because the 32-bit type has four 8-bit
+pieces.   On the other hand, if register 20 maps instead to $(4, 32)$, then
+the same operand would get the singleton range $[4]$.
+
+When building a [[hard_reg_map]], it is only necessary to specify each
+register to be managed and give its size-per-vector-bit, i.e., the number
+of its bits to be covered by a single bit-vector entry.  Starting indexes
+are assigned automatically, in the order in which registers are entered in
+the map.
+
+Class [[hard_reg_map]] is declared:
+
+<<class [[hard_reg_map]]>>=
+class hard_reg_map {
+  public:
+    hard_reg_map();
+    hard_reg_map(int capacity);
+    ~hard_reg_map();
+    inline int length();
+    void enter(int reg, int size, boolean overlay = FALSE);
+    int index(int reg);
+    int size(int reg);
+
+  private:
+    <<[[hard_reg_map]] private>>
+};
+
+<<[[hard_reg_map]] inline>>
+@
+\noindent
+Here's the rundown of its public methods:
+\begin{itemize}
+\item [[hard_reg_map()]] creates the full, ``natural'' map for the
+      current [[target_arch]].  That is, it places every register under
+      management, it gives each its own abstract number as starting index,
+      and a size-per-vector-bit equal to the addressable grain size for its
+      bank.
+\item [[hard_reg_map(int capacity)]] creates a map accommodating register
+      numbers from 0 to [[capacity-1]].  However, it shows {\em no}
+      registers under management;  they must be entered explicitly by
+      calling method [[enter()]].  Normally, [[capacity]] is the total number
+      of addressable grains for the current [[target_arch]].
+\item [[length()]] yields the number of bits allocated to registers entered
+      in the map so far.
+\item [[enter(int reg, int size, boolean overlay)]] adds register [[reg]]
+      to the map, with [[size]] as its size-per-vector-bit.  By default,
+      [[overlay]] is false; in that case, this method assigns one or more
+      new bits to cover [[reg]] and increases [[length()]] by the number
+      assigned.  When [[overlay]] is true, no new bit index is assigned;
+      instead, the last one assigned is reused.
+\item [[index(int reg)]] returns the starting bit index associated with
+      [[reg]].
+\item [[size(int reg)]] returns the size-per-vector-bit for [[reg]].
+\end{itemize}
+
+
+\subsection{Header file for module [[operand_bit_manager]]}
+
+Classes [[operand_bit_manager]] and [[hard_reg_map]] are defined in module
+[[operand_bit_manager]], which has the following header file:
+
+<<operand\_bit\_manager.h>>=
+/*  Operand bit manager interface */
+
+<<SUIF copyright>>
+
+#ifndef OPERAND_BIT_MANAGER_H
+#define OPERAND_BIT_MANAGER_H
+   
+<<class [[operand_bit_manager]]>>
+
+<<class [[hard_reg_map]]>>
+
+#endif /* OPERAND_BIT_MANAGER_H */
+@

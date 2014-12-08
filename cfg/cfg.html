@@ -1,0 +1,1777 @@
+<!-- this file was generated automatically by noweave --- better not edit it-->
+<html><head><title>The SUIF Control Flow Graph Library</title></head><body>
+
+<p>
+<!-- Give the l2h (LaTeX to HTML) filter some hints-->
+
+
+
+
+
+<!-- Adjust dimensions before setting \pagestyle: it looks at-->
+<!-- some of them-->
+
+
+
+
+
+
+
+
+
+<p>
+<!-- Replace some noweb.sty definitions to improve page breaks-->
+
+<!-- Was =\@highpenalty (>9999 disallows-->
+<!-- ... _any_ break in code)-->
+<!-- Use \nwcodepenalty ...--><!-- ... instead of \@highpenalty-->
+    <!-- Use \goodbreak ...-->
+               <!-- ... instead of \filbreak-->
+<p>
+<h1><a name=toc1>The SUIF Control Flow Graph Library</a></h1>
+<!-- (Leave \title{} at left margin ...-->
+<!--  ... to aid HTML extraction.)-->
+<p>
+<address><a name="NWD1">Cliff Young </a><br>cyoung@eecs.harvard.edu <br>Division of Engineering and Applied Sciences <br>Harvard University </address>
+<b><em>Compatible with SUIF Release 1.1.2 <br>and Machine SUIF Release 1.1.2 <br>Revised April 17, 1998</em></b>
+<p>
+
+<p>
+
+<!--title goes here-->
+<!-- Start a new chunk to cause noweb to put source filename in heading-->
+
+
+
+<p>
+<tableofcontents>
+<ul compact>
+<li><a href="#toc2">Introduction</a></li>
+<li><a href="#toc3">Goals for the CFG Library</a></li>
+<li><a href="#toc4">Philosophy</a></li>
+<li><a href="#toc5">Major Classes in the Library</a></li>
+  <ul compact>
+  <li><a href="#toc6">The cfg Class</a></li>
+  <li><a href="#toc7">The cfg_node class</a></li>
+  <li><a href="#toc8">Main Header File</a></li>
+  </ul>
+<li><a href="#toc9">Analysis</a></li>
+  <ul compact>
+  <li><a href="#toc10">Iterators</a></li>
+  <li><a href="#toc11">Dominators</a></li>
+  <li><a href="#toc12">Natural Loops</a></li>
+  </ul>
+<li><a href="#toc13">Transformations</a></li>
+<li><a href="#toc14">Layout</a></li>
+<li><a href="#toc15">Scheduling</a></li>
+<li><a href="#toc16">Constructing CFGs</a></li>
+<li><a href="#toc17">Helper Functions</a></li>
+  <ul compact>
+  <li><a href="#toc18">Initialization</a></li>
+  <li><a href="#toc19">Annotations to Library Objects</a></li>
+  <li><a href="#toc20">Support for VCG (Visualization for Compiler Graphs)</a></li>
+  <li><a href="#toc21">Other Helpers</a></li>
+  </ul>
+<li><a href="#toc22">Implementation Notes</a></li>
+<li><a href="#toc23">Future Work</a></li>
+<li><a href="#toc24">Summary and Availability</a></li>
+<li><a href="#toc25">Acknowledgments</a></li>
+<li><a href="#toc26">References</a></li>
+</ul>
+</tableofcontents>
+<p><hr>
+<h2><a name=toc2>Introduction</a></h2>
+<p>
+The SUIF compiler provides an excellent set of flexible libraries
+for parallel and machine-independent optimizations.  With the
+machine SUIF extensions, it also supports machine-dependent
+optimizations such as global instruction scheduling.  This document
+discusses the SUIF control flow graph (CFG) library.  It discusses
+design goals, the interface to the library, implementation decisions,
+current status, and planned updates.
+<p>
+The SUIF CFG library presents an abstraction of control flow graphs
+built on the basic structures of the SUIF system.  The CFG library
+allows creating CFGs, analyzing them, transforming them by rearranging
+and reconnecting blocks, and fine-grained control over individual
+program instructions within the CFG.
+<p>
+The CFG library currently works with machine SUIF, and extensions
+to support low SUIF are implemented but not tested.  The
+library consists of files in the <code>cfg</code> subdirectory of the
+<em>machsuif</em> distribution package.  The <code>Makefile</code> in <code>cfg</code>
+creates the CFG library.  This paper focuses on the design and use
+of that library.
+<p>
+This paper serves as reference documentation for those researchers
+who wish to use the CFG library.  It is assumed that the reader is
+familiar with the SUIF system and has read both the SUIF overview
+document <b>[cite&nbsp;<a href="#NWcite-bibsuif">bibsuif</a>]</b> and the machine SUIF overview document
+<b>[cite&nbsp;<a href="#NWcite-bibmach">bibmach</a>]</b>.
+<p>
+The following section discusses the development and research goals
+that drove the design of our CFG library.  Section&nbsp;<a href="#secPhilosophy">[-&gt;]</a>
+describes our view of how the library will be used.  Sections
+&nbsp;<a href="#secMajor">[-&gt;]</a> through &nbsp;<a href="#secHelper">[-&gt;]</a> describe the programming
+abstraction provided by the CFG library.  Section&nbsp;<a href="#secImplementation">[-&gt;]</a>
+describes library implementation decisions.  Section&nbsp;<a href="#secSummary">[-&gt;]</a>
+summarizes the status and availability of the code.
+<p>
+
+
+<h2><a name=toc3>Goals for the CFG Library</a></h2>
+<a name="secGoals"><b>[*]</b></a>
+<p>
+This section lists our goals for the CFG library.  
+<p>
+<ul>
+<li>Analysis. 
+Many compiler analysis passes assume a CFG as a basic data structure.
+Supporting them amounts to supplying a CFG abstract data type,
+including methods to traverse and examine the CFG and its nodes.
+Such methods include enumerating all CFG nodes, iterating through
+them, traversing and enumerating links to and from a node, and
+iterating over the instructions that make up a node.  These basic
+abstractions are necessary to analyses that use data or control
+flow (e.g. live variable analysis, reaching definitions, dead code
+identification, and natural loop detection).
+<p>
+<li>Transformation. 
+We wanted to build a CFG library that would support not just
+construction and analysis of CFGs but also transformations of the
+CFG that would change the underlying program.  Many compiler
+optimizations are essentially CFG manipulations, rearranging and/or
+duplicating the basic blocks of the program, but leaving the
+internals of the basic blocks the same.  Examples of such optimizations
+include loop peeling, loop unrolling, and static correlated branch
+prediction <b>[cite&nbsp;<a href="#NWcite-bibscbp">bibscbp</a>]</b>.  To support such tasks, the data structures
+supported in the CFG library need to be actively linked to the
+underlying compiler IR, so that changing graph connections or
+duplicating CFG nodes would result in corresponding changes to the
+program being compiled.
+<p>
+<li>Ordering. 
+One possible limitation of the CFG approach is that CFG nodes can
+have many possible orderings, but actual program code must occupy
+numbered locations in program memory.  On many modern microprocessors,
+the ordering of CFG blocks in memory can drastically affect
+performance due to negative branch and cache effects.  Optimizations
+such as code layout <b>[cite&nbsp;<a href="#NWcite-biblayout">biblayout</a>]</b> and branch alignment
+<b>[cite&nbsp;<a href="#NWcite-bibalign">bibalign</a>]</b> reorder the basic blocks of a program to minimize
+these effects.  While these optimizations do not change the graph
+structure of the program, their effect on performance makes them
+useful to support in the CFG library.  So in addition to supporting
+graph representations and transformations of programs, we also
+wanted the CFG library to allow users to specify the layout order
+of CFG nodes.
+<p>
+<li>Scheduling. 
+Beyond CFG transformations and reorderings, optimizations such as
+Partial Redundancy Elimination (PRE) and global instruction scheduling
+move instructions between basic blocks in the program.  The CFG
+library should allow programs to insert instructions into nodes,
+to move instructions around, and to add new nodes to the program
+and CFG.  However, we do not want to provide these facilities in
+so heavyweight a manner that error checking dominates compile time.
+So primitives to modify CFG blocks will be supported, but advanced
+instruction schedulers must ensure that their transformations do
+not violate library implementation assumptions.
+<p>
+<li>Continuous Executability. 
+As a final design goal, we wanted the program under CFG library
+control always to be a valid, executable program.  This means that
+the interface seen by the programmer has no cleanup or finalization
+call.  While this complicates the implementation, we believe that
+this interface requirement will simplify using the library.
+</ul>
+<p>
+The next section gives an overview of how we expect the library
+to be used.  
+<p>
+
+
+<h2><a name=toc4>Philosophy</a></h2>
+<a name="secPhilosophy"><b>[*]</b></a>
+<p>
+The CFG library supports three major styles of operation.  These
+are graph-oriented, layout-oriented, and instruction-oriented.
+Users specify the mode they plan to use at <code>cfg</code> construction
+time.  However, a graph can be transformed from graph to layout
+style and back (or it can be left somewhere in between) by a sequence
+of layout commands.
+<p>
+In graph-oriented mode, the library presents the high-level
+abstraction of a graph of edges and nodes.  Each node is a maximal
+basic block of instructions.  The library hides the details of the
+underlying linear code representation, allowing a programmer to
+think in terms of graph traversal and connectivity without having
+to explicitly set branch targets or insert new control instructions.
+Despite the graph abstraction, control over the program remains
+precise: the successors of a block correspond one-to-one to the
+successors of the underlying control instructions.
+<p>
+Under the covers, graph-oriented mode does a small amount of work
+for the user.  To represent graph edges explicitly, the library
+makes all branches explicit in the underlying SUIF program.
+It does this by inserting <em>shadow gotos</em> at the end of all
+fall-through instructions in the program.  These shadow gotos
+are only removed when layout commands are issued.  
+<p>
+Layout-oriented mode gives the programmer direct control over the
+order of basic blocks and instructions in the machine code
+representation.  Doing so comes at a cost in complexity, however.
+In layout mode, the programmer must be aware of the positions
+of shadow gotos, and may have to promote them into their own
+basic blocks before a layout command becomes legal.  We feel that
+this is not a huge restriction, because most layout or code motion
+optimizations require instruction-level control anyway.  This 
+design restriction also keeps library intelligence to a minimum, 
+preventing the library from performing ``magical'' 
+work behind the back of a low-level pass.  
+<p>
+Layout-oriented mode also allows instruction schedulers to control
+placement of instructions inside of basic blocks.  In particular,
+it is possible to support scheduling for delayed-branch architectures
+by placing instructions after the control instruction of a block.
+However, in keeping with our design goals, it is up to such schedulers
+to manage such non-standard instruction placement themselves.  The
+library will need to be told where the control instruction in a
+block lives; the library also assumes that there is just one control
+instruction per block.  The library will also not be able to read
+code that has been scheduled for delayed-branch architectures;
+however, sub-classes could be built that perform the necessary
+construction-time adjustments.
+<p>
+Instruction-oriented mode is the third and final method of working
+with the library.  In this mode, the library presents each instruction
+as its own node in the CFG.  This is useful for some optimizations,
+which prefer single instructions per CFG node over maximal basic
+blocks as CFG nodes.  No layout support is currently given in
+instruction-oriented mode.  But since the programmer is already
+working at the instruction level, he already has to manage updating
+explicit targets and control instructions.
+<p>
+The Sections &nbsp;<a href="#secMajor">[-&gt;]</a> through &nbsp;<a href="#secHelper">[-&gt;]</a> describe the
+interface that attempts to support the models presented above.
+<p>
+
+
+<h2><a name=toc5>Major Classes in the Library</a></h2>
+<a name="secMajor"><b>[*]</b></a>
+<p>
+This section describes the user interface supported by the CFG
+library.  It begins with the basic data structures, <code>cfg</code>s and
+<code>cfg_node</code>s.  Then we discuss routines that support the goals listed
+in the previous section, including analysis, CFG transformations,
+layout, and scheduling support.  After discussing these features, 
+we return to examine the CFG constructor.  
+<p>
+<h3><a name=toc6><a name="NWD2">The </a><code>cfg</code> Class</a></h3>
+<code>cfg</code> and <code>cfg_node</code> are the two main classes used in
+the CFG library.  A <code>cfg</code> represents an entire control flow
+graph for a procedure. A <code>cfg</code> is constructed around a particular
+SUIF procedure; each procedure can have only one associated <code>cfg</code>
+at a time.  Modifications made to the <code>cfg</code> and its <code>cfg_node</code>s
+are propagated to the underlying SUIF procedure.  The <code>cfg</code> class
+is defined in the graph.h header file. 
+<p>
+<pre><a name="NWcfg6-gra7-1" href="#NWD2"><dfn>&lt;graph.h&gt;=</dfn></a>
+/*  Control Flow Graph */
+
+<a name="NWcfg6-gra7-1-u1" href="#NWDM"><i>&lt;SUIF Copyright Notice&gt;</i></a>
+
+#ifndef CFG_GRAPH_H
+#define CFG_GRAPH_H
+
+#pragma interface
+
+class cfg_node;
+class cfg_block;
+class cfg_node_list;
+
+/*
+ *  The control flow graph defined here is intended to be general enough
+ *  for almost everyone to use (at least as a base -- other information
+ *  can be added on top of it).  It supports nodes containing either
+ *  individual tree_instrs or basic blocks of contiguous tree_instrs.
+ *  High-level tree nodes are represented by multiple flow graph nodes
+ *  corresponding to the code that will be created when they are expanded.
+ *  Moreover, each high-level tree node is delimited by a pair of BEGIN
+ *  and END nodes to make it easier to match up the flow graph with the
+ *  SUIF code.
+ */
+
+DECLARE_X_ARRAY(cfg_node_array, cfg_node, 10);
+
+class cfg {
+    friend class cfg_node;
+
+<a name="NWcfg6-gra7-1-u2" href="#NWDm"><i>&lt;cfg private members&gt;</i></a>
+<a name="NWcfg6-gra7-1-u3" href="#NWcfg6-cfgL.2-1"><i>&lt;cfg protected members&gt;</i></a>
+<a name="NWcfg6-gra7-1-u4" href="#NWD3"><i>&lt;cfg public members&gt;</i></a>
+};
+
+<a name="NWcfg6-gra7-1-u5" href="#NWD6"><i>&lt;cfg edge iterator&gt;</i></a>
+#endif /* CFG_GRAPH_H */
+
+</pre><p>
+<code>cfg</code> private and protected members are defined and described in 
+<a name="NWD3">Section&nbsp;</a><a href="#secImplementation">[-&gt;]</a>, on implementation details. 
+<p>
+Here's the visible interface to the <code>cfg</code> class.  The <code>print()</code>
+routine lists the nodes by number, together with successor and
+predecessor lists.  It includes layout information if its boolean
+parameter is true.  The <code>print_with_instrs()</code> method is similar, but
+also prints the instructions of nodes that contain them, using low
+SUIF notation.
+<p>
+<pre><a name="NWcfg6-cfgI-1" href="#NWD3"><dfn>&lt;cfg public members&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b>
+  public:
+<a name="NWcfg6-cfgI-1-u1" href="#NWDd"><i>&lt;cfg SUIF access&gt;</i></a>
+<a name="NWcfg6-cfgI-1-u2" href="#NWD4"><i>&lt;cfg node access&gt;</i></a>
+<a name="NWcfg6-cfgI-1-u3" href="#NWD5"><i>&lt;cfg edge counts&gt;</i></a>
+<a name="NWcfg6-cfgI-1-u4" href="#NWDU"><i>&lt;cfg transformation&gt;</i></a>
+<a name="NWcfg6-cfgI-1-u5" href="#NWDS"><i>&lt;dominator methods&gt;</i></a>
+<a name="NWcfg6-cfgI-1-u6" href="#NWDT"><i>&lt;natural loop methods&gt;</i></a>
+<a name="NWcfg6-cfgI-1-u7" href="#NWDQ"><i>&lt;reverse postorder listing&gt;</i></a>
+<a name="NWcfg6-cfgI-1-u8" href="#NWDa"><i>&lt;cfg cleanup&gt;</i></a>
+    void print(FILE *fp, boolean show_layout=FALSE);
+    void print_with_instrs(FILE *fp, boolean show_layout=FALSE);
+<a name="NWcfg6-cfgI-1-u9" href="#NWDc"><i>&lt;cfg constructors and destructors&gt;</i></a>
+
+</pre><p>
+<a name="NWD4">Each </a><code>cfg</code> numbers its component nodes.  The <code>num_nodes()</code> method
+tells how many nodes are in the <code>cfg</code>; they can be accessed by the
+<code>cfg::node(unsigned)</code> method or by using the overloaded array
+index operator.  Each <code>cfg</code> also has a special entry node and a special
+exit node.  These can be found using the eponymous methods.  The
+ability to set the entry and exit nodes is a historical artifact; 
+changing these nodes is not recommended. 
+<p>
+<pre><a name="NWcfg6-cfgF-1" href="#NWD4"><dfn>&lt;cfg node access&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b>
+    unsigned num_nodes();
+    cfg_node *node(unsigned i)          { return (*nds)[i]; }
+    cfg_node *&amp;operator[](unsigned i)   { return (*nds)[i]; }
+
+    cfg_node *entry_node()              { return en; }
+    cfg_node *exit_node()               { return ex; }
+    void set_entry_node(cfg_node *n);
+    void set_exit_node(cfg_node *n);
+
+</pre><p>
+In designing the library, we chose not to represent edges in the
+<code>cfg</code> explicitly. Edges are represented by pairs of nodes or by
+a pair of a node and an index into the node's successor list.  The
+<a name="NWD5">first representation treats the </a><code>cfg</code> as a graph, while the second
+treats the <code>cfg</code> as a multigraph (the distinction is important
+if some of the numbered targets of a conditional or multiway branch
+are repeated).  Two methods return the number of edges or multiedges
+currently in the <code>cfg</code>: <code>num_edges()</code> and <code>num_multi_edges()</code>.  
+Note that the implementation of these two methods is currently slow; 
+an incremental calculation of the number of edges or multiedges is 
+possible, but has not yet been implemented. 
+<p>
+<pre><a name="NWcfg6-cfgF.2-1" href="#NWD5"><dfn>&lt;cfg edge counts&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b>
+    unsigned num_edges(); 
+    unsigned num_multi_edges(); 
+
+</pre><p>
+The library allows edges to be enumerated using a special iterator,
+the <code>cfg_edge_iter</code> class.  Unlike most SUIF iterator methods,
+<a name="NWD6">the </a><code>cfg_edge_iter</code> returns <code>void</code> when its <code>step()</code> method
+is called.  To find the head node, and the tail node or successor
+number that define an edge, use the <code>curr_head()</code>, <code>curr_tail()</code>,
+and <code>curr_snum()</code> methods.  Note that <code>curr_snum()</code> works only
+if the iterator was initialized with <code>multigraph</code> set to TRUE.
+Also, correct iteration is not guaranteed if the <code>cfg</code> changes
+while iterating.  Lastly, note that the <code>step()</code> method must be
+called before any of the <code>curr_*()</code> methods may be called.
+<p>
+<pre><a name="NWcfg6-cfgH-1" href="#NWD6"><dfn>&lt;cfg edge iterator&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b>
+class cfg_edge_iter {
+    boolean multigraph; 
+    int curr_node; 
+    int curr_index; 
+    cfg *base; 
+public:
+    cfg_edge_iter (cfg *base, boolean multigraph = FALSE); 
+    void reset(void); 
+    boolean is_empty() const; 
+    void step(); 
+
+    cfg_node *curr_head(void) const; 
+    cfg_node *curr_tail(void) const; 
+    unsigned curr_succ_num(void) const; 
+}; 
+
+</pre><p>
+The <code>cfg</code> transformation and analysis public methods are described
+in more detail in Section&nbsp;<a href="#secTransformations">[-&gt;]</a> and
+Section&nbsp;<a href="#secAnalysis">[-&gt;]</a>, respectively.  We defer discussion cleanup
+routines until after Section&nbsp;<a href="#secLayout">[-&gt;]</a> on layout, and we
+defer discussion constructors, destructors, and SUIF access to
+Section&nbsp;<a href="#secConstructing">[-&gt;]</a>.
+<p>
+
+<h3><a name=toc7>The <code>cfg_node</code> class</a></h3>
+<p>
+<code>cfg_node</code>s represent nodes in the CFG.  <code>cfg_node</code> is a virtual
+parent class.  More detail on the <code>cfg_node</code> subclasses appears at
+the end of this section. 
+<p>
+<a name="NWD7">We chose not to supply an edge data type.  Data or annotations</a>
+associated with edges can be placed in vectors that parallel the
+successors vector in each node.  We felt that interposing an edge
+structure between nodes would just complicate traversing the edges.
+Users who wish to add instructions along an edge can use the empty
+block creation methods described in the Transformations section.
+<p>
+<code>cfg_node</code>s get their own header file, <code>node.h</code>.  Here it is: 
+<p>
+<pre><a name="NWcfg6-nod6-1" href="#NWD7"><dfn>&lt;node.h&gt;=</dfn></a>
+/*  Control Flow Graph Nodes */
+
+<a name="NWcfg6-nod6-1-u1" href="#NWDM"><i>&lt;SUIF Copyright Notice&gt;</i></a>
+
+#ifndef CFG_NODE_H
+#define CFG_NODE_H
+
+#pragma interface
+
+
+<a name="NWcfg6-nod6-1-u2" href="#NWDA"><i>&lt;cfg_node_kind definition&gt;</i></a>
+/*
+ *  Each flow graph node contains only an ID number and information
+ *  related to the flow graph.  Other information can be associated with
+ *  a node by storing it in a separate array in the cfg structure where
+ *  the node ID number is used to index into the array.
+ *
+ *  This is a virtual class that cannot be instantiated.
+ */
+
+class cfg_node;
+<a name="NWcfg6-nod6-1-u3" href="#NWDP"><i>&lt;cfg_node_list_iter definition&gt;</i></a>
+
+class cfg_node {
+    friend class cfg;
+
+<a name="NWcfg6-nod6-1-u4" href="#NWcfg6-cfgc-1"><i>&lt;cfg_node private and protected members&gt;</i></a>
+  public:
+    cfg_node();
+    virtual ~cfg_node() {}
+
+<a name="NWcfg6-nod6-1-u5" href="#NWDB"><i>&lt;cfg_node subclass identification&gt;</i></a>
+<a name="NWcfg6-nod6-1-u6" href="#NWD8"><i>&lt;cfg_node numbering and ownership&gt;</i></a>
+<a name="NWcfg6-nod6-1-u7" href="#NWD9"><i>&lt;cfg_node relations to other nodes&gt;</i></a>
+<a name="NWcfg6-nod6-1-u8" href="#NWDX"><i>&lt;cfg_node layout relations&gt;</i></a>
+<a name="NWcfg6-nod6-1-u9" href="#NWDV"><i>&lt;cfg_node transformation methods&gt;</i></a>
+<a name="NWcfg6-nod6-1-u10" href="#NWDY"><i>&lt;cfg_node layout methods&gt;</i></a>
+<a name="NWcfg6-nod6-1-u11" href="#NWcfg6-cfgS-1"><i>&lt;cfg_node empty block methods&gt;</i></a>
+    virtual void print(FILE *fp=stdout) = 0;
+};
+
+<a name="NWcfg6-nod6-1-u12" href="#NWcfg6-defW-1"><i>&lt;definitions of cfg_node subtypes&gt;</i></a>
+#endif /* CFG_NODE_H */
+
+</pre><p>
+<a name="NWD8">Calling the </a><code>number()</code> method gives the number of <code>cfg_node</code> in
+its parent <code>cfg</code>.  In case a pointer to the owning <code>cfg</code> is not 
+handy, one can be recovered using the <code>parent()</code> method.  
+<p>
+<pre><a name="NWcfg6-cfgW-1" href="#NWD8"><dfn>&lt;cfg_node numbering and ownership&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+    unsigned number()                   { return nnum; }
+    cfg *parent()                       { return par; }
+
+</pre><p>
+Each <code>cfg_node</code> keeps a list of predecessors and a list of
+successors.  The list of predecessors is an unordered set, while
+the list of successors is a vector corresponding to the target(s)
+of the node's terminating instruction (or just the instruction in
+instruction mode).  The predecessor list is unordered because we
+could not imagine a useful ordering to implement; it is a set (and
+not a multiset) because having a set seems a simpler abstraction.
+The successors list is numbered; positions 0 and 1 in the list have
+special meaning depending on the kind of control instruction that
+terminates the block.  The same target can appear multiple times
+in the successors list, so that different cases of a multiway branch
+can jump to the same label.  The number of successors of a <code>cfg_node</code>
+depends on the control instruction that ends the basic block:
+<p>
+<ul> 
+<li>Unconditional jumps and fall-through blocks (blocks that have
+no terminating control instruction) have just one successor,
+which is always successor number 0.  
+<li>Call instructions also have just one successor, the block to
+which the call will return.  
+<li>Conditional branches have two successors.  The fall-through
+path is always successor number 0, while the taken path is
+successor number 1.  
+<li>Multiway branches have as many branches as there are slots
+in the branch dispatch table.  Changing the <i>j</i>th successor
+(counting from 0) of a multiway branch modifies the <i>j</i>th
+<a name="NWD9">dispatch table entry.  In low SUIF, a multiway branch with</a>
+<i>n</i> targets is represented by a node with <i>n+1</i> successors,
+where the last successor is the default target.
+</ul>
+The <code>cfg_node::succs(void)</code> and <code>cfg_node::preds(void)</code>
+methods return the lists of node successors and predecessors.
+Individual nodes can then be accessed using the standard SUIF list
+access methods.
+<p>
+<pre><a name="NWcfg6-cfgX-1" href="#NWD9"><dfn>&lt;cfg_node relations to other nodes&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+    cfg_node_list *preds()              { return &amp;prs; }
+    cfg_node_list *succs()              { return &amp;scs; }
+    cfg_node *fall_succ()               { return (*succs())[0]; }
+    cfg_node *take_succ()               { return (*succs())[1]; }
+
+</pre><p>
+<a name="NWDA">We defer discussing transformation, layout, and empty block methods</a>
+to the corresponding later sections.  Empty block methods are discussed
+under the transformation section. 
+<p>
+Specific subclasses of <code>cfg_node</code>s include labels, instructions
+or basic blocks, the special begin and end nodes, and test nodes
+from C <code>for</code> loops.  To distinguish the different kinds of
+<code>cfg_node</code>s, we have a simple enumeration:
+<p>
+<pre><a name="NWcfg6-cfgO-1" href="#NWDA"><dfn>&lt;cfg_node_kind definition&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+/*
+ *  Control flow graph nodes are divided into several subclasses
+ *  depending on the sort of SUIF object(s) to which they correspond.
+ */
+
+enum cfg_node_kind {
+    CFG_BEGIN,                          /* beginning marker for AST node */
+    CFG_END,                            /* ending marker for AST node */
+    CFG_INSTR,                          /* instruction or expression tree */
+    CFG_BLOCK,                          /* basic block of instructions */
+    CFG_TEST,                           /* &quot;test&quot; node of a FOR loop */
+    CFG_LABEL                           /* implicit AST node label */
+};
+
+</pre><p>
+<a name="NWDB">Each </a><code>cfg_node</code> implements identifier routines that allow the
+subclass to be determined.  These work in the usual SUIF way: 
+<p>
+<pre><a name="NWcfg6-cfgW.2-1" href="#NWDB"><dfn>&lt;cfg_node subclass identification&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+    virtual cfg_node_kind kind() = 0;
+    boolean is_begin()                  { return (kind() == CFG_BEGIN); }
+    boolean is_end()                    { return (kind() == CFG_END); }
+    boolean is_instr()                  { return (kind() == CFG_INSTR); }
+    boolean is_block()                  { return (kind() == CFG_BLOCK); }
+    boolean is_test()                   { return (kind() == CFG_TEST); }
+    boolean is_label()                  { return (kind() == CFG_LABEL); }
+
+</pre><p>
+<pre><a name="NWcfg6-defW-1" href="#NWcfg6-defW-1"><dfn>&lt;definitions of cfg_node subtypes&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+<a name="NWcfg6-defW-1-u1" href="#NWDC"><i>&lt;cfg_marker definition&gt;</i></a>
+<a name="NWcfg6-defW-1-u2" href="#NWDD"><i>&lt;cfg_begin definition&gt;</i></a>
+<a name="NWcfg6-defW-1-u3" href="#NWDE"><i>&lt;cfg_end definition&gt;</i></a>
+<a name="NWcfg6-defW-1-u4" href="#NWDK"><i>&lt;cfg_label definition&gt;</i></a>
+<a name="NWcfg6-defW-1-u5" href="#NWDF"><i>&lt;cfg_instr definition&gt;</i></a>
+<a name="NWcfg6-defW-1-u6" href="#NWDG"><i>&lt;cfg_block definition&gt;</i></a>
+<a name="NWcfg6-defW-1-u7" href="#NWDJ"><i>&lt;cfg_test definition&gt;</i></a>
+
+</pre><p>
+Most of the interfaces to the <code>cfg_node</code> subclasses are pretty
+boring; they just indicate to the compiler that some methods need
+to be overridden.  The exception is <code>cfg_block</code>s, which have
+additional access and modification methods.  Here is an English
+description of the purpose of each kind of <code>cfg_node</code>, along with
+<a name="NWDC">the class definition for completeness:</a>
+<p>
+<ul>
+<li><code>cfg_marker</code> is just an abstract parent class for <code>cfg_begin</code>
+and <code>cfg_end</code> classes.  These two are similar classes, because
+they don't correspond to ``real'' blocks or instructions in the 
+<code>cfg</code>; rather they indicate the entry points and exit points
+of the underlying procedure. 
+<p>
+<pre><a name="NWcfg6-cfgL-1" href="#NWDC"><dfn>&lt;cfg_marker definition&gt;=</dfn></a> <b>(<a href="#NWcfg6-defW-1">&lt;-U</a>)</b>
+/*
+ *  The BEGIN and END flow graph nodes are used to indicate the beginning
+ *  and ending of tree_nodes (except for tree_instrs).
+ */
+
+class cfg_marker : public cfg_node {
+    friend class cfg;
+
+  private:
+    tree_node *tn;
+
+  public:
+    cfg_marker(tree_node *t)            { tn = t; }
+
+    tree_node *node()                   { return tn; }
+};
+
+</pre><p>
+<li><code><a name="NWDD">cfg_begin</a></code> nodes abstract the entries into the procedure.
+Each <code>cfg</code> has just one <code>cfg_begin</code> node, and its
+successor(s) are the entry point(s) of the procedure.  A
+special edge is created linking the <code>cfg_begin</code> node
+directly to the <code>cfg_end</code> node.  This special edge is
+needed by  some of the analysis routines.
+<p>
+<pre><a name="NWcfg6-cfgK-1" href="#NWDD"><dfn>&lt;cfg_begin definition&gt;=</dfn></a> <b>(<a href="#NWcfg6-defW-1">&lt;-U</a>)</b>
+class cfg_begin : public cfg_marker {
+  public:
+    cfg_begin(tree_node *t) : cfg_marker(t) { }
+
+    cfg_node_kind kind()                { return CFG_BEGIN; }
+
+    void set_succ(unsigned n, cfg_node *); 
+    boolean set_layout_succ(cfg_node *); 
+
+    void print(FILE *fp=stdout);
+};
+
+</pre><p>
+<li><code><a name="NWDE">cfg_end</a></code> nodes abstract the exits from the procedure.  The
+predecessors of the <code>cfg_end</code> nodes are <code>cfg_block</code>s that
+end in return instructions and the <code>cfg_begin</code> node of the
+<code>cfg</code>.  
+<p>
+<pre><a name="NWcfg6-cfgI.2-1" href="#NWDE"><dfn>&lt;cfg_end definition&gt;=</dfn></a> <b>(<a href="#NWcfg6-defW-1">&lt;-U</a>)</b>
+class cfg_end : public cfg_marker {
+  public:
+    cfg_end(tree_node *t) : cfg_marker(t) { }
+
+    cfg_node_kind kind()                { return CFG_END; }
+
+    void set_succ(unsigned, cfg_node *) { assert(0); }
+
+    void print(FILE *fp=stdout);
+};
+
+</pre><p>
+<li><code><a name="NWDF">cfg_instr</a></code> nodes represent instructions in instruction-
+oriented mode.  They work like <code>cfg_block</code> nodes, but 
+cannot be manipulated by graph transformation and layout
+methods.  
+<p>
+<pre><a name="NWcfg6-cfgK.2-1" href="#NWDF"><dfn>&lt;cfg_instr definition&gt;=</dfn></a> <b>(<a href="#NWcfg6-defW-1">&lt;-U</a>)</b>
+/*
+ *  The CFG_INSTR flow graph nodes correspond to individual SUIF instructions
+ *  (not basic blocks).
+ */
+
+class cfg_instr : public cfg_node {
+    friend class cfg;
+
+  private:
+    tree_instr *ti;
+
+  public:
+    cfg_instr(tree_instr *t)            { ti = t; }
+
+    cfg_node_kind kind()                { return CFG_INSTR; }
+
+    tree_instr *instr()                 { return ti; }
+    void set_succ(unsigned, cfg_node *) { assert(0); }
+
+    void print(FILE *fp=stdout);
+};
+
+</pre><p>
+<li><code><a name="NWDG">cfg_block</a></code> nodes are the most common kind of node in graph and
+layout modes.  Each <code>cfg_block</code> represents a maximal
+basic block in the procedure.  Block boundaries are set in
+the usual way, except that blocks may also break at call
+instructions if the <code>break_at_call</code> flag is set during
+<code>cfg</code> construction.  The <code>cfg_block</code> class keeps track
+of the instructions in the underlying SUIF procedure which
+make up the corresponding basic block.
+<p>
+<pre><a name="NWcfg6-cfgK.3-1" href="#NWDG"><dfn>&lt;cfg_block definition&gt;=</dfn></a> <b>(<a href="#NWcfg6-defW-1">&lt;-U</a>)</b>
+/*
+ *  The BLOCK flow graph nodes represent basic blocks.  Their boundaries
+ *  are identified by the starting and ending tree_instr nodes.  Only other
+ *  tree_instrs should be in the block -- no high-level tree_nodes.
+ */
+typedef tree_node_list_e tnle;  /* just shorthand for this declaration */
+
+class cfg_block : public cfg_node {
+    friend class cfg;
+
+<a name="NWcfg6-cfgK.3-1-u1" href="#NWcfg6-cfgd-1"><i>&lt;cfg_block private and protected members&gt;</i></a>
+  public:
+    cfg_block(tree_node_list *tn, tree_instr *t1, tree_instr *t2)
+        { tnl = tn; ti1 = t1; ti2 = t2; tiC = NULL; tiS = NULL; }
+    cfg_block(cfg_block *orig, base_symtab *dst_scope=NULL); 
+    cfg_block(block_symtab *dst_scope); 
+
+    cfg_node_kind kind()                { return CFG_BLOCK; }
+
+<a name="NWcfg6-cfgK.3-1-u2" href="#NWDH"><i>&lt;cfg_block analysis&gt;</i></a>
+<a name="NWcfg6-cfgK.3-1-u3" href="#NWcfg6-cfgG-1"><i>&lt;cfg_block layout&gt;</i></a>
+<a name="NWcfg6-cfgK.3-1-u4" href="#NWDI"><i>&lt;cfg_block informational&gt;</i></a>
+<a name="NWcfg6-cfgK.3-1-u5" href="#NWDb"><i>&lt;cfg_block scheduling&gt;</i></a>
+    void print(FILE *fp=stdout);
+    void print_with_instrs(FILE *fp=stdout);
+};
+
+</pre><p>
+The instructions in a <code>cfg_block</code> can be accessed by a number of
+<a name="NWDH">methods modeled on the methods used to access a SUIF </a><code>tree_node_list</code>.
+The <code>in_head()</code> and <code>in_tail()</code> methods give the first and last
+instructions in the block.  If the block has a control instruction,
+then it can be accessed through <code>in_cti()</code>.  If necessary, users
+may check whether a block has a shadow goto using the <code>in_shad()</code>
+method.  Shadow instructions will be inserted or deleted by the
+library as needed to meet the constraints from <code>set_succ()</code> and
+<code>set_layout_succ()</code> instructions.
+<p>
+<pre><a name="NWcfg6-cfgI.3-1" href="#NWDH"><dfn>&lt;cfg_block analysis&gt;=</dfn></a> <b>(<a href="#NWDG">U-&gt;</a>)</b>
+    tree_instr *in_head() const         { return ti1; }
+    tree_instr *in_tail() const         { return ti2; }
+    tree_instr *in_cti() const          { return tiC; }
+    tree_instr *in_shad() const         { return tiS; }
+    void set_in_head(tree_instr *ti)    { ti1 = ti; } 
+    void set_in_tail(tree_instr *ti)    { ti2 = ti; } 
+    void set_in_cti(tree_instr *ti)     { tiC = ti; } // CLIFF: need more here
+
+</pre><p>
+<code>cfg_block</code>s support a few extra analysis routines.  Most describe
+the block's terminating control instruction (if any); these members
+<a name="NWDI">correspond to the </a><code>Is_{cti,ubr,cbr,mbr}</code> style of helper routines
+in the machine library.  The <code>first_non_label()</code> method returns
+the first instruction in a block that isn't a label.  The
+<code>first_active_op</code> method is similar, but skips pseudo-ops and null
+instructions in addition to labels.  Method <code>last_non_cti()</code> returns
+the last instruction before the terminating control instruction in
+the block.  Each of these instruction-finding methods returns the
+null pointer if there is no qualifying instruction.
+<p>
+<pre><a name="NWcfg6-cfgN-1" href="#NWDI"><dfn>&lt;cfg_block informational&gt;=</dfn></a> <b>(<a href="#NWDG">U-&gt;</a>)</b>
+    /* Information routines to assist in code layout. */
+    boolean ends_in_cti() const         { return tiC != NULL; }
+    boolean ends_in_ubr() const;
+    boolean ends_in_cbr() const;
+    boolean ends_in_mbr() const;
+    boolean ends_in_call() const;
+    boolean ends_in_return() const;
+        
+    tnle *first_non_label() const;
+    tnle *first_active_op() const;
+    tnle *last_non_cti() const;
+
+</pre><p>
+<a name="NWDJ">As usual we defer analysis, layout, and scheduling details to the</a>
+corresponding sections.
+<p>
+<li>The <code>cfg_test</code> class captures the test node from a C <code>for</code>
+loop.  It is an artifact from an older version of the library
+that supported High SUIF, and has not been debugged.  
+<p>
+<pre><a name="NWcfg6-cfgJ-1" href="#NWDJ"><dfn>&lt;cfg_test definition&gt;=</dfn></a> <b>(<a href="#NWcfg6-defW-1">&lt;-U</a>)</b>
+/*
+ *  The test part of a tree_for node is generated automatically when the
+ *  tree_for is expanded, yet it must still be represented in flow graphs.
+ *  The TEST flow graph nodes are used for this special purpose.
+ */
+
+class cfg_test : public cfg_node {
+    friend class cfg;
+
+  private:
+    tree_for *tf;
+
+  public:
+    cfg_test(tree_for *t)               { tf = t; }
+
+    cfg_node_kind kind()                { return CFG_TEST; }
+
+    tree_for *for_loop()                { return tf; }
+    void set_succ(unsigned, cfg_node *) { assert(0); }
+
+    void print(FILE *fp=stdout);
+};
+
+</pre><p>
+<li><a name="NWDK">In instruction mode, </a><code>cfg_label</code> objects represent the label
+instructions in the procedure.  Because all SUIF control flow
+uses explicit label targets, in instruction mode only label nodes 
+have multiple predecessors.  
+<p>
+<pre><a name="NWcfg6-cfgK.4-1" href="#NWDK"><dfn>&lt;cfg_label definition&gt;=</dfn></a> <b>(<a href="#NWcfg6-defW-1">&lt;-U</a>)</b>
+/*
+ *  LABEL nodes are only used in flow graphs built with separate nodes for
+ *  each instruction (i.e. no basic blocks).  They are used for the implicit
+ *  labels associated with high-level AST nodes.  The result is that only
+ *  nodes associated with labels will have multiple predecessors -- in other
+ *  words, any node with multiple predecessors will be empty.  That is a
+ *  nice property for solving data flow problems.
+ */
+
+class cfg_label : public cfg_marker {
+  public:
+    cfg_label(tree_node *t) : cfg_marker(t) { }
+
+    cfg_node_kind kind()                { return CFG_LABEL; }
+
+    void set_succ(unsigned, cfg_node *) { assert(0); }
+
+    void print(FILE *fp=stdout);
+};
+
+</pre><p>
+</ul>
+
+<h3><a name=toc8><a name="NWDL">Main Header File</a></a></h3>
+<p>
+Like every SUIF library, the CFG library has an umbrella include
+file that includes the relevant subsidiary include files: 
+<p>
+<pre><a name="NWcfg6-cfg5-1" href="#NWDL"><dfn>&lt;cfg.h&gt;=</dfn></a>
+/*  Top-level Control Flow Graph Include File */
+
+<a name="NWcfg6-cfg5-1-u1" href="#NWDM"><i>&lt;SUIF Copyright Notice&gt;</i></a>
+
+#ifndef CFG_H
+#define CFG_H
+
+<a name="NWcfg6-cfg5-1-u2" href="#NWDN"><i>&lt;CFGINCLFILE macro&gt;</i></a>
+
+<a name="NWcfg6-cfg5-1-u3" href="#NWDO"><i>&lt;EXPORTED_BY_CFG macro&gt;</i></a>
+
+#include CFGINCLFILE(graph.h)
+#include CFGINCLFILE(node.h)
+#include CFGINCLFILE(util.h)
+
+#endif /* CFG_H */
+
+</pre><p>
+<a name="NWDM">The SUIF Copyright notice appears at the top of everything; here's the</a>
+standard form: 
+<p>
+<pre><a name="NWcfg6-SUIL-1" href="#NWDM"><dfn>&lt;SUIF Copyright Notice&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a> <a href="#NWD7">&lt;-U</a> <a href="#NWDL">&lt;-U</a> <a href="#NWDe">U-&gt;</a>)</b>
+/*  Copyright (c) 1994 Stanford University
+
+    All rights reserved.
+
+    Copyright (c) 1995, 1996, 1997 The President and Fellows of Harvard 
+    University
+
+    All rights reserved.
+
+    This software is provided under the terms described in
+    the &quot;suif_copyright.h&quot; include file. */
+
+#include &lt;suif_copyright.h&gt;
+
+</pre><p>
+<a name="NWDN">This macro is triggered by the CFG library Makefile, so that we</a>
+can use the header files  both in the cfg source directory
+($SUIFHOME/src/machsuif/cfg) and in regular SUIF programs.
+<p>
+<pre><a name="NWcfg6-CFGH-1" href="#NWDN"><dfn>&lt;CFGINCLFILE macro&gt;=</dfn></a> <b>(<a href="#NWDL">&lt;-U</a>)</b>
+/*
+ *  Use a macro to include files so that they can be treated differently
+ *  when compiling the library than when compiling an application.
+ */
+
+#ifdef CFGLIB
+#define CFGINCLFILE(F) #F
+#else
+#define CFGINCLFILE(F) &lt;cfg/ ## F ## &gt;
+#endif
+</pre><p>
+
+<a name="NWDO">The following macro selects the appropriate syntax for external</a>
+variables.  Special handling is required for compilation under
+Windows NT.
+<p>
+<pre><a name="NWcfg6-EXPL-1" href="#NWDO"><dfn>&lt;EXPORTED_BY_CFG macro&gt;=</dfn></a> <b>(<a href="#NWDL">&lt;-U</a>)</b>
+#if defined(_WIN32) &amp;&amp; !defined(__CYGWIN32__) &amp;&amp; !defined(CFGLIB)
+#define EXPORTED_BY_CFG _declspec(dllimport) extern
+#else
+#define EXPORTED_BY_CFG extern
+#endif
+</pre><p>
+
+<h2><a name=toc9>Analysis</a></h2>
+<a name="secAnalysis"><b>[*]</b></a>
+<p>
+The CFG library provides five forms of support for CFG-based program
+analysis.  First, it provides access functions that allow programs
+to explore the structure of the graph and the instructions inside
+of blocks.  Most of these access functions were described in the
+previous section on the major classes.  Second, the library provides
+various kinds of iterators that allow programs to examine nodes
+within the CFG and instructions within <code>cfg_block</code>s in various
+orders.  Third, it computes dominance information and the dominator
+tree.  Finally, it computes natural loops.  
+<p>
+<h3><a name=toc10><a name="NWDP">Iterators</a></a></h3>
+<p>
+Most CFG iterators are simple.  Since CFG nodes are numbered, it
+is simple to iterate through them and assign them positions in bit
+vectors.  There are also iterators over <code>cfg_node_list</code>s, which
+make up the <code>succs()</code> and <code>preds()</code> lists associated with each
+<code>cfg_node</code>.  We get the <code>cfg_node_list_iter</code> class as part of
+the list class declaration macro.
+<p>
+<pre><a name="NWcfg6-cfgT-1" href="#NWDP"><dfn>&lt;cfg_node_list_iter definition&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+DECLARE_LIST_CLASS(cfg_node_list, cfg_node*);
+</pre><p>
+<a name="NWDQ">The </a><code>reverse_postorder_list()</code> function provides a
+list of <code>cfg_node</code>s in reverse postorder.  
+<p>
+<pre><a name="NWcfg6-revP-1" href="#NWDQ"><dfn>&lt;reverse postorder listing&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b>
+    /* list generator routines */
+    cfg_node_list *reverse_postorder_list(boolean forward=TRUE);
+
+</pre><p>
+<a name="NWDR">There is also an iterator that iterates through</a>
+the instructions in a <code>cfg_block</code> from <code>in_head()</code> to
+<code>in_tail()</code>.  The <code>cfg_node_instr_iter</code> constructor takes a
+<em>boolean</em> argument that specifies whether the iterator should
+iterate forward or backward.
+<p>
+<pre><a name="NWcfg6-cfgJ.2-1" href="#NWDR"><dfn>&lt;cfg_node_instr_iter&gt;=</dfn></a> <b>(<a href="#NWDe">U-&gt;</a>)</b>
+/* Iterator over instructions in a cfg_block */
+class cfg_node_instr_iter {
+  private:
+    tree_node_list_e *first;
+    tree_node_list_e *last;
+    tree_node_list_e *sentinel;
+    tree_node_list_e *cur;
+    tree_node_list_e *nxt;
+    boolean rev; 
+
+  public:
+    cfg_node_instr_iter(cfg_node *node, boolean reverse=FALSE);
+
+    void reset();
+    tree_instr *step();
+    tree_instr *peek();
+
+    boolean is_empty();
+};
+
+</pre><p>
+<h3><a name=toc11>Dominators</a></h3>
+<p>
+The CFG library will compute the dominator and postdominator relations, 
+as well as the dominance frontiers and postdominance frontiers of each 
+node in the graph.  Because this information may not always be used, 
+it is only computed on request; make sure to call the appropriate 
+<code>find_</code> method before attempting to use any of the access routines.  
+All of these methods are <code>cfg</code> methods; no individual <code>cfg_node</code>
+knows anything about these operations.  
+<p>
+The <code>dominates()</code> (<code>postdominates()</code>) function returns the
+<a name="NWDS">value of the dominance (postdominance) relation at the supplied</a>
+points; it takes either node numbers or pointers to nodes.  The
+<code>immed_dom()</code> (<code>immed_postdom()</code>) method returns the node that
+immediately dominates (postdominates) the node specified by number
+or pointer.  Finally, the <code>dom_frontier()</code> (<code>reverse_dom_frontier()</code>)
+method returns a SUIF <code>bit_set</code> whose bits are set at the positions
+corresponding to the nodes in the (reverse) dominance frontier of 
+the specified node.
+<p>
+<pre><a name="NWcfg6-domH-1" href="#NWDS"><dfn>&lt;dominator methods&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b>
+    /* built-in analysis routines */
+    void find_dominators();
+    void find_postdominators();
+    void find_df();                     /* dominance frontier */
+    void find_reverse_df();
+
+    /* access dfa information */
+    boolean dominates(int n_dominator, int n_dominatee);
+    boolean dominates(cfg_node *dominator, cfg_node *dominatee);
+    boolean postdominates(int n_dominator, int n_dominatee);
+    boolean postdominates(cfg_node *dominator, cfg_node *dominatee);
+    cfg_node *immed_dom(int n);
+    cfg_node *immed_dom(cfg_node *n);
+    cfg_node *immed_postdom(int n);
+    cfg_node *immed_postdom(cfg_node *n);
+    bit_set *dom_frontier(int n);
+    bit_set *dom_frontier(cfg_node *n);
+    bit_set *reverse_dom_frontier(int n);
+    bit_set *reverse_dom_frontier(cfg_node *n);
+
+</pre><p>
+<h3><a name=toc12>Natural Loops</a></h3>
+<p>
+Natural loops are also computed only on demand.  We use a method based
+on Algorithm 10.1 in Aho, Sethi, and Ullman.  The <code>loop_depth()</code>
+functions return the number of natural loops that contain a node; this
+can be set using the <code>set_loop_depth()</code> methods, overriding the
+results of the <code>find_natural_loops()</code> computation.  Before running
+<code><a name="NWDT">find_natural_loops()</a></code>, you must run <code>find_dominators()</code>.
+<p>
+The <code>is_loop_begin()</code> method returns <code>TRUE</code> if the specified node
+dominates any of its predecessors.  The <code>is_loop_end()</code> method returns
+<code>TRUE</code> if the specified node is dominated by any of its successors.  
+And the <code>is_loop_exit()</code> method returns TRUE if the specified node 
+has any successor with a different loop depth.  Note that this may not
+be what wants for a loop exit criterion in all cases.  
+<p>
+<pre><a name="NWcfg6-natK-1" href="#NWDT"><dfn>&lt;natural loop methods&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b>
+    void find_natural_loops(); 
+    int loop_depth(int n);
+    int loop_depth(cfg_node *n);
+    void set_loop_depth(cfg_node *n, int d); 
+    void set_loop_depth(int n, int d); 
+
+    boolean is_loop_begin(int n);       /* TRUE if block is loop entry */
+    boolean is_loop_begin(cfg_node *cn);
+    boolean is_loop_end(int n);         /* TRUE if block jumps to loop entry */
+    boolean is_loop_end(cfg_node *cn);
+    boolean is_loop_exit(int n);        /* TRUE if block is a loop exit */ 
+    boolean is_loop_exit(cfg_node *cn);
+
+</pre><p>
+<h2><a name=toc13>Transformations</a></h2>
+<a name="secTransformations"><b>[*]</b></a>
+<p>
+Optimizations that transform CFGs typically perform three actions:
+they clone existing nodes, they change the successors of a node to
+point somewhere else (most likely a clone), and they add new empty
+nodes to the CFG.  For example, a loop unroller makes multiple
+copies of a loop body, then it modifies the loop exit branches so
+that they form a chain.
+<p>
+The CFG library supports cloning using the 
+<code>cfg_block *cfg::clone_into(cfg_block *)</code> method.  This method
+returns a new <code>cfg_block</code>, duplicating procedure-specific symbols
+like <code>label_sym</code>s into the <code>cfg</code>'s <code>tree_proc</code> symbol table
+<a name="NWDU">and updating references to point to the new symbols.  Symbol</a>
+references are updated so that blocks can be cloned into other
+scopes; the most common use of this is to build a new version of
+a procedure while maintaining an original, unmodified version on
+the side.  The returned <code>cfg_block</code> appears as a numbered node
+in the <code>cfg</code>, and its code appears at in the <code>cfg</code>'s underlying
+SUIF procedure, but the code will be unreachable (dead) and all of
+its successor pointers will be cleared.
+<p>
+<pre><a name="NWcfg6-cfgI.4-1" href="#NWDU"><dfn>&lt;cfg transformation&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b> <b>[D<a href="#NWDW">-&gt;</a>]</b>
+    /* node insert/create routine -- must manually set preds/succs */
+    cfg_block *clone_into(cfg_block *); 
+</pre><p>
+<a name="NWDV">To make the code reachable, the driver program must connect to the</a>
+newly-cloned block using 
+<code>cfg_node::set_succ(unsigned n, cfg_node *)</code>.  This method works
+in the obvious way, setting the <i>n</i>th successor of the target block
+to the supplied new successor.  The former <i>n</i>th successor (if any)
+will be disconnected, and any other relevant data structures (like
+lists of predecessors) will be updated appropriately.  For convenience,
+<code>set_fall_succ()</code> and <code>set_take_succ()</code> are also defined.
+<p>
+<pre><a name="NWcfg6-cfgV-1" href="#NWDV"><dfn>&lt;cfg_node transformation methods&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+    virtual void set_succ(unsigned n, cfg_node *) = 0; 
+    void set_fall_succ(cfg_node *nod)   { set_succ(0, nod); }
+    void set_take_succ(cfg_node *nod)   { set_succ(1, nod); }
+
+</pre><p>
+The library also allows the user to specify the entry point of
+the procedure.  If <code>set_succ(0, foo)</code> method is called on the
+<code>cfg_begin</code> node, then the request is taken to mean that
+block <code>foo</code> should be made the entry point of the procedure. 
+<p>
+There are three methods for creating empty blocks.
+The first, <code>cfg_block *cfg::new_empty_block()</code>, creates a
+new block containing a single label instruction, then adds the
+block to the <code>cfg</code> with no edges connecting to it.  As with
+<code>clone_into()</code>, the driver program is responsible for
+connecting the new block into the graph.  The second method,
+<code>cfg_block *cfg_block::insert_empty_block(unsigned n)</code>, also
+creates a block containing a dummy label instruction, but it inserts
+the new block along the <i>n</i>th successor edge of the base block.
+The third method expects a pointer to a successsor of the current
+block, then places the empty block along all edges from the current
+block to the successor block.  Blocks created along edges are often
+<a name="NWDW">called ``landing pads''; landing pads are useful in instruction</a>
+scheduling, where code sometimes needs to be placed between a block
+and its predecessor, rather than in either one.
+<p>
+The <code>insert_empty_block()</code> methods attempt to be neutral to layout
+decisions.  They should work preserve any layout relation along the
+edge being modified, inserting the new empty block into any existing
+layout chain. 
+<p>
+<pre><a name="NWcfg6-cfgI.4-2" href="#NWDU"><dfn>&lt;cfg transformation&gt;+=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b> <b>[<a href="#NWDU">&lt;-</a>D]</b>
+    cfg_block *new_empty_block(void); 
+
+</pre><pre><a name="NWcfg6-cfgS-1" href="#NWcfg6-cfgS-1"><dfn>&lt;cfg_node empty block methods&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+    cfg_block *insert_empty_block(unsigned n); 
+    cfg_block *insert_empty_block(cfg_node *dst); 
+
+</pre><p>
+<h2><a name=toc14>Layout</a></h2>
+<a name="secLayout"><b>[*]</b></a>
+<p>
+The CFG library supports basic block placement and layout by allowing
+the user to specify an ordering (partial or total) of the blocks
+in a <code>cfg</code> and its associated SUIF procedure.  The ordering
+is specified by a doubly-linked list that runs through the
+<code>cfg_node</code>s of a <code>cfg</code>.  NULL pointers in this linked
+list indicate ``don't care'' orderings, while connected components
+(this document calls them ``clumps'') of the list will be laid out
+<a name="NWDX">in order.  This gives driver programs complete flexibility between</a>
+specifying no order at all (all layout links NULL) to a total order
+on blocks.
+<p>
+To read layout information, the library provides 
+<code>cfg_node *cfg_node::layout_pred()</code>, which returns the layout
+predecessor of a node, and <code>cfg_node *cfg_node::layout_succ()</code>, which
+returns its layout successor.  Layout chains are doubly-linked.
+<p>
+<pre><a name="NWcfg6-cfgP-1" href="#NWDX"><dfn>&lt;cfg_node layout relations&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+    cfg_node *layout_pred() const       { return lpred; }
+    cfg_node *layout_succ() const       { return lsucc; }
+
+</pre><p>
+Setting layout information is performed by 
+<code>void cfg_node::set_layout_succ(cfg_node *)</code>.  The <code>set_layout_succ()</code>
+<a name="NWDY">function is somewhat expensive: it may move most of the instructions</a>
+in the procedure's <code>tree_node_list</code> in order to satisfy the
+requested layout link.  However, <code>set_layout_succ()</code> is also
+careful about branch polarity and explicit jumps, inverting branches
+and removing unnecessary unconditional jumps when possible.  The
+value returned by <code>set_layout_succ()</code> indicates whether a conditional
+branch was inverted; if so, passes may need to update things like profile 
+information to maintain correspondence.  
+<p>
+<pre><a name="NWcfg6-cfgN.2-1" href="#NWDY"><dfn>&lt;cfg_node layout methods&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+    virtual void clear_layout_succ();
+    virtual boolean set_layout_succ(cfg_node *);
+    boolean set_layout_succ(label_sym *); 
+
+</pre><pre><a name="NWcfg6-cfgG-1" href="#NWcfg6-cfgG-1"><dfn>&lt;cfg_block layout&gt;=</dfn></a> <b>(<a href="#NWDG">U-&gt;</a>)</b> <b>[D<a href="#NWDZ">-&gt;</a>]</b>
+    void clear_layout_succ();
+    void set_succ(unsigned n, cfg_node *); 
+    boolean set_layout_succ(cfg_node *); 
+
+</pre><p>
+If more direct control over individual blocks is desired, the CFG
+library provides direct methods for changing conditional branch
+polarity, setting and promoting shadow instructions, and getting
+the leading label instruction of a block.  <code>invert_branch()</code>
+changes the polarity of a branch by changing its opcode to the
+opposite opcode (e.g. changing <code>beq</code> to <code>bne</code>).  If the branch
+has a <code>branch_edge_weights</code> annotation, giving the edge frequencies
+of the block's two out-edges, then <code>invert_branch()</code> swaps these
+as well.  <code>promote_shadow()</code>
+<a name="NWDZ">promotes the shadow goto at the end of a block to be the control</a>
+instruction that terminates the block.  <code>set_shadow()</code> sets the
+shadow goto to point to the targeted node (creating a new one if
+necessary), or removes any shadow goto if its argument is NULL.
+Note that <code>set_shadow()</code> does not update any layout pointer
+information, so use it with caution.  <code>get_label()</code> returns the
+leading label instruction of a block, inserting a new label if none
+was present.
+<p>
+<pre><a name="NWcfg6-cfgG-2" href="#NWcfg6-cfgG-1"><dfn>&lt;cfg_block layout&gt;+=</dfn></a> <b>(<a href="#NWDG">U-&gt;</a>)</b> <b>[<a href="#NWcfg6-cfgG-1">&lt;-</a>D]</b>
+    /* Opcode-changing utility routine.  Does not change succs. */
+    void invert_branch(); 
+    void promote_shadow(void); 
+    void set_shadow(cfg_node *); 
+    label_sym *get_label(); 
+
+</pre><p>
+When no layout links have been specified, the library treats the
+<code>cfg</code> as a general graph and inserts shadow gotos as
+described above.  Shadow gotos violate the standard concepts of
+basic blocks because a block ending in a conditional branch or call
+instruction followed by a shadow goto should actually be two basic
+blocks.  The library insists that blocks with layout successors be
+valid standard basic blocks.  This makes <code>set_layout_succ()</code>
+picky about the conditions in which it will allow a link to be set:
+<ul>
+<li>It is always legal to set the layout successor of a
+fall-through block or a block ending in an unconditional
+branch.  If the layout successor is also the control flow
+successor, then any shadow goto or unconditional branch instructions
+will be removed.  If not, then any shadow goto will
+be promoted to be the terminating control instruction in the
+block (i.e. it will be returned by <code>in_cti()</code> and
+<code>in_tail()</code> and the block will no longer need a shadow
+goto).  These constraints ensure that any necessary explicit
+gotos will become visible for timing analysis and instruction
+scheduling.
+<li>It is legal to set the layout successor of a conditional
+branch block only if the layout successor is either the
+fall-through successor or the taken successor of the block.
+The CFG library will remove any shadow goto instruction
+and set the branch polarity so that the layout successor
+becomes the fall-through successor of the block.  If a
+driver program actually wants the layout successor of a
+conditional branch block not to be a control-flow successor,
+then the program is responsible for creating a new
+unconditional branch block below the conditional branch.
+This can be done easily using the <code>insert_empty_block()</code>
+method.
+<li>It is legal to set the layout successor of a block ending
+in a call instruction only if the layout successor is also
+the control flow successor.  Any shadow goto will be
+removed.  
+<li>It is always legal to set the layout successor of a multiway
+branch block.  No shadow goto will ever be present.  
+<li>It is never legal to set a layout successor if adding that
+link to the layout list would create a layout cycle.  
+</ul>
+Further, it is illegal to change the fall-through successor of a node
+after its layout successor has been set (the library will allow 
+requests to set the fall-through successor to the same value, though).  
+<p>
+Driver programs may break the layout link between a node and its
+layout successor by calling <code>void cfg_node::clear_layout_succ(void)</code>.
+Clearing the layout successor will cause the library to insert
+shadow gotos after fall-through, conditional branch, and
+call blocks and to demote unconditional branches to shadow gotos.  All
+of the layout links in a <code>cfg</code> can be reset using
+<code>cfg::remove_layout_info(void)</code>.
+<p>
+The <code>cfg</code> class provides a few other high-level ``cleanup''
+routines.  These cleanup routines perform <code>cfg</code>-level
+optimizations that are more ``smart'' than the usual atomic layout
+interfaces to the library.  Some return boolean results to indicate
+when they have made any changes.  Callers may want to loop through
+these methods for as long as progress is made.
+<ul>
+<li>The <code>remove_unreachable_blocks()</code> function rebuilds the <code>cfg</code>,
+removing any basic blocks that lie on no path from the entry.  The
+<code>delete_instrs</code> flag instructs the routine also to remove and delete
+the instructions contained in the blocks eliminated.  The result is
+<code>TRUE</code> if any blocks are removed.
+Note that the entire <code>cfg</code> is rebuilt and renumbered by this
+method, so do not expect old pointers to nodes to remain valid. 
+<li>The <code>merge_block_sequences()</code> routine coalesces sequences
+<i>p_1,...,p_k</i> of control-equivalent basic blocks, where
+<i>p_i</i> immediately precedes <i>p_i+1</i>.  For each such sequence,
+it moves the instructions of <i>p_2,...,p_k</i> into <i>p_1</i> and
+transfers the successors of <i>p_k</i> to <i>p_1</i>, leaving
+<i>p_2,...,p_k</i> isolated and content-free, except for labels.
+When a block that lies in the middle of a layout chain is
+excised in this way, the chain is closed around it afterwards.
+When the <code>break_at_call</code> flag is TRUE, a sequence is
+terminated at the first block that ends with a call instruction.
+<code>merge_block_sequences</code> returns TRUE if any sequences are
+merged.
+<p>
+<code>merge_block_sequences()</code> detects blocks that end with a two-way
+or multiway branch, but have a single successor.  When possible, it
+merges the successor into such a block.  But it eliminates the
+unneeded branch even if the merge is not possible.
+<li>The <code>optimize_jumps()</code> routine attempts to remove jumps to jumps,
+replacing them by jumps to the final target.  It returns <code>TRUE</code>
+if and only if it makes a change.  It recognizes target blocks that
+contain no active instructions besides a jump, and it treats these
+as if they contained only the jump.  It optimizes fall-through
+<a name="NWDa">edges as though they corresponded to explicit jumps, replacing them</a>
+when the fall-through successor block is vacuous.
+<li>The <code>remove_shadows()</code> routine sets layout successors in the cases
+where a block ends in an explicit jump to its immediate
+successor in the underlying SUIF <code>tree_node_list</code>.  This
+eliminates a jump instruction, resulting in more compact and
+efficient code.
+</ul>
+<p>
+<pre><a name="NWcfg6-cfgB-1" href="#NWDa"><dfn>&lt;cfg cleanup&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b>
+    /* clean-up routines */
+    boolean remove_unreachable_blocks(boolean delete_instrs=FALSE); 
+    boolean merge_block_sequences(boolean break_at_call=FALSE);
+    boolean optimize_jumps(); 
+    void remove_shadows(); 
+    void remove_layout_info(); 
+
+</pre><p>
+<h2><a name=toc15><a name="NWDb">Scheduling</a></a></h2>
+<a name="secScheduling"><b>[*]</b></a>
+<p>
+The CFG library provides fine-grain support by allowing programs
+to directly modify the lists of instructions in basic blocks.  As
+mentioned above, the <code>cfg_block</code> class supports methods based
+on <code>tree_node_list</code>s.  These include methods that insert and
+delete instructions at specific points in the list.
+<p>
+<pre><a name="NWcfg6-cfgK.5-1" href="#NWDb"><dfn>&lt;cfg_block scheduling&gt;=</dfn></a> <b>(<a href="#NWDG">U-&gt;</a>)</b>
+    /* Routines to add/delete non-CTI instructions to/from a block.
+     * Modeled on tree_node_list routines (dlist.h). */
+    tnle *push(tnle *new_e);    /* new_e inserted before head */
+    tnle *pop();                /* pop first inst in block */
+    tnle *append(tnle *new_e);  /* new_e inserted after tail */
+    tnle *insert_before(tnle *e, tnle *pos);
+    tnle *insert_after(tnle *e, tnle *pos);
+    void insert_after(tree_node_list *mtnl, tnle *pos);
+    tnle *remove(tnle *rem);    /* remove this from list */
+    boolean contains(tnle *test); /* TRUE if test is in this */
+
+</pre><p>
+Note that the library will not allow driver programs to delete the
+only instruction in a <code>cfg_block</code>; a label instruction will
+always be added as a placeholder for the body of the block.  Dead
+blocks can be removed from the <code>cfg</code> and the SUIF
+<code>tree_node_list</code> by calling
+<code>cfg::remove_unreachable_blocks(TRUE)</code>.  
+<p>
+Also note that the <code>insert_before()</code>, <code>insert_after()</code>, and
+<code>remove()</code> methods verify whether the <code>pos</code> or <code>rem</code> argument
+actually occurs somewhere in this <code>cfg_block</code>.  If not, then they
+will throw an assertion.
+<p>
+Use the instruction list access functions with care; the library
+performs no checking on the kinds of instructions inserted.
+The library will do its best to update branch targets after a block
+has been transformed by code motions, but it has a number of limitations. 
+The library assumes that there is just one control instruction per
+block.  Use the <code>set_in_cti()</code> method to inform the library 
+if you change the control instruction in a block.  The library
+<a name="NWDc">should be able to correctly set taken conditional branch successors</a>
+and multiway branch successors even after layout and code scheduling. 
+However, if you try to change the fallthrough successor of a block, 
+the library may insert a shadow instruction at the end of the block, 
+possibly ruining any code motion efforts.  
+<p>
+<h2><a name=toc16>Constructing CFGs</a></h2>
+<a name="secConstructing"><b>[*]</b></a>
+<p>
+<pre><a name="NWcfg6-cfgW.3-1" href="#NWDc"><dfn>&lt;cfg constructors and destructors&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b>
+    cfg(tree_block *b,
+        boolean build_blocks = TRUE,    /* if FALSE, 1 instr per block */
+        boolean break_at_call = FALSE, 
+        boolean keep_layout = FALSE);
+    ~cfg();
+
+</pre><p>
+The <code>cfg</code> constructor takes four arguments.  The first specifies
+the procedure around which to build the CFG.  The remaining three
+are flags with the following effects:
+<p>
+<ul>
+<li><code>build_blocks</code> 
+If this flag is TRUE, normal maximal basic blocks are
+assembled.  This is the default.  If it is FALSE, then each
+instruction is placed in its own basic block.  
+<li><code>break_at_call</code> 
+If this flag is TRUE, then call instructions terminate
+basic blocks.  If it is FALSE, then call instructions
+can occur in the middle of basic blocks.  The default is
+FALSE. 
+<p>
+Note that on some architectures (like Alpha and PowerPC), 
+the instruction after returning from a call must fix up the
+global data pointer.  In such cases, we recommend that 
+users keep this flag FALSE or that they ensure that the 
+layout successor of all calls is also the original
+control successor block.  
+<li><code>keep_layout</code> 
+If this flag is TRUE, then the <code>cfg</code> is built with
+layout pointers set to reflect the order already in the
+procedure.  Only standard basic blocks are assembled (e.g.
+a conditional branch followed by an unconditional branch
+will form two basic blocks).  If the <code>keep_layout</code>
+flags  is FALSE, then no layout pointers are set.
+Shadow gotos will be inserted wherever needed.  
+Unconditional branches will be treated as shadow gotos
+wherever possible.  The default is FALSE. 
+</ul>
+Users of the library in instruction mode will want to set 
+<code><a name="NWDd">build_blocks</a></code> to FALSE.  If <code>build_blocks</code> is FALSE, 
+then <code>keep_layout</code> determines whether the constructed <code>cfg</code>
+starts out in layout-oriented or graph-oriented mode.  
+<p>
+While constructing the <code>cfg</code>, some information about the surrounding
+SUIF environment is constructed and stored.  In particular, the <code>cfg</code>
+stores the <code>tree_proc</code> around which it was built.  This information
+can be accessed using the <code>tproc()</code> method. 
+<p>
+<pre><a name="NWcfg6-cfgF.3-1" href="#NWDd"><dfn>&lt;cfg SUIF access&gt;=</dfn></a> <b>(<a href="#NWD3">&lt;-U</a>)</b>
+    tree_proc *tproc()                  { return tp; }
+
+</pre><p>
+<h2><a name=toc17><a name="NWDe">Helper Functions</a></a></h2>
+<a name="secHelper"><b>[*]</b></a>
+<p>
+This section lists a number of helper functions that don't fall into
+the traditional class hierarchies.  These helper functions live in the
+<code>util.h</code> header file.  
+<p>
+<pre><a name="NWcfg6-uti6-1" href="#NWDe"><dfn>&lt;util.h&gt;=</dfn></a>
+/*  Control Flow Graph Utilities */
+
+<a name="NWcfg6-uti6-1-u1" href="#NWDM"><i>&lt;SUIF Copyright Notice&gt;</i></a>
+
+#ifndef CFG_UTIL_H
+#define CFG_UTIL_H
+
+<a name="NWcfg6-uti6-1-u2" href="#NWDf"><i>&lt;SUIF init and exit&gt;</i></a>
+<a name="NWcfg6-uti6-1-u3" href="#NWDh"><i>&lt;connector helpers&gt;</i></a>
+<a name="NWcfg6-uti6-1-u4" href="#NWDg"><i>&lt;cfg annotations&gt;</i></a>
+<a name="NWcfg6-uti6-1-u5" href="#NWDi"><i>&lt;vcg support&gt;</i></a>
+<a name="NWcfg6-uti6-1-u6" href="#NWDR"><i>&lt;cfg_node_instr_iter&gt;</i></a>
+<a name="NWcfg6-uti6-1-u7" href="#nw@notdef"><i>&lt;cfg_node_list occurs check&gt;</i></a>
+<a name="NWcfg6-uti6-1-u8" href="#NWDl"><i>&lt;new-instruction helpers&gt;</i></a>
+#endif /* CFG_UTIL_H */
+
+</pre><p>
+<h3><a name=toc18><a name="NWDf">Initialization</a></a></h3>
+<p>
+Like any SUIF library, the CFG library needs to be initialized as
+part of the call to <code>init_suif()</code> and cleaned up when <code>exit_suif()</code>
+is called.  This is done automatically through the magic of SUIF 
+Makefiles, but the <code>init_cfg()</code> and <code>exit_cfg()</code> functions needed
+to be declared somewhere.  
+<p>
+<pre><a name="NWcfg6-SUII-1" href="#NWDf"><dfn>&lt;SUIF init and exit&gt;=</dfn></a> <b>(<a href="#NWDe">&lt;-U</a>)</b>
+/*  initialization and finalization functions */
+void init_cfg(int &amp;argc, char *argv[]);
+void exit_cfg();
+
+</pre><p>
+<h3><a name=toc19><a name="NWDg">Annotations to Library Objects</a></a></h3>
+Some annotations connect SUIF instructions back to their parent 
+<code>cfg_block</code>s in the <code>cfg</code>.  
+<p>
+<pre><a name="NWcfg6-cfgF.4-1" href="#NWDg"><dfn>&lt;cfg annotations&gt;=</dfn></a> <b>(<a href="#NWDe">&lt;-U</a>)</b>
+/*  annotations to attach CFGs to SUIF objects */
+EXPORTED_BY_CFG char *k_cfg_node;
+EXPORTED_BY_CFG char *k_cfg_begin;
+EXPORTED_BY_CFG char *k_cfg_end;
+EXPORTED_BY_CFG char *k_cfg_test;
+EXPORTED_BY_CFG char *k_cfg_toplab;
+
+</pre><p>
+A number of helper functions use these annotations to look up the
+corresponding <code>cfg_nodes</code>s and <code>cfg</code>s.  The 
+<code><a name="NWDh">cfg_node *label_cfg_node(label_sym *l);</a></code> method tries to find
+the <code>cfg_node</code> that <code>l</code> is at the top of.  The 
+<code>cfg_node *cfg_begin_node(tree_node *n);</code> returns the <code>cfg_block</code>
+or <code>cfg_instr</code> that holds the instruction if <code>n</code> is an instruction.
+If <code>n</code> is a <code>tree_block</code>, then it returns the <code>cfg_begin</code>
+node of the graph The <code>cfg_node *cfg_end_node(tree_node *n);</code>
+method works like <code>cfg_begin_node()</code>, except that it returns the
+<code>cfg_end</code> node if <code>n</code> is a <code>tree_block</code>.
+<p>
+<pre><a name="NWcfg6-conH-1" href="#NWDh"><dfn>&lt;connector helpers&gt;=</dfn></a> <b>(<a href="#NWDe">&lt;-U</a>)</b>
+/*  functions to find CFG nodes associated with various objects */
+cfg_node *label_cfg_node(label_sym *l);
+cfg_node *cfg_begin_node(tree_node *n);
+cfg_node *cfg_end_node(tree_node *n);
+cfg_test *cfg_test_node(tree_for *n);
+cfg_label *cfg_toplab(tree_for *n);
+
+</pre><p>
+<h3><a name=toc20><a name="NWDi">Support for VCG (Visualization for Compiler Graphs)</a></a></h3>
+<p>
+The <code>generate_vcg()</code> function will write a graph description in 
+a format suitable for the VCG tool to read and display graphically.
+The <code>FILE *f</code> argument should be an open file descriptor to which
+to write.  See the documention for the VCG tool for more information
+about the VCG file format.  
+<p>
+<pre><a name="NWcfg6-vcgB-1" href="#NWDi"><dfn>&lt;vcg support&gt;=</dfn></a> <b>(<a href="#NWDe">&lt;-U</a>)</b>
+extern void generate_vcg(FILE *f, cfg *cfg);    /* Dump vcg format file   */
+
+</pre><p>
+<h3><a name=toc21><a name="NWDj">Other Helpers</a></a></h3>
+<p>
+In the CFG library implementation, it turns out to be very common
+to check whether a particular <code>cfg_node</code> appears in a <code>cfg_node_list</code>.
+The helper predicate <code>occurs()</code> exposes this check for others to use.
+<p>
+<pre><a name="NWcfg6-othD-1" href="#NWDj"><dfn>&lt;other helpers&gt;=</dfn></a> <b>[D<a href="#NWDk">-&gt;</a>]</b>
+/* Helper functions */
+extern boolean occurs(cfg_node *cn, cfg_node_list *cnl); 
+</pre><p>
+<a name="NWDk">The helper </a><code>expunge_instr_tree()</code> excises and deletes an instruction
+node and all the instructions subtended by it from a CFG block, whether
+the subtended instructions are subtrees or are parented at the block
+level themselves.  The latter case is important for work on low SUIF
+instruction lists in which expression trees have not been built.
+<p>
+<pre><a name="NWcfg6-othD-2" href="#NWDj"><dfn>&lt;other helpers&gt;+=</dfn></a> <b>[<a href="#NWDj">&lt;-</a>D]</b>
+extern void expunge_instr_tree(cfg_block *b, tree_instr *ti); 
+
+</pre><p>
+
+<a name="NWDl">The following helpers generate new instructions.</a>
+<p><pre><a name="NWcfg6-newN-1" href="#NWDl"><dfn>&lt;new-instruction helpers&gt;=</dfn></a> <b>(<a href="#NWDe">&lt;-U</a>)</b>
+/* Helper functions added by tjc */
+instruction *New_lab(label_sym *l);
+instruction *New_ubr(label_sym *l);
+instruction *New_null();
+
+</pre><p>
+<h2><a name=toc22>Implementation Notes</a></h2>
+<a name="secImplementation"><b>[*]</b></a>
+<p>
+This section describes implementation issues and decisions relevant
+to the CFG library.  
+<p>
+One of the most difficult design problems involved supporting
+explicit, enumerated branch targets.  In most modern architectures,
+control instructions have just one explicit target, with the
+fall-through successor serving as a second, implicit target.  In
+a general graph, it is not always possible to ensure that the
+fall-through successor of a basic block ends up immediately after
+that block.  We feel that having the library manage shadow gotos
+but enforcing constraints on shadow gotos in layout strikes the
+right balance between the graph abstraction desired by some CFG
+transformations and the fine-grain control required for global code
+motions.  Using shadow gotos significantly simplified the implementation
+of <code>set_succ()</code>.
+<p>
+The interesting code layout work happens inside <code>set_layout_succ()</code>.
+A layout request actually involves linking together two <em>clumps</em>
+of <code>cfg_node</code>s, where a clump is a chain of already-linked
+blocks.  The two blocks supplied to <code>set_layout_succ()</code> should
+be the last block of the top clump and the first block of the bottom
+clump.  After checking that the blocks belong to the same <code>cfg</code>,
+<code>set_layout_succ()</code> examines their clumps.  If the two clumps
+are the same, then the layout request would create a layout cycle,
+so the library generates an assertion failure.  Next,
+<code>set_layout_succ()</code> checks to make sure that the bottom block appears
+in the successor list of the top block.  If so, then we can remove
+any shadow gotos and set the polarity of the top block so that it
+falls through to the bottom block.  If the layout successor is not a 
+control successor, then an explicit goto will be required at the
+end of the block.  Finally, <code>set_layout_succ()</code>
+moves the instructions in the SUIF procedure's <code>tree_node_list</code>
+so that the top and bottom clump are adjacent.
+<p>
+Machine SUIF support for multi-way branches requires assistance
+from each code generator: a number of special annotations must be
+attached to the mbr dispatch block.  The current implementation
+assumes a dispatch table approach to multiway branches; other
+methods are not currently supported.
+<p>
+As much as possible, we have tried to keep the interface and
+implementation of the library simple.  For example, branch inversion
+and removal of extra unconditional jumps happen only when
+<code>set_layout_succ()</code> is called, not when other CFG transformations
+<a name="NWDm">are applied.  The library might have tried to handle insertion of</a>
+control instructions into <code>cfg_block</code>s, splitting nodes and
+changing edges behind the scenes.  In both these cases and many others,
+we felt it was better to err on the side of simplicity and precision
+than to provide an overly smart tool that could confuse users by
+doing too many things ``magically'' in the background.
+<p>
+For completeness, we list the private and protected class members here.  
+<p>
+<pre><a name="NWcfg6-cfgJ.3-1" href="#NWDm"><dfn>&lt;cfg private members&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b>
+  private:
+    tree_proc *tp;                      /* proc of this cfg */
+
+    cfg_node_array *nds;                /* xarray of nodes */
+    cfg_node *en;                       /* entry node */
+    cfg_node *ex;                       /* exit node */
+
+    bit_set *doms, *pdoms;              /* dominators and postdominators */
+    cfg_node **idom, **ipdom;           /* immediate dominators and postdoms */
+    bit_set *df, *rdf;                  /* dominance frontier and reverse df */
+    int *lp_depth;                      /* loop depth */
+
+</pre><pre><a name="NWcfg6-cfgL.2-1" href="#NWcfg6-cfgL.2-1"><dfn>&lt;cfg protected members&gt;=</dfn></a> <b>(<a href="#NWD2">&lt;-U</a>)</b>
+  protected:
+    /* internal methods for building the graph */
+    void add_node(cfg_node *n);
+    cfg_node *graph_add_list(tree_node_list *list, cfg_node *prev,
+        boolean block, boolean break_at_call, boolean keep_layout); 
+    cfg_node *graph_add_tree(tree_node *t, cfg_node *prev, 
+        boolean block, boolean break_at_call, boolean keep_layout); 
+
+    /* helper routine to clone nodes or create new empty nodes */
+    void attach(cfg_node *);
+
+    /* dfa functions used internally */
+    bit_set *dominators(boolean forward);
+    cfg_node **immed_dominators(boolean forward);
+    void dom_frontiers(cfg_node *x, boolean forward);
+
+    /* helper routines for clean-up */
+    void cfg_cleanup(cfg_node *nd);
+
+</pre><pre><a name="NWcfg6-cfgc-1" href="#NWcfg6-cfgc-1"><dfn>&lt;cfg_node private and protected members&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+  private:
+    unsigned nnum;                      /* node number */
+    cfg *par;                           /* parent flow graph */
+    cfg_node_list prs;                  /* cfg predecessors */
+    cfg_node_list scs;                  /* cfg successors */
+
+  protected:
+    cfg_node *lpred;                    /* layout predecessor */
+    cfg_node *lsucc;                    /* layout successor */
+
+    void set_number(unsigned n)         { nnum = n; }
+    void set_parent(cfg *p)             { par = p; }
+
+    void add_succ(cfg_node *n);
+    void remove_pred(cfg_node *n);
+    void remove_succ(cfg_node *n);
+
+    void print_base(FILE *fp);
+
+</pre><pre><a name="NWcfg6-cfgd-1" href="#NWcfg6-cfgd-1"><dfn>&lt;cfg_block private and protected members&gt;=</dfn></a> <b>(<a href="#NWDG">U-&gt;</a>)</b>
+  private:
+    tree_node_list *tnl; 
+    tree_instr *ti1;
+    tree_instr *ti2;
+    tree_instr *tiC;            /* CTI instruction, if any */
+    tree_instr *tiS;            /* shadow goto, if needed */
+
+  protected:
+    void extend(tree_instr *t)          { ti2 = t; }
+    void remove_explicit_targets(); 
+    cfg_block *tnl_pred(void); 
+    cfg_block *tnl_succ(void); 
+
+</pre><p>
+<h2><a name=toc23>Future Work</a></h2>
+<a name="secFuture"><b>[*]</b></a>
+<p>
+Some of the implementation of the scheduling support is still flaky.
+In particular, if you change the kind of terminating control
+instruction of a block using <code>set_in_cti()</code>, the library is not
+smart enough to fix up the successor and predecessor lists.  For
+example, a constant propagator pass might eliminate a conditional
+branch instruction; the library doesn't handle this very well.
+<p>
+We'd like to make <code>cfg_instr</code> nodes work similarly to <code>cfg_block</code>
+nodes for layout and graph transformation purposes.  But we haven't thought
+about it enough yet.  The solution may involve removing <code>cfg_instr</code> 
+objects entirely and forcing one instruction per <code>cfg_block</code>, or it
+may involve allowing users to create <code>cfg_instr</code> and <code>cfg_label</code> 
+nodes as wrappers around the underlying SUIF instructions.  
+<p>
+We plan to extend the implementation to include high SUIF constructs like
+FOR, WHILE, and IF...THEN constructs.  This isn't implemented yet, and
+we haven't thought much about how to represent the hierachical structure
+of these constructs.  
+<p>
+
+<h2><a name=toc24>Summary and Availability</a></h2>
+<a name="secSummary"><b>[*]</b></a>
+<p>
+We have developed a CFG library that supports not only analysis of
+programs, but also CFG-level transformations, code layout, and
+fine-grained code motion in the SUIF environment.  At Harvard, we
+have used this machine library to build compiler passes including
+dead code elimination, loop peeling and unrolling, static correlated
+branch prediction, code layout, and a number of instruction
+schedulers.
+<p>
+The SUIF CFG library is available as part of the SUIF machine
+library distribution.  A version of the machine library is available
+by anonymous ftp from <code>ftp.eecs.harvard.edu</code> in <code>pub/hube</code>
+(the same code is available from our web site,
+<code>http://www.eecs.harvard.edu/~hube/</code>).  SUIF is available from
+<code>http://suif.stanford.edu/</code>.  Questions, comments, and bug
+reports for this package should be e-mailed to
+<code>machsuif-bugs@eecs.harvard.edu</code>.
+<p>
+
+
+<h2><a name=toc25>Acknowledgments</a></h2>
+<p>
+Archeological evidence suggests that the original CFG library, including
+dominator analysis, was
+written by Michael D. Smith, my advisor, while he was working on
+his thesis.  A version of this library was modified by Bob
+Wilson at Stanford.  Tony DeWitt brought the library to Harvard, 
+adapting the data structure constructors to the new machine SUIF
+library.  Gang Chen wrote the loop analysis code, and Mike
+built the unified data flow analysis routines.  Other members of
+the HUBE research group at Harvard contributed useful suggestions
+to the design.  Tim Callahan of Synopsis, Inc. and Berkeley debugged
+the library's support for low SUIF and fixed several other bugs.
+<p>
+During the period I worked on the CFG library, I have been supported
+by an NDSEG fellowship sponsored by the Office of Naval Research
+and by an IBM Cooperative Fellowship.
+<p>
+We also gratefully acknowledge the generous support of this research
+by Advanced Micro Devices, Digital Equipment, Hewlett-Packard,
+Intel, International Business Machines, and Microsoft.
+<p>
+<h2><a name=toc26>References</a></h2>
+<p>
+<a name="NWcite-bibalign"><b>[1]</b></a>  Brad Calder and Dirk Grunwald.  ``Branch Alignment
+for Better Branch Prediction''.  <em>Proc. 6th Intl. Conf. on
+Architectural Support for Programming Languages and Operating
+Systems</em>, pp.  242-252, October 1994.
+<p>
+<a name="NWcite-biblayout"><b>[2]</b></a>  K. Pettis and R. C. Hansen.  ``Profile Guided 
+Code Positioning&quot;, <em>Proc. SIGPLAN '90 Conf. on Prog. Lang.
+Design and Implementation</em>, June 1990.  
+<p>
+<a name="NWcite-bibmach"><b>[3]</b></a>  Michael D. Smith. <em>The SUIF Machine Library.</em>
+The machine SUIF compiler documentation set, Harvard University,
+1994.
+<p>
+<a name="NWcite-bibsuif"><b>[4]</b></a>  Stanford Compiler Group. <em>The SUIF Library.</em>
+The SUIF compiler documentation set, Stanford University, 1994.
+<p>
+<a name="NWcite-bibscbp"><b>[5]</b></a>  Cliff Young and Michael D. Smith. ``Improving the
+Accuracy of Static Branch Prediction Using Branch Correlation''.
+<em><a name="NWDn">Proc. 6th Intl. Conf. on Architectural Support for Programming</a>
+Languages and Operating Systems</em>, pp.  232-241, October 1994.
+<p>
+
+
+<!-- Making \end{document} a chunk by itself seems necessary for use of-->
+<!-- noweave -delay -x ..., even though the -x option suppresses the-->
+<!-- cross-reference stuff that would supposedly be dumped here.-->
+
+
+
+
+
+<ul>
+<li><a href="#NWDg"><i>&lt;cfg annotations&gt;</i></a>: <a href="#NWDe">U1</a>, <a href="#NWDg">D2</a>
+<li><a href="#NWDa"><i>&lt;cfg cleanup&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWDa">D2</a>
+<li><a href="#NWDc"><i>&lt;cfg constructors and destructors&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWDc">D2</a>
+<li><a href="#NWD5"><i>&lt;cfg edge counts&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWD5">D2</a>
+<li><a href="#NWD6"><i>&lt;cfg edge iterator&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWD6">D2</a>
+<li><a href="#NWD4"><i>&lt;cfg node access&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWD4">D2</a>
+<li><a href="#NWDm"><i>&lt;cfg private members&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWDm">D2</a>
+<li><a href="#NWcfg6-cfgL.2-1"><i>&lt;cfg protected members&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWcfg6-cfgL.2-1">D2</a>
+<li><a href="#NWD3"><i>&lt;cfg public members&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWD3">D2</a>
+<li><a href="#NWDd"><i>&lt;cfg SUIF access&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWDd">D2</a>
+<li><a href="#NWDU"><i>&lt;cfg transformation&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWDU">D2</a>, <a href="#NWDW">D3</a>
+<li><a href="#NWDD"><i>&lt;cfg_begin definition&gt;</i></a>: <a href="#NWcfg6-defW-1">U1</a>, <a href="#NWDD">D2</a>
+<li><a href="#NWDH"><i>&lt;cfg_block analysis&gt;</i></a>: <a href="#NWDG">U1</a>, <a href="#NWDH">D2</a>
+<li><a href="#NWDG"><i>&lt;cfg_block definition&gt;</i></a>: <a href="#NWcfg6-defW-1">U1</a>, <a href="#NWDG">D2</a>
+<li><a href="#NWDI"><i>&lt;cfg_block informational&gt;</i></a>: <a href="#NWDG">U1</a>, <a href="#NWDI">D2</a>
+<li><a href="#NWcfg6-cfgG-1"><i>&lt;cfg_block layout&gt;</i></a>: <a href="#NWDG">U1</a>, <a href="#NWcfg6-cfgG-1">D2</a>, <a href="#NWDZ">D3</a>
+<li><a href="#NWcfg6-cfgd-1"><i>&lt;cfg_block private and protected members&gt;</i></a>: <a href="#NWDG">U1</a>, <a href="#NWcfg6-cfgd-1">D2</a>
+<li><a href="#NWDb"><i>&lt;cfg_block scheduling&gt;</i></a>: <a href="#NWDG">U1</a>, <a href="#NWDb">D2</a>
+<li><a href="#NWDE"><i>&lt;cfg_end definition&gt;</i></a>: <a href="#NWcfg6-defW-1">U1</a>, <a href="#NWDE">D2</a>
+<li><a href="#NWDL"><i>&lt;cfg.h&gt;</i></a>: <a href="#NWDL">D1</a>
+<li><a href="#NWDN"><i>&lt;CFGINCLFILE macro&gt;</i></a>: <a href="#NWDL">U1</a>, <a href="#NWDN">D2</a>
+<li><a href="#NWDF"><i>&lt;cfg_instr definition&gt;</i></a>: <a href="#NWcfg6-defW-1">U1</a>, <a href="#NWDF">D2</a>
+<li><a href="#NWDK"><i>&lt;cfg_label definition&gt;</i></a>: <a href="#NWcfg6-defW-1">U1</a>, <a href="#NWDK">D2</a>
+<li><a href="#NWDC"><i>&lt;cfg_marker definition&gt;</i></a>: <a href="#NWcfg6-defW-1">U1</a>, <a href="#NWDC">D2</a>
+<li><a href="#NWcfg6-cfgS-1"><i>&lt;cfg_node empty block methods&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWcfg6-cfgS-1">D2</a>
+<li><a href="#NWDY"><i>&lt;cfg_node layout methods&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWDY">D2</a>
+<li><a href="#NWDX"><i>&lt;cfg_node layout relations&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWDX">D2</a>
+<li><a href="#NWD8"><i>&lt;cfg_node numbering and ownership&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWD8">D2</a>
+<li><a href="#NWcfg6-cfgc-1"><i>&lt;cfg_node private and protected members&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWcfg6-cfgc-1">D2</a>
+<li><a href="#NWD9"><i>&lt;cfg_node relations to other nodes&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWD9">D2</a>
+<li><a href="#NWDB"><i>&lt;cfg_node subclass identification&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWDB">D2</a>
+<li><a href="#NWDV"><i>&lt;cfg_node transformation methods&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWDV">D2</a>
+<li><a href="#NWDR"><i>&lt;cfg_node_instr_iter&gt;</i></a>: <a href="#NWDR">D1</a>, <a href="#NWDe">U2</a>
+<li><a href="#NWDA"><i>&lt;cfg_node_kind definition&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWDA">D2</a>
+<li><a href="#nw@notdef"><i>&lt;cfg_node_list occurs check&gt;</i></a>: <a href="#NWDe">U1</a>
+<li><a href="#NWDP"><i>&lt;cfg_node_list_iter definition&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWDP">D2</a>
+<li><a href="#NWDJ"><i>&lt;cfg_test definition&gt;</i></a>: <a href="#NWcfg6-defW-1">U1</a>, <a href="#NWDJ">D2</a>
+<li><a href="#NWDh"><i>&lt;connector helpers&gt;</i></a>: <a href="#NWDe">U1</a>, <a href="#NWDh">D2</a>
+<li><a href="#NWcfg6-defW-1"><i>&lt;definitions of cfg_node subtypes&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWcfg6-defW-1">D2</a>
+<li><a href="#NWDS"><i>&lt;dominator methods&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWDS">D2</a>
+<li><a href="#NWDO"><i>&lt;EXPORTED_BY_CFG macro&gt;</i></a>: <a href="#NWDL">U1</a>, <a href="#NWDO">D2</a>
+<li><a href="#NWD2"><i>&lt;graph.h&gt;</i></a>: <a href="#NWD2">D1</a>
+<li><a href="#NWDT"><i>&lt;natural loop methods&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWDT">D2</a>
+<li><a href="#NWDl"><i>&lt;new-instruction helpers&gt;</i></a>: <a href="#NWDe">U1</a>, <a href="#NWDl">D2</a>
+<li><a href="#NWD7"><i>&lt;node.h&gt;</i></a>: <a href="#NWD7">D1</a>
+<li><a href="#NWDj"><i>&lt;other helpers&gt;</i></a>: <a href="#NWDj">D1</a>, <a href="#NWDk">D2</a>
+<li><a href="#NWDQ"><i>&lt;reverse postorder listing&gt;</i></a>: <a href="#NWD3">U1</a>, <a href="#NWDQ">D2</a>
+<li><a href="#NWDM"><i>&lt;SUIF Copyright Notice&gt;</i></a>: <a href="#NWD2">U1</a>, <a href="#NWD7">U2</a>, <a href="#NWDL">U3</a>, <a href="#NWDM">D4</a>, <a href="#NWDe">U5</a>
+<li><a href="#NWDf"><i>&lt;SUIF init and exit&gt;</i></a>: <a href="#NWDe">U1</a>, <a href="#NWDf">D2</a>
+<li><a href="#NWDe"><i>&lt;util.h&gt;</i></a>: <a href="#NWDe">D1</a>
+<li><a href="#NWDi"><i>&lt;vcg support&gt;</i></a>: <a href="#NWDe">U1</a>, <a href="#NWDi">D2</a>
+</ul>
+</body></html>
+

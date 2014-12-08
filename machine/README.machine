@@ -1,0 +1,57 @@
+In addition to the source code for the machsuif machine library, this
+directory contains the source files for the machine library
+documentation.  We use literate programming, and in particular the
+noweb system by Norman Ramsey, to document the machine library
+interface files.  Information on obtaining the noweb system can be
+found at www.cs.virginia.edu/~nr/noweb/.
+
+Currently, there are two levels of documentation available: the
+interface descriptions contained in the noweb documentation, and
+the comments in the implementation files.  Both are quite detailed.
+We expect to have a more introductory (and shorter) document available
+eventually.
+
+Here is some specific information regarding the construction of the
+noweb documentation and the C header files from the noweb source
+files.  All of this is handled by the Makefile in this directory
+(invoke ``gmake machine.ps'' to create a postscript version of the
+machine library documentation, and invoke ``gmake noweb-hdrs'' to
+create the header files from the noweb source documents).
+
+Please note that we distribute the code with the header files already
+extracted so that you don't have to have the noweb system installed to
+compile this library.
+
+*** Ordering of files for generation of the latex file (noweave):
+
+  doc-intro.nw
+  machine.h.nw
+  machine_internal.h.nw
+  machineDefs.h.nw
+  machineInstr.h.nw
+  machineUtil.h.nw
+  annoteHelper.h.nw
+  eaHelper.h.nw
+  archInfo.h.nw
+  alphaInstr.h.nw
+  alphaOps.h.nw
+  doc-end.nw
+
+noweave -x doc-intro.nw \
+	machine.h.nw machine_internal.h.nw machineDefs.h.nw machineInstr.h.nw \
+	machineUtil.h.nw annoteHelper.h.nw eaHelper.h.nw archInfo.h.nw \
+	alphaInstr.h.nw alphaOps.h.nw doc-end.nw >! machine.tex
+
+
+*** Creating the library header files from noweb files:
+
+notangle -Rmachine.h machine.h.nw > machine.h
+notangle -Rmachine_internal.h machine_internal.h.nw > machine_internal.h
+notangle -RmachineDefs.h machine.h.nw machineDefs.h.nw > machineDefs.h
+notangle -RmachineInstr.h machine.h.nw machineInstr.h.nw > machineInstr.h
+notangle -RmachineUtil.h machine.h.nw machineUtil.h.nw > machineUtil.h
+notangle -RannoteHelper.h machine.h.nw annoteHelper.h.nw > annoteHelper.h
+notangle -ReaHelper.h machine.h.nw eaHelper.h.nw > eaHelper.h
+notangle -RarchInfo.h machine.h.nw archInfo.h.nw > archInfo.h
+notangle -RalphaInstr.h machine.h.nw alphaInstr.h.nw > alphaInstr.h
+notangle -RalphaOps.h machine.h.nw alphaOps.h.nw > alphaOps.h

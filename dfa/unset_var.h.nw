@@ -1,0 +1,124 @@
+\section{Unset Variable Analysis}
+\label{secUnsetVarProblem}
+
+Unset variable analysis is a simple forward-flow problem that determines,
+for any program point, the set of variables that have no definition
+reaching that point.  If a variable is used at a point where it is
+``unset'' in this sense, its value is unpredictable and the program is
+probably incorrect.
+
+Of course, in a correct program a variable can be live at a point in a
+without having a meaningful value there, assuming that it is initialized
+before it is actually used at runtime.  In register allocation, it's useful
+to recognize the live ranges of a variable by intersecting the results of
+unset variable analysis with liveness information.
+
+
+\subsection{Using class [[unset_var_problem]]}
+
+The unset variable problem is similar to the liveness problem in that the
+items whose flow is of interest are storable locations.  Therefore the
+operand bit manager (Section~\ref{secOperandBitManager}) plays a similar
+role in both solvers.  Their implementations differ because unset-variables
+pays attention only to definitions, not to uses.  Moreover, it is a
+forward-flow problem instead of backward, it uses intersection instead of
+union as its confluence operator, and it starts from universal (full) bit
+vectors rather than empty ones.  However, the definition, use and extension
+of class [[unset_var_problem]] are analogous to those of class
+[[live_var_problem]] (Section~\ref{secLiveVarProblem}).
+
+<<class [[unset_var_problem]]>>=
+class unset_var_problem : protected bit_vector_problem {
+    typedef void (*instruction_def_use_f)
+		 (instruction *, operand_bit_manager *, bit_set *, bit_set *);
+
+  public:
+    unset_var_problem(cfg *, operand_bit_manager *,
+		      instruction_def_use_f = Instruction_def_use);
+    virtual ~unset_var_problem();
+
+    boolean unset_in(cfg_node *n, int var_num);
+    boolean unset_out(cfg_node *n, int var_num);
+    bit_set *unset_in_set(cfg_node *n);
+    bit_set *unset_out_set(cfg_node *n);
+
+  protected:
+    <<[[unset_var_problem]] protected>>
+
+  private:
+    <<[[unset_var_problem]] private>>
+};
+@
+
+The [[unset_var_problem]] constructor declared above takes three arguments:
+\begin{enumerate}
+\item The control flow graph of the program.
+\item An operand bit manager giving the number of variables to allow for
+      in the analysis and providing the map from operands representing
+      relevant variables to indices in bit vectors.
+\item A function that analyzes the variables defined and used by one
+      instruction.  (The information about variable uses isn't needed, but
+      it allows sharing of a single instruction-analysis helper function.)
+\end{enumerate}
+\noindent
+The constructor performs the unsetness analysis before returning the
+constructed instance by invoking [[bit_vector_problem::solve()]].
+
+
+\subsection{Extending class [[unset_var_problem]]}
+
+The protected members of [[unset_var_problem]] are declared as
+for class [[live_var_problem]], except that variable uses are not
+of interest.
+
+<<[[unset_var_problem]] protected>>=
+operand_bit_manager *bit_man;
+bit_set_array *defs;
+bit_set_array *unset_ins;
+bit_set_array *unset_outs;
+
+void build_sets();
+boolean solver_ops(cfg_node *);
+
+virtual void build_local_info(int n);
+virtual void note_instr_def(int node, instruction *, bit_set *def);
+@
+
+\noindent
+Here is a review of the meanings of the above-declared members.
+\begin{itemize}
+\item [[bit_man]], the bit manager, provides the size of bit vectors for
+      the current problem and screens out irrelevant operands.
+\item The [[defs]] array maps a CFG node to the local
+      information needed when solving for liveness.  [[(*defs)[n]]] is
+      the set of variables defined before being used in node number
+      [[n]].
+\item The [[unset_ins]] and [[unset_outs]] arrays map a CFG node's number
+      to the set of variables definitely uninitialized on entry or exit to
+      that node, respectively.
+\item [[build_sets()]] and [[solver_ops(cfg_node *)]] are the virtual methods
+      that must be defined to satisfy the base class [[bit_vector_problem]].
+\item [[build_local_info(n)]] computes [[(*defs)[n]]].
+      It is declared [[virtual]] as a ``hook'' for extenders to hang new
+      functionality on.
+\item [[note_instr_def_use(int n, instruction *instr, bit_set *def)]]\\
+      is called in [[build_local_info(n)]] to assimilate the effect of
+      instruction [[instr]] on local unsetness information.  It also
+      leaves [[def]] holding the defined-variable set for
+      [[instr]].  This makes it another useful hook point.
+\end{itemize}
+
+
+\subsection{Header file for module [[unset_var]]}
+
+<<unset\_var.h>>=
+/* Interface for bit-vector-based unset variable analyzer */
+
+<<SUIF copyright>>
+
+#ifndef UNSET_VAR_H
+#define UNSET_VAR_H
+
+<<class [[unset_var_problem]]>>
+#endif /* UNSET_VAR_H */
+@

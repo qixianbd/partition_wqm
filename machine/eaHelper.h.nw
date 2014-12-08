@@ -1,0 +1,100 @@
+\subsection{eaHelper.h}
+\label{secEaHelper.h}
+
+This file contains the helper routines that aid in the creation and
+manipulation of effective-address (EA) calculations in Machine SUIF.
+Recall that we encode EA calculations as instruction-pointer operands
+that encapsulate expression trees.  These trees contain SUIF
+operations.  Please refer back to Section~\ref{secEAopnds} for a
+more-complete discussion.
+
+<<eaHelper.h>>=
+/* file "eaHelper.h" */
+
+<<SUIF copyright>>
+
+#ifndef EAHELPER_H
+#define EAHELPER_H
+
+/* Routines that help to create EA operands */
+extern instruction *New_ea_base_p_disp(operand b, long d);
+extern instruction *New_ea_base_p_disp(operand b, immed di);
+
+extern instruction *New_ea_symaddr(sym_node *s, unsigned d = 0);
+extern instruction *New_ea_symaddr(immed si);
+
+extern instruction *New_ea_indexed_symaddr(operand i, sym_node *s, long d);
+
+extern instruction *New_ea_base_p_indexS_p_disp(operand b, operand i,
+						unsigned s, long d);
+
+/* Routines that answer common queries about an EA expression tree */
+extern boolean Is_ea_base_p_disp(instruction *);
+extern boolean Is_ea_symaddr(instruction *);
+extern boolean Is_ea_indexed_symaddr(instruction *);
+extern boolean Is_ea_indexS_p_disp(instruction *);
+extern boolean Is_ea_base_p_index_p_disp(instruction *);
+extern boolean Is_ea_base_p_indexS_p_disp(instruction *);
+
+/* Routines that help access parts of an EA calculation */
+extern sym_node *Get_ea_symaddr_sym(instruction *);
+extern int Get_ea_symaddr_off(instruction *);
+
+// Unfinished code not yet needed.
+// typedef void (*ea_map_f)(instruction *ea, void *x);
+// extern void Map_ea(instruction *ea, ea_map_f f, void *x);
+
+#endif /* EAHELPER_H */
+@
+
+In general, we have named our EA calculations after the names used
+in x86 basic programming model.  The [[New_ea_*]] routines return
+pointers to SUIF expression trees corresponding to different
+types of EA modes.  The letter ``p'' in a routine name stands for
+``plus''.  These routines are not meant to be an exhaustive list
+of helper routines; they are simply the ones that we have found
+useful to this point.  Feel free to add more.
+
+Here is a list of our supported effective-addressing modes:
+
+\begin{itemize}
+
+ \item	[[base_p_disp]] -- base plus displacement.  The base
+is either a [[var_sym]] operand or a register operand.  The
+displacement is a signed integer value with a unit of bytes.
+
+ \item	[[symaddr]] -- address of a simple relocatable symbol
+plus a optional displacement.  You simply specify the symbol
+that you want to address.  Due to the underlying representation,
+the displacement is an unsigned integer.  The displacement is
+specified in bytes, though internally it is stored as a displacement
+in bits.
+
+ \item	[[indexed_symaddr]] -- indexed, relocatable address.
+The index operand must be a register operand, the [[sym_node]]
+is the symbol whose address you want taken, and the displacement
+is a signed value in units of bytes.  The address is generated
+by adding the contents of the index register to the relocatable
+symbol's address, plus the optional signed byte displacment.
+
+ \item [[base_p_indexS_p_disp]] -- base register plus (index register
+times an unsigned scale factor) plus a signed literal displacement.
+The scale factor and the displacement are specified in bytes.  This
+is our most general form.  If you wish to create an ``(index times scale)
+plus displacement'' form or a ``base plus index plus displacement''
+form, you should use this form with a NULL base operand or a constant
+one in the appropriate argument locations.  Since these forms are used
+infrequently, we are not concerned with the wasteful encoding.
+
+\end{itemize}
+
+The routine [[Get_ea_symaddr_off(instruction *)]] returns the optional
+byte displacment on a [[symaddr]] effective address.
+
+Most of the query kind helper routines are (hopefully) obvious.  The
+two routines [[Is_ea_indexS_p_disp]] and [[Is_ea_base_p_index_p_disp]]
+do not have their own unique constructors.  They use the
+[[New_ea_base_p_indexS_p_disp]] constructor with the appropriate NULL
+operand or constant one input parameters.  The underlying expression
+tree is more complicated than necessary for these forms, and these
+routines help to pinpoint the fluff.

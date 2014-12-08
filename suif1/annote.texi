@@ -1,0 +1,706 @@
+@c This file is part of the SUIF reference manual
+
+@node Annotations, Cloning, Symbol Tables, Top
+@chapter Annotations
+@cindex annotations
+@cindex annotes
+
+Because it is a research compiler, SUIF is designed to be both flexible
+and extensible.  @dfn{Annotations}, which may contain arbitrary data
+structures, are the primary means of providing this extensibility.
+Objects that are derived from the @code{suif_object} class have lists of
+annotations associated with them.  This includes most of the major SUIF
+objects such as instructions, tree nodes, symbols, types, symbol tables,
+and file set entries.  New annotations can be declared by any program
+and used to record whatever information is needed within that program.
+They can also be written to the SUIF output files so that other programs
+can use them.  The @dfn{annotation manager} records the annotation names
+and the format of the data associated with each kind of annotation.
+
+@menu
+* Annotation Overview::         Brief description of annotations.
+* Flat Annotes::                Lists of @code{immed} values.
+* Structured Annotes::          User-defined data structures in annotations.
+* Unregistered Annotes::        Annotations not registered with the manager.
+* Predefined Annotes::          Annotations defined in the SUIF library.
+* Annotation Manager::          Keeping track of the registered annotations.
+* SUIF Objects::                Base class for objects with annotations.
+* Annote Lists::                Handling lists of annotations.
+@end menu
+
+
+@node Annotation Overview, Flat Annotes,  , Annotations
+@section Overview
+
+@tindex annote
+@findex annote, name
+@findex annote, set_name
+Annotations are represented by @code{annote} objects which are
+implemented in the files @file{annote.h} and @file{annote.cc}.  Each
+annotation contains two fields: a name and a data pointer.  The name is
+a character string that must be entered in the @code{lexicon}.
+@xref{Lexicon}.  The name serves to identify the purpose of the
+annotation, and with the help of the annotation manager, it specifies
+the format of the associated data.  The @code{set_name} method can be
+used to change the name of an annotation, but in most cases it's easier
+to just create a new annotation.
+
+As a convention, each annotation name should have a global variable that
+is a pointer to its entry in the @code{lexicon}.  The names of these
+variables should be @code{k_} followed by the annotation name.  For
+example, @code{k_repeat_init} is a global variable defined in the
+library to point to the @code{"repeat_init"} annotation name.  Because
+the annotation names are always in the @code{lexicon}, you can just
+compare the names with the global variables instead of performing string
+comparisons.  For example:
+
+@example
+annote *an;
+if (an->name() == k_repeat_init) @{
+    an->print();
+@}
+@end example
+
+@findex annote, data
+@findex annote, set_data
+@findex annote, immeds
+@findex annote, set_immeds
+The data field in an annotation is a @code{void*} pointer so that, with
+the appropriate type cast, it can refer to any data structure.  The
+@code{data} and @code{set_data} methods may be used to directly access
+an annotation's data field.  The @code{immeds} and @code{set_immeds}
+methods also provide access to the data in an annotation, but only if it
+can be represented by a list of @code{immed} values; this is described
+in more detail below for each kind of annotation.
+
+@findex annote, print
+The @code{print} method prints an annotation to the specified file.  The
+format depends on the kind of annotation.  Flat annotations are printed
+as lists of @code{immed} values.  For unregistered annotation, the
+contents of the data field are printed directly as a pointer value (a
+hexidecimal representation on most systems).  Structured annotations
+may have user-defined printing functions registered in the annotation
+manager; if such a function is defined, the library uses it.  If no
+printing function is defined but a function to convert to a flat
+@code{immed} list is defined, that is used to temporarily convert to
+flat lists and print as such.  If neither a printing nor a conversion
+function is provided, the printing is done as with unregistered
+annotations.
+
+@node Flat Annotes, Structured Annotes, Annotation Overview, Annotations
+@section Flat Annotations
+@cindex flat annotations
+@cindex annotations, flat
+
+The simplest type of annotation is a @dfn{flat annotation}.  The data in
+a flat annotation is a pointer to a list of @code{immed} values.
+@xref{Immeds}.  By default, annotations read from an input file are flat
+annotations.  That is, if a SUIF input file contains an annotation with
+a name that has not yet been registered, the SUIF library will
+automatically register it as a flat annotation.
+
+When creating new flat annotations, you may specify both the annotation
+name and a pointer to an @code{immed} list.  In many cases, however, it
+is more convenient to only provide the annotation name and let the
+annotation constructor automatically fill the data field with a pointer
+to a new list.
+
+For flat annotations, the @code{immeds} method merely provides a
+shortcut for accessing the data by casting it to an @code{immed_list}
+pointer.  Similarly, the @code{set_immeds} method is functionally
+equivalent to @code{set_data} in this case.
+
+
+@node Structured Annotes, Unregistered Annotes, Flat Annotes, Annotations
+@section Structured Annotations
+@cindex structured annotations
+@cindex annotations, structured
+
+In many cases, flat annotations are cumbersome to use because the fields
+in the @code{immed} value list are unlabeled and difficult to access.
+With @dfn{structured annotations}, the data is held in a user-defined
+structure.  You can access this structured data by using the @code{data}
+method and casting the result to the desired type.  It may be helpful to
+define macros to perform the type casts.
+
+An important restriction on structured annotations is that if they are
+to be stored in SUIF files, they are stored as @code{immed} lists.
+Therefore, if you wish to write such an annotation to a file, you must
+provide the annotation manager with functions to convert back and
+forth between the @code{immed} lists and the structured data.  When a
+structured annotation is first read from an input file, the annotation
+manager applies the function to convert the @code{immed} list to your
+data structure.  Similarly, when the annotation is written out, the
+manager applies the function to convert it back to a list of
+@code{immed} values.
+
+The data in a structured annotation that defines a conversion function
+must always be maintained in a form that can be converted to an
+@code{immed} list.  This is necessary because the library occasionally
+needs to flatten annotations so that it can update the contents.  For
+example, when an annotation containing references to local symbols is
+moved to another scope, the symbols may need to be updated.  When this
+occurs, the library also converts the data back to its structured form
+after it has been updated.
+
+Just as the library needs to temporarily flatten structured annotations,
+you may need to do the same.  The @code{immeds} and @code{set_immeds}
+methods make this task much easier.  The @code{immeds} method returns
+the annotation data represented as an @code{immed} list.  For a
+structured annotation, it does this by using the conversion function
+registered with the annotation manager to convert the structure to a
+flat list.  Note however that the result is a pointer to a new list,
+whereas for flat annotations, it is a pointer to the actual annotation
+data.  Similarly, the @code{set_immeds} method replaces the annotation
+data with the data in an @code{immed} list, but for structured
+annotations, it first converts the data to the structured format.  It
+does @emph{not} try to deallocate the previous contents of the data
+field, so you are responsible for handling that.  In summary, the
+@code{immeds} and @code{set_immeds} methods allow you to access both
+flat and structured annotation data as @code{immed} lists.  The only
+difference is that for structured annotations the @code{immed} lists are
+not the actual annotation data, and consequently you may need to
+deallocate the duplicate data structures.
+
+Besides the conversion functions, the annotation manager records
+functions to deallocate and print the structured data.  Both of these
+functions are optional.  If the data fields for a particular kind of
+structured annotation contain pointers and you do not supply a function
+to deallocate the storage that they reference, it is your responsibility
+to ensure that that storage is deallocated elsewhere in your code.  (For
+example, you may want to have the pointers all refer to entries in a
+table that is deallocated separately.)
+
+
+@node Unregistered Annotes, Predefined Annotes, Structured Annotes, Annotations
+@section Unregistered Annotations
+@cindex unregistered annotations
+@cindex annotations, unregistered
+
+If an annotation name is not registered with the manager, the format of
+the annotation data is unknown.  Such annotations cannot be written to
+the SUIF output file, and when they are printed the data is just shown
+as a hexadecimal value.  If the data needs to be deallocated, you must
+do so explicitly before the annotations are deleted.  The library cannot
+automatically update the data in unregistered annotations, and the
+cloning functions do not copy them.  The @code{immeds} method returns
+@code{NULL} for unregistered annotations and @code{set_immeds} will not
+work at all for them.
+
+Due to these limitations, annotations should generally be registered
+with the manager.  There are, however, many situations where
+unregistered annotations are useful.  Because they are not written out,
+the data in these annotations does not have to be converted to
+@code{immed} lists.  This means that they may contain totally arbitrary
+data structures.  The drawback is that it is entirely up to you to
+ensure that the annotation data is maintained properly.
+
+
+@node Predefined Annotes, Annotation Manager, Unregistered Annotes, Annotations
+@section Predefined Annotations
+@cindex predefined annotations
+@cindex annotations, predefined
+
+The SUIF library automatically defines a number of annotations for its
+own use.  Most of these are only used internally to handle reading and
+writing SUIF files.  A few of them are visible to users.  Unless
+specified otherwise, they are all flat annotations.
+
+@menu
+* Initial Data Annotes::        Annotations for initializing variables.
+* Call-By-Ref Annotes::         Handling call-by-reference parameters.
+* Common Block Annotes::        Identifying Fortran @code{common} blocks.
+* Miscellaneous Annotes::       Other predefined annotations.
+@end menu
+
+
+@node Initial Data Annotes, Call-By-Ref Annotes, Miscellaneous Annotes, Predefined Annotes
+@subsection Initial Data Annotations
+@cindex initial data annotations
+@cindex annotations, initial data
+@cindex variables, initialization
+
+Variables that are not in the automatic storage class can be initialized
+by attaching annotations to their definitions (@pxref{Variable
+Definitions}).  These annotations are very low-level.  Each one
+specifies the initial value for a certain number of bits.  Multiple
+annotations may be used, in which case their order is significant.
+
+@table @code
+@item k_fill
+@vindex k_fill
+This annotation indicates that the variable should be initialized with
+@code{N} bits filled with bit pattern @code{V}, where @code{N} is the
+first entry on the list and @code{V} is the second.  The size must be a
+multiple of the byte size and the bit pattern must be one byte long.
+Currently, zero is the only bit pattern that is supported.
+
+@item k_repeat_init
+@vindex k_repeat_init
+This is a generalized version of the @code{fill} annotation.  The
+variable is initialized to @code{R} copies of @code{N} bits holding the
+value @code{V}, where @code{R}, @code{N}, and @code{V} are the first,
+second, and third entries on the @code{immed} list.  The values that are
+currently supported are integers, floating point values, and symbolic
+addresses.
+
+@item k_multi_init
+@vindex k_multi_init
+This is another initial value annotation that is used to initialize
+character strings.  The first entry on the list is the size in bits of
+each character.  The rest of the entries on the @code{immed} list are
+integers that specify the characters in the string.
+@end table
+
+Despite the low-level nature of the initial data annotations, SUIF still
+requires that they correspond to the types of the variables.  For
+example, character strings should only be used to initialize character
+arrays.  Each value specified in one of these annotations must fit
+exactly into the corresponding variable, field, or array element.  The
+only exception to this is that multiple fields or array elements may be
+initialized to zero with a single @code{fill} annotation.
+
+For example, this structure
+
+@example
+struct @{
+    int x[2];
+    float fp;
+    char string[7];
+@} sample;
+@end example
+
+@noindent
+might be initialized with the following annotations:
+
+@example
+["fill": 64 0]
+["repeat_init": 1 32 1.2000e+00]
+["multi_init": 8 102 97 116 112 105 103 0]
+@end example
+
+
+@node Call-By-Ref Annotes, Common Block Annotes, Initial Data Annotes, Predefined Annotes
+@subsection Call-By-Reference Annotations
+@cindex call-by-reference annotations
+@cindex annotations, call-by-reference
+
+Fortran and other languages pass procedure parameters by reference but
+SUIF uses call-by-value.  To implement call-by-reference parameters,
+SUIF passes pointers to the actual parameters and then dereferences
+those pointers when the formal parameters are used.  While this is
+perfectly adequate for many compiler passes, the pointer dereferences
+are difficult to handle in some high-level Fortran passes.  The SUIF
+Fortran mode automatically converts the code to make it appear that the
+parameters are passed by reference.  The library uses two predefined
+annotations to implement this.
+
+@table @code
+@item k_call_by_ref
+@vindex k_call_by_ref
+The Fortran front-end puts this annotation on pointer types that are
+used to implement call-by-reference parameter passing.  The library uses
+this to detect parameters that should be modified when converting to
+Fortran mode.  This annotation has no data on its @code{immed} list.
+
+@item k_orig_type
+@vindex k_orig_type
+While in Fortran mode, the types of the call-by-reference parameters are
+temporarily replaced.  The @code{orig_type} annotations are attached
+to the parameter variables to record their original types.  The
+@code{immed} list contains a single entry, the original pointer type of
+the parameter.  These annotations are never written to the output files.
+@end table
+
+
+@node Common Block Annotes,  , Call-By-Ref Annotes, Predefined Annotes
+@subsection Common Block Annotations
+@cindex common block annotations
+@cindex annotations, common block
+
+@vindex k_common_block
+Fortran @code{common} blocks are represented in SUIF by global group
+types.  These can be accessed just like any other structures.  In
+addition, and the Fortran front-end will create sub-variables to
+represent the fields in the @code{common} block, so most of the time
+only the sub-variables themselves will be seen.  If you want to know
+whether a particular global group represents a @code{common} block,
+you can check for the @code{k_common_block} annotation, which is put
+only on variables representing @code{common} blocks (the blocks, not
+the fields).
+
+
+@node Miscellaneous Annotes, Initial Data Annotes,  , Predefined Annotes
+@subsection Miscellaneous Annotations
+@cindex fields annotations
+@cindex exception handling
+@cindex line numbers
+@cindex register numbers
+
+The SUIF library defines a few other annotations to record various
+attributes of SUIF programs.  These are straightforward except for the
+@code{fields} annotation which is described here in more detail.
+
+@table @code
+@item k_line
+@vindex k_line
+This annotation records line numbers from the source code to be used
+when debugging the object code.  It is usually attached to a @code{mrk}
+instruction.  The first list entry is the integer line number and the
+second is the character string for the file name.
+
+@item k_history
+@vindex k_history
+As each SUIF pass runs, the library automatically records the
+command-line for the pass as an annotation on the file set entries.
+These @code{history} annotations allow you to see how a particular SUIF
+file was generated.
+
+@item k_enable_exceptions
+@vindex k_enable_exceptions
+This annotation is attached to a @code{proc_symtab} to indicate which
+run-time exceptions should be detected within that procedure.  The
+entries on the @code{immed} list are character strings.  The system
+currently recognizes @code{"int_divide-by-0"} and @code{"int_overflow"}.
+@sc{ieee} floating point exceptions need to be added.
+
+@item k_reg_num
+@vindex k_reg_num
+This annotation is attached to variables that represent machine
+registers to record the register numbers.  It has one immediate value
+which is the integer register number.  The meaning of the register
+numbers are machine-dependent.
+
+@item k_fields
+@vindex k_fields
+A field within a structure or union variable is specified in SUIF by a
+constant offset and a base address.  That is all that is needed to
+generate code.  However, if the offset is zero or if the variable is a
+union, that information is not sufficient to determine the field.  The
+@code{fields} annotation may be used to provide the field names that
+were used in the original source code.  The @code{immed} list for one of
+these annotations contains the names of the fields being accessed.
+(There may be multiple field names because of nested structures or
+unions.)
+@end table
+
+The @code{fields} annotation is somewhat more complicated than the
+others.  The difficulty is in defining where this annotation should be
+used.  Intuitively, the @code{fields} annotation should be placed on
+the first instruction that produces a pointer to the field.  There are
+basically three different situations to consider.
+
+In the simplest case, a field can be addressed directly with an
+@code{ldc} instruction (@pxref{Load Constant Instructions}).  Since that
+produces a pointer to the field, a @code{fields} annotation may be
+placed on the @code{ldc} instruction.  Of course, the entries on the
+annotation must be valid field names for the variable that is addressed.
+
+To access a field of a structure or union variable that is referenced by
+a pointer, the constant offset must be included with an explicit
+@code{add} instruction.  Since the result of
+the addition is a pointer to the field, the @code{fields} annotation
+should be placed on the @code{add} instruction.  Note that if the field
+offset is zero, the @code{add} instruction may be replaced by a
+@code{cvt} instruction.  The same rule applies: the @code{cvt}
+instruction gets the @code{fields} annotation because it produces a
+pointer to the field.
+
+For arrays of structures or unions, an @code{array} instruction
+(@pxref{Array Instructions}) may include a constant offset for a field
+within the array element being addressed, so this is another type of
+instruction that may include a @code{fields} annotation.  The entries on
+the @code{fields} annotation must be valid fields within the array
+element type.
+
+
+@node Annotation Manager, SUIF Objects, Predefined Annotes, Annotations
+@section Annotation Manager
+@cindex annotation manager
+@cindex manager, annotations
+
+The annotation manager keeps track of the annotations that have been
+registered.  For each annotation name, it records whether the annotation
+is flat or structured and whether it should be written to the output
+file.  Additional information is stored for structured annotations.
+
+@tindex annote_def
+@findex annote_def, name
+The annotation manager is implemented in the files @file{aman.h} and
+@file{aman.cc}.  The @code{annote_def} class is used to hold the
+annotation information.  Each @code{annote_def} object records the
+information for annotations with a particular name (which can be
+accessed with the @code{name} method).  As with the annotations
+themselves, the name in the @code{annote_def} is entered in the
+@code{lexicon} (@pxref{Lexicon}), except that in this case the
+@code{annote_def} constructor automatically makes sure that the name is
+in the @code{lexicon}.
+
+@findex init_aman
+@findex register_annote
+The manager is implemented as a list of @code{annote_def} objects.  This
+list is initialized by the @code{init_aman} function, which is
+automatically called when the library is initialized.  The
+@code{register_annote} function adds an @code{annote_def} to the list.
+An error occurs if the name in the @code{annote_def} is already used in
+another registered @code{annote_def}.  Rather than calling the
+@code{register_annote} function directly, use the @code{ANNOTE} and
+@code{STRUCT_ANNOTE} macros described below to enter new annotations.
+
+@findex lookup_annote
+The information in the manager can be retrieved using the
+@code{lookup_annote} function.  Given an annotation name that is entered
+in the @code{lexicon}, @code{lookup_annote} searches the list of
+registered annotations and returns the @code{annote_def} corresponding
+to that name.  If the name is not found, it returns @code{NULL}.
+
+@menu
+* Flat Annote Defs::            Definitions of flat annotations.
+* Struct Annote Defs::          Definitions of structured annotations.
+* Input Annotes::               Handling unknown annotations in the input.
+@end menu
+
+
+@node Flat Annote Defs, Struct Annote Defs,  , Annotation Manager
+@subsection Flat Annotation Definitions
+
+@findex annote_def, is_structured
+@findex annote_def, output
+@findex annote_def, set_output
+Flat annotation definitions (@pxref{Flat Annotes}) are represented by
+base @code{annote_def} objects, for which the @code{is_structured}
+method returns @code{FALSE}.  Other than the annotation name, these
+entries contain a flag that indicates whether the annotations should be
+written to the SUIF output file.  The @code{output} method is used to
+retrieve this flag and the @code{set_output} method to change its value.
+
+@findex ANNOTE
+The @code{ANNOTE} macro provides a convenient way to register flat
+annotations.  This macro enters the annotation name in the
+@code{lexicon}, creates an @code{annote_def} object, and registers it
+with the manager.  It takes three arguments: the variable that will hold
+the pointer to the annotation name in the @code{lexicon}, the annotation
+name, and the value of its @code{output} flag.  For example:
+
+@example
+char *k_my_annote;
+ANNOTE(k_my_annote, "my_annote", TRUE);
+@end example
+
+This enters the name @code{"my_annote"} in the @code{lexicon} and sets
+@code{k_my_annote} to point to that string.  It also registers that name
+as a flat annotation that will be written to the SUIF output file.
+Typically, @code{k_my_annote} will be a global variable that is used
+throughout the program to refer to annotations of this type.
+
+
+@node Struct Annote Defs, Input Annotes, Flat Annote Defs, Annotation Manager
+@subsection Structured Annotation Definitions
+@cindex structured annotations, conversion
+@cindex structured annotations, printing
+@cindex structured annotations, deallocation
+
+@tindex struct_annote_def
+The @code{struct_annote_def} class, which is derived from the
+@code{annote_def} class, is used to record the definitions of structured
+annotations.  Objects of this class behave just like base
+@code{annote_def} objects, except the @code{is_structured} method
+returns @code{TRUE}.  In addition, these objects contain pointers to
+four functions:
+
+@table @code
+@item from
+@findex struct_annote_def, from
+The @code{from} function converts the annotation data from a list of
+@code{immed} values to the user's data structure.  This function is
+required.
+
+@item to
+@findex struct_annote_def, to
+The @code{to} function converts the user's data structure to a list of
+@code{immed} values.  This function is required.
+
+@item free
+@findex struct_annote_def, free
+The @code{free} function is optional, but it should be provided if the
+annotation data needs to be deallocated when the annotation is deleted.
+
+@item print
+@findex struct_annote_def, print
+The @code{print} function is also optional, but without it the data in a
+structured annotation is simply printed as a hexadecimal value.  This
+function allows you to print the annotations in more meaningful formats.
+As much as possible, the annotations should be printed in the same style
+as flat annotations.
+@end table
+
+@findex STRUCT_ANNOTE
+Structured annotations must be registered with the manager before the
+SUIF input file is read.  Otherwise, the annotations will remain as
+@code{immed} value lists, instead of being converted to the appropriate
+data structures.  The @code{STRUCT_ANNOTE} macro should be used to
+register structured annotations.  This is just like the @code{ANNOTE}
+macro except that it takes four more arguments for the
+@code{struct_annote_def} functions.  For example:
+
+@example
+char *k_struct_annote;
+void *ann_from(char *name, immed_list *il, suif_object *obj);
+immed_list *ann_to(char *name, void *data);
+void ann_free(void *data);
+
+STRUCT_ANNOTE(k_struct_annote, "struct_annote", TRUE,
+              ann_from, ann_to, ann_free, NULL);
+@end example
+
+This registers the annotation @code{"struct_annote"} as a structured
+annotation.  The @code{ann_from} function will be used to convert the
+annotation data from a list of @code{immed} values; the @code{ann_to}
+function will be used to convert the data back to an @code{immed_list};
+and the @code{ann_free} function will be used to deallocate the
+annotation data.  No function is provided to print the annotation data.
+
+
+@node Input Annotes,  , Struct Annote Defs, Annotation Manager
+@subsection Unregistered Annotations in the Input File
+
+When an unregistered annotation is read from a SUIF input file, it is
+automatically registered as a flat annotation.  This is done so that the
+manager knows to write the annotation back in the output.
+
+Annotations are often added to a SUIF file in one pass to record some
+sort of information, perhaps the results of a data flow analysis.  Those
+annotations may then used in later passes to guide various
+transformations.  Even if intervening passes do not recognize the
+annotations, they will still be propagated to the output.  (It is up to
+the user, of course, to make sure that the intervening passes do not
+invalidate the information in the annotations without updating them.)
+
+
+@node SUIF Objects, Annote Lists, Annotation Manager, Annotations
+@section SUIF Objects
+@cindex SUIF objects
+@cindex objects, SUIF
+
+@tindex suif_object
+Most of the significant classes in the SUIF library are derived from a
+common base class.  This @code{suif_object} class includes a field with
+a pointer to a list of annotations.  Thus, annotations can be attached
+to most objects in SUIF, and all of these objects share the same
+interface for accessing the annotations.  The files @file{suifobj.h} and
+@file{suifobj.cc} contain the code for the @code{suif_object} class.
+
+@tindex object_kinds
+@findex suif_object, object_kind
+Besides the annotation list, each @code{suif_object} has a field to
+identify the kind of the object.  The @code{object_kind} method
+retrieves the value from this field.  The @code{object_kinds} enumerated
+type defines the possible values:
+
+@table @code
+@item FILE_OBJ
+File set entry.  @xref{File Set Entries}.
+
+@item TREE_OBJ
+Abstract syntax tree node.  @xref{Tree Nodes}.
+
+@item INSTR_OBJ
+SUIF instruction.  @xref{Instructions}.
+
+@item SYMTAB_OBJ
+Symbol table.  @xref{Symbol Tables}.
+
+@item SYM_OBJ
+Symbol node.  @xref{Symbols}.
+
+@item DEF_OBJ
+Variable definition.  @xref{Variable Definitions}.
+
+@item TYPE_OBJ
+Type node.  @xref{Types}.
+@end table
+
+@findex suif_object, annotes
+@findex suif_object, are_annotations
+The rest of the methods in the @code{suif_object} class are related to
+handling annotations.  First of all, the @code{are_annotations} method
+checks to see if an object has any annotations attached to it.  If so,
+the @code{annotes} method can be used to retrieve a pointer to the list
+of annotations.  Do not just grab the list of annotations and check to
+see if it is empty, but use @code{are_annotations} instead.  Since many
+objects don't have any annotations, the library doesn't allocate
+annotation lists unless they are needed.  Calling @code{annotes} will
+create a new list if one did not already exist, so to avoid creating a
+lot of empty lists use @code{are_annotations} first.
+
+@findex suif_object, prepend_annote
+@findex suif_object, append_annote
+@findex suif_object, set_annote
+The @code{prepend_annote} and @code{append_annote} methods are a
+convenient way to add new annotations to an object.  They simply create
+a new annotation using the specified name and data and then add it to
+the beginning or end, respectively, of the annotation list.  If the
+object is only supposed to have one annotation with a particular name,
+the @code{set_annote} method works well for assigning new values for
+that annotation.  If the object already has an annotation with the
+specified name, @code{set_annote} will replace the existing one (or the
+first one that it finds); otherwise, it just adds the new annotation at
+the end of the list.
+
+@findex suif_object, get_annote
+@findex suif_object, peek_annote
+There are two different methods to retrieve data from annotations
+attached to an object.  The first, @code{peek_annote}, simply returns
+the data field from the first annotation that it finds with the
+specified name.  If it doesn't find any annotations with that name, it
+returns a @code{NULL} pointer.  The @code{get_annote} method does the
+same thing except that it is destructive.  Besides returning the data
+from the annotation, it also removes the annotation from the list and
+destroys it.  Note that with these methods it is impossible to
+distinguish the case where an annotation exists but has a @code{NULL}
+data field from the case where the annotation does not exist.  If you
+want to retrieve the actual annotation objects instead of just their
+data fields, the annotation list (@pxref{Annote Lists}) provides
+@code{peek_annote} and @code{get_annote} methods to do that.
+
+@findex suif_object, copy_annotes
+When some kinds of SUIF objects (e.g. symbols and types) are copied, the
+annotations are omitted.  If you want to copy the annotations as well as
+the base objects, the @code{copy_annotes} method must be called
+separately.  This method works for any two SUIF objects; they do not
+have to be the same kind.  If the target object already has some
+annotations, the new ones are appended to the end of the list.
+Unregistered annotations are not copied.
+
+@findex suif_object, print_annotes
+The @code{suif_object} class provides a @code{print_annotes} method for
+printing the annotation list to a text file.  This is used by the
+@code{print} methods for the derived classes, but it could also be used
+directly by users.  The optional @code{depth} parameter specifies the
+indentation level.  Beware that a new-line character is printed
+@emph{before} each annotation and thus you probably want to print a
+new-line after calling this method.
+
+@findex suif_object, num_output_annotes
+The @code{num_output_annotes} method checks to see if an object has any
+annotations, and if so, it counts the ones that will be written to the
+output file.  This is primarily used by the SUIF library and most users
+will not need it.
+
+
+@node Annote Lists,  , SUIF Objects, Annotations
+@section Annotation Lists
+@cindex annotation lists
+
+@tindex annote_list
+@findex annote_list, get_annote
+@findex annote_list, peek_annote
+Annotations are stored on lists attached to SUIF objects.  The library
+defines an @code{annote_list} class for this purpose.  Besides the
+standard list functions (@pxref{Generic Lists}), the @code{annote_list}
+class provides two additional methods.  The @code{peek_annote} method
+searches through the list for an annotation with the specified name.  It
+returns a pointer to the first such annotation or @code{NULL} if the
+search was unsuccessful.  The @code{get_annote} method does the same
+thing, but it removes the annotation from the list.
+

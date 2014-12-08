@@ -1,0 +1,869 @@
+@c This file is part of the SUIF reference manual
+
+@node Trees, Instructions, File Representation, Top
+@chapter Abstract Syntax Trees
+@cindex trees
+@cindex abstract syntax trees
+@cindex ASTs
+
+Procedure bodies are represented using a language-independent form of
+abstract syntax trees (ASTs).  In high-SUIF code, the trees contain
+nodes corresponding to the high-level control structures in the source
+program.  When the code is expanded to the low-SUIF form, these
+high-level constructs are replaced and the trees degenerate to lists of
+instructions.
+
+SUIF is not restricted to handling programs with structured control
+flow.  Even in high-SUIF code, low-level branch and jump instructions
+may be used to represent unstructured control flow.  However, since most
+high-level transformations are only applied to structured code, the
+high-level AST nodes are only used for structured code.  This makes it
+easy to identify and optimize regions of code with structured control
+flow.
+
+The files @file{trees.h} and @file{trees.cc} contain the code for tree
+nodes and tree node lists.
+
+@menu
+* Tree Nodes::                  Basic tree objects.
+* Tree Node Lists::             Lists of tree nodes.
+* Mapping Subtrees::            Applying functions to nodes in a subtree.
+@end menu
+
+
+@node Tree Nodes, Tree Node Lists,  , Trees
+@section Tree Nodes
+@cindex tree nodes
+@cindex AST nodes
+
+@tindex tree_node
+The different kinds of AST nodes are represented by objects derived from
+the @code{tree_node} class.  This base class includes features, such as
+ID numbers, that are shared by all kinds of tree nodes.
+
+The simplest kind of tree node is a @code{tree_instr}.  Each of these is
+a leaf node that contains a single instruction or expression.
+
+Conditional structures may be represented by @code{tree_if} nodes.
+
+The ASTs include two different kinds of loop nodes.  The
+@code{tree_loop} nodes just record the control-flow structure of the
+loops and are used to represent generic ``do-while'' loops.  Many
+optimizations, however, only apply to certain well-behaved types of
+loops.  Thus, the trees may also contain @code{tree_for} nodes to
+represent loops with scalar indices that vary from their initial to
+final values, being incremented or decremented on every iteration, and
+that meet various other requirements.  Most Fortran @code{DO} loops
+qualify as @code{tree_for} nodes.  Those loops which do not meet the
+requirements for @code{tree_for} nodes are represented by
+@code{tree_loop} nodes instead.
+
+Nested scopes are represented by @code{tree_block} nodes.  A
+@code{tree_block} contains a list of tree nodes and a symbol table.  The
+symbols and types in the table may only be referenced from within the
+block.  The node at the root of an AST is a special kind of
+@code{tree_block} called a @code{tree_proc}.  The @code{tree_proc}
+objects use a slightly different kind of symbol table and include some
+extra methods but are otherwise the same as the @code{tree_block}
+objects.
+
+@menu
+* ID Numbers::                  ID numbers for tree nodes and instructions.
+* Other Node Features::         Other features shared by all tree nodes.
+* Instruction Nodes::           Leaf nodes: instructions and expressions.
+* If Nodes::                    Conditionals.
+* Loop Nodes::                  General do-while loops.
+* For Nodes::                   Nicely-structured FOR loops.
+* Block Nodes::                 Nested scopes.
+* Procedure Nodes::             Root nodes for procedure bodies.
+@end menu
+
+
+@node ID Numbers, Other Node Features,  , Tree Nodes
+@subsection ID Numbers for Tree Nodes and Instructions
+@cindex ID numbers
+@cindex instruction ID numbers
+@cindex ID numbers, instruction
+@cindex tree node ID numbers
+@cindex ID numbers, tree node
+
+@findex tree_node, number
+Within each procedure, the tree nodes and instructions are assigned
+unique ID numbers.  These numbers can be used to identify the nodes and
+instructions internally and in annotations that are written to the
+output files.  The @code{number} method retrieves the ID numbers.  It is
+generally best to avoid using the numbers on @code{tree_instr} nodes,
+because they are not written to the output files and the
+@code{tree_instr} nodes are automatically rearranged when converting
+between expression trees and flat lists of instructions.  Instead, use
+the ID numbers for the corresponding instructions.
+
+@findex tree_proc, number_instrs
+@findex proc_symtab, instr_num
+@findex proc_symtab, next_instr_num
+The @code{number_instrs} method in the @code{tree_proc} class assigns ID
+numbers to tree nodes and instructions that do yet have numbers (i.e.
+those that were created since the procedure was read in).  This method
+is called automatically before each procedure is written out, but you
+may also call it whenever ID numbers are needed for new tree nodes or
+instructions.  The next unused ID number is recorded in the procedure
+symbol table.  In the @code{proc_symtab} class, the
+@code{next_instr_num} method returns the next ID number and increments
+the counter; the @code{instr_num} method returns the next number but
+does not increment the counter.  Since you can only assign new ID
+numbers with the @code{number_instrs} method, you will rarely, if ever,
+need to access this counter directly.
+
+@findex tree_node, clear_numbers
+@findex tree_node_list, clear_numbers
+@findex instruction, clear_numbers
+In some circumstances, the tree node and instruction ID numbers must be
+reset.  The most common case is when moving code from one procedure to
+another.  Since the ID numbers are only unique within each procedure,
+moving things between procedures is likely to create duplicate ID
+numbers.  To avoid this problem, the @code{tree_node},
+@code{tree_node_list}, and @code{instruction} classes provide
+@code{clear_numbers} methods to reset the ID numbers.  These methods
+recursively descend the ASTs and expression trees to set all of the ID
+numbers within the object and its children to zero.
+
+
+@node Other Node Features, Instruction Nodes, ID Numbers, Tree Nodes
+@subsection Other Features Shared by All Tree Nodes
+
+@findex tree_node, scope
+@findex tree_node, proc
+The @code{tree_node} class includes several methods to make it more
+convenient to retrieve information that is not directly stored in a
+node.  The @code{scope} method returns the symbol table for the closest
+enclosing scope at a tree node.  The @code{proc} method ascends to the
+root of the AST to find the symbol for the procedure containing the tree
+node.  Of course, that only works if the node is properly attached to an
+AST that is connected to a particular procedure symbol.
+
+@findex tree_node, print
+Textual representations of tree nodes can easily be printed out to files
+using the @code{print} method.  The optional @code{depth} parameter
+specifies the indentation level for the output.  The output formats for
+most kinds of tree nodes are shown in subsequent sections.  For
+instruction nodes, the SUIF instructions are printed directly.
+
+@findex tree_node, parent      
+All tree nodes, except for @code{tree_proc} nodes, are stored on tree
+node lists.  Each tree node has a back-pointer to the list that contains
+it.  The @code{parent} method is used to access this list pointer.  The
+parent of a @code{tree_proc} is always @code{NULL}.  The parent list
+pointers are set automatically when tree nodes are added to lists, so
+you do not have to deal with maintaining these yourself.
+
+@findex tree_node, list_e    
+Like the other lists in SUIF (@pxref{Generic Lists}), tree node lists
+are made up of list elements.  Each of these list elements contains a
+pointer to a particular tree node.  Because many of the list methods
+operate on the list elements rather than the tree nodes, one often needs
+to know the element containing a tree node.  Thus the tree nodes contain
+back-pointers to the list elements, which can be accessed with the
+@code{list_e} method.  Like the parent pointer, the list element pointer
+is automatically set when a tree node is entered in a list.
+
+For example, the list elements are needed for inserting nodes before or
+after other nodes in a list and for removing nodes from their lists.
+The following code inserts the tree node @code{new_node} before the tree
+node @code{cur_node} and then removes @code{cur_node} from the list:
+
+@example
+tree_node_list *tnl = cur_node->parent(); 
+tnl->insert_before(new_node, cur_node->list_e());
+tree_node_list_e *elem = tnl->remove(cur_node->list_e());
+@end example
+
+
+@node Instruction Nodes, If Nodes, Other Node Features, Tree Nodes
+@subsection Instruction Nodes
+@cindex tree instructions
+@cindex instruction nodes
+@cindex mapping instructions
+
+@tindex tree_instr
+@findex tree_instr, instr
+@findex tree_instr, set_instr
+@findex tree_instr, remove_instr
+Instruction nodes, implemented by the @code{tree_instr} class, are the
+leaves of the abstract syntax trees.  Each instruction node contains a
+single instruction or expression tree which can be accessed using the
+@code{instr} method.  The @code{set_instr} method attaches an
+instruction to a @code{tree_instr}, and the @code{remove_instr} method
+detaches an instruction.  Note that @code{remove_instr} does not free
+the storage for the instruction, and unlike the @code{remove} method in
+the @code{instruction} class (@pxref{Source Operands}), it does not
+remove the instruction from its expression tree.  Conversely, removing
+an instruction from an expression tree with the @code{remove} method
+will automatically call @code{remove_instr} if necessary.
+
+The SUIF library automatically maintains back-pointers from instructions
+to their parent @code{tree_instr} nodes.  As a result, the
+@code{set_instr} and @code{remove_instr} methods must always be used to
+attach and detach instructions to @code{tree_instr} nodes.  Never use
+the instruction in a @code{tree_instr} elsewhere without first calling
+@code{remove_instr}, and never use @code{set_instr} with a
+@code{tree_instr} that already contains an instruction.
+
+Unlike other tree nodes, instruction nodes are considered temporary
+objects.  They are destroyed and created automatically by the SUIF
+library when switching between expression trees and flat lists, and
+their annotations and ID numbers are not written to the output files.
+Consequently, annotations should generally not be attached to them but
+should instead be placed directly on the instructions.
+
+The destructor for the @code{tree_instr} class also deletes the
+instruction or expression tree contained in the node.  This is the
+desired behavior for most cases.  However, if you only want to delete
+the @code{tree_instr} node, simply call @code{remove_instr} first and
+save a pointer to the instruction.
+
+@tindex instr_map_f
+@findex tree_instr, instr_map
+Often in SUIF one needs to perform some operation on all the
+instructions in a procedure.  The @code{map} methods in the
+@code{tree_node} and @code{tree_node_list} classes (@pxref{Mapping
+Subtrees}) make it easy to visit all of the instruction nodes.  Once an
+instruction node is reached, its @code{instr_map} method may be used to
+apply a function to every instruction in the associated expression tree.
+Given a function of type @code{instr_map_f}, @code{instr_map} will
+traverse the expression tree and apply the function to every
+instruction.  The @code{preorder} parameter is used to select either
+preorder or postorder traversals; the default is preorder.  The
+@code{instr_map_f} function takes two arguments: the instruction pointer
+and a @code{void*} value that you provide to @code{instr_map}.
+
+
+@node If Nodes, Loop Nodes, Instruction Nodes, Tree Nodes
+@subsection If Nodes
+@cindex tree ifs
+@cindex if nodes
+
+@tindex tree_if
+@findex tree_if, header
+@findex tree_if, then_part
+@findex tree_if, else_part
+@findex tree_if, jumpto
+@findex tree_if, set_header
+@findex tree_if, set_then_part
+@findex tree_if, set_else_part
+@findex tree_if, set_jumpto
+Nodes from the @code{tree_if} class represent ``if-then-else''
+structures.  A @code{tree_if} contains three tree node lists: the
+@code{header}, the @code{then_part}, and the @code{else_part}.  The
+@code{header} contains code to evaluate the ``if'' condition and branch
+to the @code{jumpto} label, implicitly located at the beginning of the
+@code{else_part}, if the condition is false.  Otherwise it falls through
+to the @code{then_part}.  The @code{then_part} implicitly ends with a
+jump around the @code{else_part}.  The @code{tree_if} class provides
+methods to access all of these parts.
+
+The @code{jumpto} label must be defined in the scope containing the
+@code{tree_if} node, but the label position is implicit rather than
+being marked by a label instruction.  When the @code{tree_if} is
+expanded to low-SUIF form, a label instruction for @code{jumpto} is
+inserted at the beginning of the @code{else_part}.  The @code{jumpto}
+label also has the restriction that it may only be used in the
+@code{header} list of its @code{tree_if}; it is illegal to use this
+label at all in the @code{then_part} or @code{else_part}, or at all
+outside the @code{tree_if}.
+
+Although the tree node lists within a @code{tree_if} can hold
+arbitrary ASTs, certain conventions must be followed.
+
+The @code{header} list is only allowed limited control flow.  It may
+contain @code{tree_instr} nodes and other @code{tree_if} nodes
+arbitrarily nested, but it is not allowed any @code{tree_block},
+@code{tree_for}, or @code{tree_loop} nodes, even in nested
+@code{tree_if} nodes.  Label instructions may be used within the
+@code{header}, but jumps or branches from outside the @code{header}
+into it are not allowed; such a label can only be the target of
+branches or jumps from elsewhere in the @code{header}.  Similarly, all
+of the branch and jump instructions are allowed within the
+@code{header}, but all the target labels must be within the
+@code{header} list with one important exception: branch and jump
+targets may include the @code{jumpto} label of the original
+@code{tree_if} node.
+
+The idea is that the @code{header} part contains the computation to
+figure out whether the @code{then_part} or @code{else_part} is
+executed.  Often this will be a single conditional branch instruction
+to the @code{jumpto} label.  But we want to allow more complex test
+computations than a single SUIF expression.  In particular, we want to
+be able to capture all the computation in a C test expression, which
+may contain short-circuit evaluation of @code{&&} and @code{||}
+operators and partial evaluation of the @code{?:} operator.  The front
+end puts the computation of the test expression of a C @code{if}
+statement in the @code{header} of the @code{tree_if} it creates.  With
+complex C expressions, it is often useful to use the structured
+control flow of nested @code{tree_if} nodes within the @code{header}
+and that's why they are allowed.  It is legal to have an empty
+@code{header}, but any @code{tree_if} with an empty @code{header}, or
+even with a @code{header} that contains no branch or jump to the
+@code{jumpto} label is degenerate--the @code{then_part} will always be
+executed instead of the @code{else_part}.
+
+The @code{then_part} and @code{else_part} have fewer restrictions.
+After the front end, in standard SUIF, neither is allowed to have
+potential jumps or branches in or out, or between the @code{then_part}
+and @code{else_part}.  Branches or jumps anywhere within the
+@code{then_part} must be to labels elsewhere in the @code{then_part}
+and labels in the @code{then_part} may only be used as targets by
+branches or jumps within the @code{then_part}; the same holds
+separately for the @code{else_part}.  Note that the symbol table
+containing a label may be outside the @code{tree_if}; it is the label
+instruction we are concerned with here.  If the label instruction is
+within the @code{else_part}, it may only be used as a target by
+instructions in other sections of the @code{else_part}.  Any
+@code{tree_node}s can be used within the @code{then_part} and
+@code{else_part} with arbitrary nesting, so long as the restriction on
+jumps into or out of the top level @code{else_part} or
+@code{then_part} lists is honored.
+
+Either or both of the @code{then_part} and @code{else_part} may be
+empty lists; in fact the @code{else_part} is often empty, as in C
+there is often an @code{if} statements without an @code{else}.  There
+is little point in having a @code{tree_if} if both part these parts
+are to be empty, but this may occur if all the code is optimized away
+or moved elsewhere.
+
+Here's an example.  The following C code could be translated into the
+SUIF code shown in a simplified form below.  (The real C front-end
+generates a more complicated tree that involves nested @code{tree_if}
+structures in the header.)
+
+@example
+if ((x > y) && (x > 0)) @{
+    y = x;
+@} else @{
+    y = 0;
+@}
+@end example
+
+@example
+IF (Jumpto=L:__L1)
+IF HEADER
+    bfalse e1, L:__L1
+      e1: sl y, x
+    bfalse e1, L:__L1
+      e1: sl e2, x
+        e2: ldc 0
+IF THEN
+    cpy y = x
+IF ELSE
+    ldc y = 0
+IF END
+@end example
+
+
+@node Loop Nodes, For Nodes, If Nodes, Tree Nodes
+@subsection Loop Nodes
+@cindex tree loops
+@cindex loop nodes
+
+@tindex tree_loop
+@findex tree_loop, body
+@findex tree_loop, test
+@findex tree_loop, set_body
+@findex tree_loop, set_test
+A @code{tree_loop} node represents a ``do-while'' loop.  It contains two
+tree node lists: the @code{body} and the @code{test}.  The @code{body}
+list comes first and holds the loop body.  The @code{test} list contains
+code to evaluate the ``while'' expression and conditionally branch back
+to the beginning of the body.
+
+@findex tree_loop, contlab
+@findex tree_loop, brklab
+@findex tree_loop, toplab
+@findex tree_loop, set_contlab
+@findex tree_loop, set_brklab
+@findex tree_loop, set_toplab
+There are three labels associated with a @code{tree_loop} node:
+@code{toplab}, @code{contlab}, and @code{brklab}.  The @code{toplab}
+label marks the beginning of the loop @code{body}; the @code{test} list
+typically contains a conditional branch back to @code{toplab}.  A
+``continue'' statement in the loop body requires a jump over the rest of
+the body to the beginning of the test code.  The @code{contlab} label is
+positioned at the beginning of the @code{test} list for this purpose.
+Similarly, a ``break'' statement in the loop is translated to a jump to
+the @code{brklab} label which is located immediately after the loop.
+These @code{tree_loop} labels must be defined in the scope of the loop
+node, but the label positions are implicit rather than being marked by
+label instructions.  When the @code{tree_loop} is expanded to low-SUIF
+form, the label instructions are inserted into the tree node lists.
+
+Because the loop nodes are only intended for use with structured control
+flow, certain restrictions on the contents of the @code{tree_loop}
+lists are required.  The @code{test} part has exactly the same
+restrictions as the @code{header} of a @code{tree_if} except that it
+is the @code{toplab} label instead of the @code{jumpto} label to which
+jumps and branches are allowed and expected.  @xref{If Nodes}.  Note
+in particular that use of the @code{brklab} and @code{contlab} labels
+is not allowed in the @code{test} list.
+
+The @code{body} list has restrictions analogous to the restriction on
+@code{then_part} and @code{else_part} lists of a @code{tree_if}:
+arbitrary nesting of other @code{tree_node}s is allowed, but control
+flow into or out of the @code{body} is not allowed.  The @code{body}
+list is allowed slightly more leeway, though: jumps or branches are
+allowed from anywhere in the @code{body} to the @code{brklab} or the
+@code{contlab} labels.  This is the only place where the @code{brklab}
+or @code{contlab} labels can be used--they cannot be used outside the
+@code{tree_loop} or in the @code{test} list.
+
+Note that either or both of the @code{test} and @code{body} parts may
+be empty lists, but if the @code{test} part is empty, the loop is
+degenerate--it will always execute exactly once.
+
+For example, the following C code could be translated into the SUIF code
+shown in a simplified form below.  Note that because the @code{test}
+code is at the @emph{bottom} of the loop, the ``while'' loop must be
+converted to a ``do-while'' loop guarded by an ``if'' node.  @xref{If
+Nodes}.
+
+@example
+while (k > 0) @{
+    if (k = 1) break;
+    k = k - 1;
+    if (k < 10) continue;
+    k = k - 10;
+@}
+@end example
+
+@example
+IF (Jumpto=L:__L1)
+IF HEADER
+    bfalse e1, L:__L1
+      e1: sl e2, k
+        e2: ldc 0
+IF THEN
+    LOOP (Top=L:__L2 Cont=L:__L3 Brk=L:__L4)
+    LOOP BODY
+        btrue e1, L:__L4
+          e1: seq k, e2
+            e2: ldc 1
+        sub k = k, e1
+          e1: ldc 1
+        btrue e1, L:__L3
+          e1: sl k, e2
+            e2: ldc 10
+        sub k = k, e1
+          e1: ldc 10
+    LOOP TEST
+        btrue e1, L:__L2
+          e1: sl e2, k
+            e2: ldc 0
+    LOOP END 
+IF ELSE 
+IF END
+@end example
+
+
+@node For Nodes, Block Nodes, Loop Nodes, Tree Nodes
+@subsection For Nodes
+@cindex tree fors
+@cindex for nodes
+
+@tindex tree_for
+Many of our compiler passes are designed to work with Fortran @code{DO}
+loops because they are relatively easy to analyze.  A @code{DO} loop has
+a single index variable that is incremented or decremented on every
+iteration and varies from an initial to a final value.  SUIF uses
+@code{tree_for} nodes to represent well-structured @code{DO} loops.  The
+exact conditions that a loop must meet to be represented as a
+@code{tree_for} in SUIF are described below.  The expander's cleanup
+pass, which is run immediately after the front-end, converts
+@code{tree_for} nodes that violate any of these conditions into
+@code{tree_loop} nodes (@pxref{Loop Nodes}).  Even though they are
+primarily intended for Fortran code, @code{tree_for} nodes may also be
+used for C loops that meet the same conditions.
+
+@findex tree_for, index
+@findex tree_for, set_index
+The index variable of a @code{tree_for} can be accessed using the
+@code{index} method and set using the @code{set_index} method.  The
+index variable must be a scalar variable that is defined in the scope of
+the @code{tree_for} node.  It may not be modified anywhere within the
+loop body.  This applies across procedures as well.  If the loop body
+contains a call to another procedure that modifies the index variable,
+then the loop cannot be represented by a @code{tree_for} node.
+Moreover, if you are using Fortran form, the index variable may not be a
+call-by-reference parameter.
+@xref{Fortran}.
+
+@findex tree_for, lb_op
+@findex tree_for, ub_op
+@findex tree_for, step_op
+@findex tree_for, set_lb_op
+@findex tree_for, set_ub_op
+@findex tree_for, set_step_op
+The range of values for the index variable is specified by three
+@code{operand} fields.  @xref{Operands}.  The lower and upper bounds and
+the step value can be accessed by the @code{lb_op}, @code{ub_op}, and
+@code{step_op} methods.  The @code{set_lb_op}, @code{set_ub_op}, and
+@code{set_step_op} methods are provided to change them.  These operands
+are expressions that are evaluated once at the beginning of the loop.
+The index variable is initially assigned the lower bound value and then
+incremented by the step value on every iteration until it reaches the
+upper bound value; the code to do this is automatically created when the
+@code{tree_for} is expanded to low-SUIF code.
+
+@findex tree_for, lb_list
+@findex tree_for, ub_list
+@findex tree_for, step_list
+@findex tree_for, set_lb_list
+@findex tree_for, set_ub_list
+@findex tree_for, set_step_list
+Most users will always use @code{tree_for} nodes in conjunction with
+expression trees.  Flat lists of instructions are typically used only in
+the library and with back-end passes where the @code{tree_for} nodes
+have been dismantled.  It is possible to use @code{tree_for} nodes
+without expression trees, but the bounds and step values cannot be
+treated as operands.  In fact, even with expression trees those operands
+are actually stored on tree node lists.  If necessary, these lists can
+be accessed directly using the @code{lb_list}, @code{ub_list}, and
+@code{step_list} methods.  Each list is required to contain a single
+expression with a dummy copy instruction at the root.  The destination
+of the dummy copy must be a null operand.  Methods are provided in the
+tree node list class to extract the operands from the tree node lists
+(@pxref{Tree Node Lists}).
+
+@tindex tree_for_test
+@findex tree_for, test
+@findex tree_for, set_test
+The @code{tree_for} must also specify the comparison operator used to
+determine when the index variable has reached the upper bound value.
+The possible comparison operators are members of the
+@code{tree_for_test} enumerated type.  The @code{test} and
+@code{set_test} methods are used to access and modify the comparison
+operator for a @code{tree_for} node.  The @code{tree_for_test}
+enumeration includes quite a few comparison operators, but some of them
+are only used by the front-end.  Both signed and unsigned versions are
+available for most of the comparison operators, as indicated by the
+letters ``@code{S}'' and ``@code{U}'' in their names.
+
+@table @code
+@item FOR_SLT
+@item FOR_ULT
+Less than.  Repeat as long as the index is strictly less than the upper
+bound.
+
+@item FOR_SLTE
+@item FOR_ULTE
+Less than or equal.  Repeat as long as the index is less than or equal
+to the upper bound.
+
+@item FOR_SGT
+@item FOR_UGT
+Greater than.  Repeat as long as the index is strictly greater than the
+upper bound.  Sometimes @code{DO} loops go backwards, using a negative
+step value.  For those loops, the comparison operator must also be
+reversed.
+
+@item FOR_SGTE
+@item FOR_UGTE
+Greater than or equal.  Repeat as long as the index is greater than or
+equal to the upper bound.  Again, this may be used when the step value
+is negative.
+
+@item FOR_SGELE
+@item FOR_UGELE
+These comparisons are only used by the front-end.  In FORTRAN, it may
+not be possible to determine the direction of a loop at compile time.
+For example, if the step value is not a constant, it could be either
+positive or negative.  These comparison operators indicate that the loop
+test may be either ``greater than or equal'' or ``less than or equal'',
+depending on the sign of the step value.  The expander's cleanup pass
+converts any @code{tree_for} nodes with these tests to two
+@code{tree_for} nodes and a @code{tree_if} node to decide between them.
+Thus, these comparison operators should never be encountered in most
+SUIF code.
+
+@item FOR_EQ
+@item FOR_NEQ
+Equal and not equal.  These comparisons are only used by the front-end.
+The expander's cleanup pass dismantles @code{tree_for} nodes that use
+these comparisons.
+@end table
+
+@findex tree_for, body
+@findex tree_for, set_body
+The body of a @code{tree_for} loop is stored in a tree node list.  The
+methods to get and set the loop body are @code{body} and
+@code{set_body}, respectively.  The @code{body} list contains only the
+instructions corresponding to the body of the loop in the source
+program.  The instructions to compare the index variable with the upper
+bound, increment it, and branch back to the beginning of the body are
+not included as part of the body; they are created when the
+@code{tree_for} is expanded to low-SUIF code.
+
+@cindex landing pads
+@findex tree_for, landing_pad
+@findex tree_for, set_landing_pad
+Besides the loop body, a @code{tree_for} node has an additional tree
+node list called the @code{landing_pad}.  The code in the landing pad
+is executed if and only if the loop body is executed at least one
+time, but the @code{landing_pad} is executed only once, unlike the
+body which is usually executed many times.  The @code{landing_pad} is
+executed immediately before the first time through the loop body.  The
+landing pad thus provides a place to move loop-invariant code.
+
+@findex tree_for, contlab
+@findex tree_for, brklab
+@findex tree_for, set_contlab
+@findex tree_for, set_brklab
+Two labels are associated with a @code{tree_for}: @code{contlab} and
+@code{brklab}.  A ``continue'' statement in the loop body requires a
+jump over the rest of the body to the code that increments the index and
+continues with the next iteration.  This can be implemented with a jump
+to the @code{contlab} label, which is implicitly located at the end of
+the @code{body} list.  Similarly, a ``break'' statement in the loop is
+translated to a jump to the @code{brklab} label which is located
+immediately after the loop.  These two labels must be defined in the
+scope of the @code{tree_for} node, but the label instructions that mark
+their locations are not inserted into the tree node lists until the
+@code{tree_for} node is expanded into low-SUIF form.
+
+In summary, the semantics of a @code{tree_for} node are as follows.  The
+lower bound, upper bound, and step operands are evaluated once at the
+beginning of the loop @footnote{The code produced directly by the C
+front-end assumes that the upper bound and step operands are reevaluated
+on every iteration.  The expander's cleanup pass dismantles any
+@code{tree_for} nodes for which it cannot guarantee that these semantics
+are equivalent.}.  The lower bound is compared to the upper bound.  If
+the test fails, the loop does not execute.  Otherwise, the lower bound
+is assigned to the index variable, and any code in the landing pad list
+is executed.  After that, the body is executed repeatedly and the index
+variable is incremented by the step value on every iteration, until the
+index variable fails the test with the upper bound value.
+
+As an example, the following C code could be translated into the SUIF
+code shown in a simplified form below:
+
+@example
+for (i = 100; i >= 0; i--) @{
+    A[i] = i; 
+@}
+@end example
+
+@example
+FOR (Index=i Test=SGTE Cont=L:__L1 Brk=L:__L2)
+FOR LB
+    ldc 100
+FOR UB
+    ldc 0
+FOR STEP
+    ldc -1
+FOR LANDING PAD
+FOR BODY
+    str e1 = i
+      e1: array e2+0, size(32), index(i), bound(e3)
+        e2: ldc <A,0>
+          e3: ldc 101
+FOR END
+@end example
+
+
+@node Block Nodes, Procedure Nodes, For Nodes, Tree Nodes
+@subsection Block Nodes
+@cindex tree blocks
+@cindex block nodes
+@cindex nested scopes
+
+@tindex tree_block
+A @code{tree_block} node introduces a new scope.  Nested scopes are
+useful for retaining scope information from source programs and for
+debugging purposes.  They are also very useful for implementing code
+transformations.  For example, name conflicts are easily avoided by
+introducing new scopes.
+
+@findex tree_block, symtab
+@findex tree_block, set_symtab
+@findex tree_block, body
+@findex tree_block, set_body
+A @code{tree_block} node contains a @code{block_symtab} symbol table and
+a tree node list for the body.  The symbol table is accessed with the
+@code{symtab} and @code{set_symtab} methods.  The @code{body} and
+@code{set_body} methods are used to get and set the list of tree nodes
+inside the block.
+
+There is a one-to-one correspondence between a @code{tree_block} and its
+symbol table, and the hierarchy of symbol tables within a procedure must
+parallel the hierarchy of @code{tree_block} nodes.  When inserting a
+@code{tree_block} into an AST, the new block's symbol table must be
+inserted in the appropriate place in the symbol table hierarchy.  When a
+@code{tree_block} is destroyed, the associated symbol table is detached
+from its parent table and destroyed.  However, the converse is not
+true---when a @code{block_symtab} is deleted, the corresponding
+@code{tree_block} node is not deleted.
+
+The entries in a block's symbol table may not be referenced from outside
+the block.  There are no other restrictions on @code{tree_block} nodes.
+The bodies may be empty or contain any kinds of tree nodes.  Blocks are
+usually entered from the beginning but that is not required; unlike
+other AST nodes, branches into the middle of a block are allowed.
+
+As an example, the following code creates a new @code{tree_block} and
+its associated symbol table.  It then adds the new block to the
+body of an existing block node:
+
+@example
+block_symtab *new_symtab = new block_symtab("my_symtab");
+cur_block->symtab()->add_child(new_symtab);
+tree_node_list *tl = new tree_node_list;
+tree_block *new_block = new tree_block(tl, new_symtab);
+cur_block->body()->append(new_block);
+@end example
+
+
+@node Procedure Nodes,  , Block Nodes, Tree Nodes
+@subsection Procedure Nodes
+@cindex tree procedures
+@cindex procedure nodes
+
+@tindex tree_proc
+A special kind of block node is used as the root of each AST.  These
+@code{tree_proc} nodes are derived from the @code{tree_block} class.
+They are essentially the same as other block nodes, but they include a
+few extra methods and have a slightly different kind of symbol table.
+SUIF does not support nested procedures, so @code{tree_proc} nodes may
+only be used at the roots of ASTs.
+
+@findex tree_proc, proc_syms
+A procedure node's symbol table must be a @code{proc_symtab} instead of
+just an ordinary @code{block_symtab}.  The @code{proc_syms} method is
+provided to cast the symbol table pointer to be a @code{proc_symtab}.  A
+@code{tree_proc} node also has a pointer to the symbol of the
+corresponding procedure.  This pointer is set automatically when a
+@code{tree_proc} is attached to the procedure symbol.  For any tree node
+in an AST, the @code{proc} method retrieves this procedure symbol from
+the @code{tree_proc} at the root of the tree.
+
+Because @code{tree_proc} nodes are always at the roots of the ASTs,
+their @code{parent} list pointers (@pxref{Other Node Features}) are
+always @code{NULL}.
+
+
+
+@node Tree Node Lists, Mapping Subtrees, Tree Nodes, Trees
+@section Tree Node Lists                  
+@cindex tree node lists
+
+@tindex tree_node_list
+@findex tree_node_list, parent
+@findex tree_node_list, set_elem
+A @code{tree_node_list} is a doubly-linked list of tree nodes, derived
+from the @code{dlist} class.  @xref{Doubly-Linked Lists}.  Most nodes in
+an AST have their children recorded in tree node lists.  For example,
+the body of a block node is a tree node list.  Besides the standard list
+features, each tree node list includes a back-pointer to its parent tree
+node.  These pointers are maintained automatically by the SUIF library
+and can be accessed using the @code{parent} method.  In addition, each
+node on a tree node list contains pointers back to the list and the list
+element.  @xref{Other Node Features}.  These pointers are set by the
+@code{set_elem} method (@pxref{Generic Lists}) which is automatically
+called every time an element is added to the list.
+
+@findex tree_node_list, is_op
+@findex tree_node_list, op
+@findex tree_node_list, set_op
+@findex tree_node_list, op_is_intconst
+In a @code{tree_for} node, the lower bound, upper bound, and step value
+are usually treated as operands; however, the operands are actually
+stored as tree node lists.  @xref{For Nodes}.  Each of these lists is
+required to contain a single expression with a dummy copy instruction at
+the root.  The destination of the dummy copy must be a null operand.
+The @code{tree_node_list} class includes several methods to handle these
+special lists.  The @code{is_op} method checks if the list consists of a
+single copy instruction with a null destination.  The @code{op} method
+retrieves the operand stored in the list.  If after converting the list
+to expression tree form, the @code{is_op} method returns @code{TRUE},
+the @code{op} method returns the source operand of the dummy copy
+instruction; otherwise, an error occurs.  The @code{set_op} method is
+used to set the contents of the tree node list to a dummy copy
+instruction with the specified operand as its source.  The list must
+either be empty or already contain the dummy copy.  Finally, the
+@code{op_is_intconst} method checks if the operand in the tree node list
+is a constant integer, and if so, returns the value.
+
+@findex tree_node_list, print
+@findex tree_node_list, print_expr
+Tree node lists can easily be printed out as text.  The @code{print}
+method simply iterates through the list and calls the @code{print}
+method for each tree node.  The optional @code{depth} parameter
+specifies the indentation level to be used.  A separate method is used
+to print tree node lists that hold @code{tree_for} operands.  If the
+@code{is_op} method for one of these lists returns @code{TRUE}, the
+@code{print_expr} method prints the operand directly.  Otherwise, it
+prints the list as usual.
+
+
+@node Mapping Subtrees,  , Tree Node Lists, Trees
+@section Mapping Functions Over Subtrees
+@cindex mapping subtrees
+
+@findex tree_node, map
+@findex tree_node_list, map
+Many SUIF programs contain code that visits all of the nodes in an AST
+to perform various operations.  Rather than having every programmer
+duplicate the code for this traversal, the SUIF library includes methods
+to map functions over ASTs.  The @code{tree_node} and
+@code{tree_node_list} classes both provide these @code{map} methods.
+
+The function to be mapped must be of type @code{tree_map_f}.  For a tree
+node, the @code{map} method applies the function to the tree node and
+all of its children.  The @code{preorder} parameter is used to select
+either preorder or postorder traversals; the default is preorder.  For
+preorder traversals, the function is applied to the tree node before it
+is applied to the children.  For postorder, the function is first
+applied to the tree_node's children and descendants and then last
+applied to the tree node itself.
+
+The @code{map} method for a tree node list calls @code{map} for each
+node in the list.  The nodes are visited in order from first to last
+regardless of the @code{preorder} parameter.  The @code{tree_node_list}
+version of the @code{map} method has an extra optional parameter that
+allows you to only map the function over the entries in the list without
+recursively visiting their children.
+
+The @code{tree_map_f} functions have two parameters: a pointer to the
+tree node and a @code{void*} value passed on from the @code{map} method.
+Additional parameters can be passed by making the @code{void*} value a
+pointer to a structure containing the parameters.  For example, the
+following code counts the number of @code{tree_for} and @code{tree_loop}
+nodes in a procedure:
+
+@example
+struct count_result @{
+    int num_fors;
+    int num_loops;
+@};
+
+void count_loops (tree_node *t, void *x)
+@{
+    count_result *results = (count_result *)x;
+
+    if (t->kind() == TREE_FOR) results->num_fors++; 
+    else if (t->kind() == TREE_LOOP) results->num_loops++; 
+@}
+
+/*
+ *  Return the number of tree_fors and tree_loops in the procedure.
+ */
+
+void counter (tree_proc *p, int *for_count, int *loop_count)
+@{
+    count_result results;
+    results.num_fors = 0;
+    results.num_loops = 0;
+
+    p->map(count_loops, (void *)&results);
+
+    *for_count =  results.num_fors;
+    *loop_count = results.num_loops;
+@}
+@end example
+

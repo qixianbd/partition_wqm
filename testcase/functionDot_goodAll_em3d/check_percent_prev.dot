@@ -1,0 +1,16 @@
+digraph G{
+	label = "check_percent"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_5\nmove	r11	r5	\nla	r19	nd#87	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_7\nmtc1	r52	r11	\ncvt.d.w	r54	r52	\nli.d	r56	nd#94	\ndiv.d	r58	r54	r56	\nli	r9	nd#97	\nc.lt.d	r36	r58	\nbc1t	check_percent.L1\n"];
+	Node3 -> {Node4 Node5 }
+	Node4 [label = "B4_1\nmove	r9	r0	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_1\ncheck_percent.L1:\njr	\n"];
+	Node5 -> {Node1 }
+}

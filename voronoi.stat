@@ -1,0 +1,14 @@
+###statistics information of thread size and pslice###
+pslice size: 	2		nonspeculative thread size: 	35
+pslice size: 	2		nonspeculative thread size: 	55
+pslice size: 	2		nonspeculative thread size: 	51
+pslice size: 	4		speculative thread size: 	57
+pslice size: 	2		nonspeculative thread size: 	15
+pslice size: 	2		pslice size: 	5		pslice size: 	2		pslice size: 	5		pslice size: 	5		pslice size: 	6		pslice size: 	2		nonspeculative thread size: 	76
+pslice size: 	2		speculative thread size: 	18
+pslice size: 	2		pslice size: 	2		pslice size: 	2		pslice size: 	5		pslice size: 	5		pslice size: 	2		speculative thread size: 	147
+pslice size: 	5		pslice size: 	2		nonspeculative thread size: 	73
+pslice size: 	2		nonspeculative thread size: 	13
+pslice size: 	2		nonspeculative thread size: 	17
+pslice size: 	2		nonspeculative thread size: 	14
+pslice size: 	5		

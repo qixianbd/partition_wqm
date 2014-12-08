@@ -1,0 +1,32 @@
+digraph G{
+	label = "child"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_3\nmove	r8	r0	\nslt	r9	r6	r8	\nbnez	child.L1\n"];
+	Node2 -> {Node3 Node13 }
+	Node3 [label = "B3_3\nli	r10	nd#281	\nslt	r19	r10	r6	\nbnez	child.L1\n"];
+	Node3 -> {Node4 Node13 }
+	Node4 [label = "B4_3\nmove	r20	r0	\nseq	r21	r6	r20	\nbnez	child.L3\n"];
+	Node4 -> {Node5 Node10 }
+	Node5 [label = "B5_3\nli	r22	nd#288	\nseq	r23	r6	r22	\nbnez	child.L2\n"];
+	Node5 -> {Node6 Node9 }
+	Node6 [label = "B6_3\nli	r24	nd#292	\nseq	r25	r6	r24	\nbnez	child.L5\n"];
+	Node6 -> {Node7 Node12 }
+	Node7 [label = "B7_3\nli	r26	nd#296	\nseq	r27	r6	r26	\nbnez	child.L4\n"];
+	Node7 -> {Node8 Node11 }
+	Node8 [label = "B8_1\nchild.L7:\nj	child.L1\n"];
+	Node8 -> {Node13 }
+	Node9 [label = "B9_4\nchild.L2:\nli	r8	nd#304	\naddu	r9	r5	r8	\nlw	r9	nd#307	\njr	\n"];
+	Node9 -> {Node1 }
+	Node10 [label = "B10_4\nchild.L3:\nli	r10	nd#313	\naddu	r19	r5	r10	\nlw	r9	nd#316	\njr	\n"];
+	Node10 -> {Node1 }
+	Node11 [label = "B11_4\nchild.L4:\nli	r28	nd#322	\naddu	r5	r5	r28	\nlw	r9	nd#325	\njr	\n"];
+	Node11 -> {Node1 }
+	Node12 [label = "B12_4\nchild.L5:\nli	r6	nd#331	\naddu	r7	r5	r6	\nlw	r9	nd#334	\njr	\n"];
+	Node12 -> {Node1 }
+	Node13 [label = "B13_2\nchild.L1:\nla	r9	nd#340	\njr	\n"];
+	Node13 -> {Node1 }
+}

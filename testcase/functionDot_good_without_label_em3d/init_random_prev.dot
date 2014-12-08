@@ -1,0 +1,12 @@
+digraph G{
+	label = "init_random"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7	\n# .loc	\nla	r19	nd#57	\nli	r22	nd#59	\nmult	r5	r22	\nmflo	r5	\nmove	r4	r2	\nfst	r2	\njalr	r1	r19	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_1# .loc	\njr	r1	\n"];
+	Node3 -> {Node1 }
+}

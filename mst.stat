@@ -1,0 +1,5 @@
+###statistics information of thread size and pslice###
+pslice size: 	2		speculative thread size: 	16
+pslice size: 	2		inner_loop_threads count is : 	1
+pslice size: 	2		nonspeculative thread size: 	20
+pslice size: 	2		nonspeculative thread size: 	23

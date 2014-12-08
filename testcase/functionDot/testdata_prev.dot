@@ -1,0 +1,154 @@
+digraph G{
+	label = "testdata"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7\nli.d	r44	nd#3669	\nla	r19	nd#3672	\nla	r5	nd#3674	\nli	r6	nd#3676	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_5\nla	r19	nd#3682	\nmove	r5	r0	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_7\nli.d	r42	nd#3689	\nla	r19	nd#3692	\nli.d	r34	nd#3694	\ndiv.d	r32	r34	r42	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_2\nmov.d	r40	r36	\nmove	r26	r0	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_12\ntestdata.L48:\nla	r27	nd#3706	\nli	r28	nd#3708	\nmult	r26	r28	\nmflo	r5	\naddu	r6	r27	r5	\nli.d	r36	nd#3713	\ns.d	nd#3715	r36	\nli	r7	nd#3718	\naddu	r26	r26	r7	\nli	r8	nd#3721	\nsle	r9	r8	r26	\nbeqz	testdata.L48\n"];
+	Node6 -> {Node7 Node6 }
+	Node7 [label = "B7_1\nmove	r10	r0	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_12\ntestdata.L49:\nla	r19	nd#3731	\nli	r20	nd#3733	\nmult	r10	r20	\nmflo	r21	\naddu	r22	r19	r21	\nli.d	r38	nd#3738	\ns.d	nd#3740	r38	\nli	r23	nd#3743	\naddu	r10	r10	r23	\nli	r24	nd#3746	\nsle	r25	r24	r10	\nbeqz	testdata.L49\n"];
+	Node8 -> {Node9 Node8 }
+	Node9 [label = "B9_5\nla	r19	nd#3752	\nmove	r5	r0	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_6\nmove	r12	r9	\nmove	r11	r12	\nmove	r26	r0	\nlw	r27	nd#3763	\nslt	r28	r26	r27	\nbeqz	testdata.L46\n"];
+	Node10 -> {Node11 Node63 }
+	Node11 [label = "B11_1\nmove	r14	r0	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_5\ntestdata.L47:\nla	r19	nd#3770	\nmove	r5	r0	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_4\nmove	r13	r9	\nla	r5	nd#3778	\nseq	r6	r13	r5	\nbeqz	testdata.L8\n"];
+	Node13 -> {Node14 Node15 }
+	Node14 [label = "B14_5\nla	r19	nd#3784	\nla	r5	nd#3786	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node14 -> {Node15 }
+	Node15 [label = "B15_21\ntestdata.L8:\nli	r7	nd#3793	\naddu	r8	r11	r7	\nsw	nd#3796	r13	\nmove	r11	r13	\nmove	r9	r0	\naddu	r10	r13	r9	\nli	r19	nd#3804	\nsh	nd#3806	r19	\nli	r20	nd#3810	\naddu	r21	r13	r20	\nli.d	r52	nd#3813	\nlw	r22	nd#3815	\nmtc1	r54	r22	\ncvt.d.w	r56	r54	\ndiv.d	r58	r52	r56	\ns.d	nd#3820	r58	\nla	r19	nd#3824	\nmov.d	r32	r44	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node15 -> {Node16 }
+	Node16 [label = "B16_8\nmov.d	r44	r36	\nla	r19	nd#3832	\nli.d	r32	nd#3834	\nli.d	r34	nd#3836	\nmove	r4	r2	\nfst	r2	\ns.d	nd#3840	r44	\njalr	\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_6\nla	r19	nd#3845	\nli.d	r34	nd#3847	\nmov.d	r32	r36	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node17 -> {Node18 }
+	Node18 [label = "B18_7\nli.d	r60	nd#3853	\nsub.d	r32	r36	r60	\nli.d	r46	nd#3857	\nla	r19	nd#3859	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node18 -> {Node19 }
+	Node19 [label = "B19_2\ndiv.d	r48	r46	r36	\nmul.d	r46	r42	r48	\n"];
+	Node19 -> {Node20 }
+	Node20 [label = "B20_1\ntestdata.L11:\nmove	r15	r0	\n"];
+	Node20 -> {Node21 }
+	Node21 [label = "B21_5\ntestdata.L50:\nla	r19	nd#3872	\nmov.d	r32	r44	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node21 -> {Node22 }
+	Node22 [label = "B22_14\nmov.d	r44	r36	\nli	r23	nd#3880	\naddu	r26	r13	r23	\nli	r24	nd#3883	\nmult	r15	r24	\nmflo	r25	\naddu	r16	r26	r25	\nla	r19	nd#3888	\nli.d	r32	nd#3890	\nli.d	r34	nd#3892	\nmove	r4	r2	\nfst	r2	\ns.d	nd#3896	r44	\njalr	\n"];
+	Node22 -> {Node23 }
+	Node23 [label = "B23_6\ns.d	nd#3900	r36	\nli	r26	nd#3903	\naddu	r15	r15	r26	\nli	r27	nd#3906	\nsle	r28	r27	r15	\nbeqz	testdata.L50\n"];
+	Node23 -> {Node24 Node21 }
+	Node24 [label = "B24_2\nli.d	r32	nd#3912	\nmove	r5	r0	\n"];
+	Node24 -> {Node25 }
+	Node25 [label = "B25_21\ntestdata.L51:\nli	r6	nd#3918	\naddu	r28	r13	r6	\nli	r7	nd#3921	\nmult	r5	r7	\nmflo	r8	\naddu	r9	r28	r8	\nl.d	r62	nd#3926	\nli	r10	nd#3929	\naddu	r27	r13	r10	\nli	r19	nd#3932	\nmult	r5	r19	\nmflo	r20	\naddu	r21	r27	r20	\nl.d	r34	nd#3937	\nmul.d	r34	r62	r34	\nadd.d	r32	r32	r34	\nli	r22	nd#3942	\naddu	r5	r5	r22	\nli	r23	nd#3945	\nsle	r24	r23	r5	\nbeqz	testdata.L51\n"];
+	Node25 -> {Node26 Node25 }
+	Node26 [label = "B26_4\nli.d	r36	nd#3951	\nli	r25	nd#3953	\nc.lt.d	r36	r32	\nbc1t	testdata.L62\n"];
+	Node26 -> {Node27 Node28 }
+	Node27 [label = "B27_1\nmove	r25	r0	\n"];
+	Node27 -> {Node28 }
+	Node28 [label = "B28_1\ntestdata.L62:\nbnez	testdata.L11\n"];
+	Node28 -> {Node29 Node20 }
+	Node29 [label = "B29_4\nla	r19	nd#3961	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node29 -> {Node30 }
+	Node30 [label = "B30_2\ndiv.d	r38	r46	r36	\nmove	r26	r0	\n"];
+	Node30 -> {Node31 }
+	Node31 [label = "B31_20\ntestdata.L52:\nli	r27	nd#3972	\naddu	r6	r13	r27	\nli	r28	nd#3975	\nmult	r26	r28	\nmflo	r5	\naddu	r6	r6	r5	\nli	r7	nd#3980	\naddu	r5	r13	r7	\nli	r8	nd#3983	\nmult	r26	r8	\nmflo	r9	\naddu	r10	r5	r9	\nl.d	r52	nd#3988	\nmul.d	r54	r52	r38	\ns.d	nd#3992	r54	\nli	r19	nd#3995	\naddu	r26	r26	r19	\nli	r20	nd#3998	\nsle	r21	r20	r26	\nbeqz	testdata.L52\n"];
+	Node31 -> {Node32 Node31 }
+	Node32 [label = "B32_1\nmove	r22	r0	\n"];
+	Node32 -> {Node33 }
+	Node33 [label = "B33_25\ntestdata.L53:\nla	r23	nd#4008	\nli	r24	nd#4010	\nmult	r22	r24	\nmflo	r25	\naddu	r26	r23	r25	\nla	r27	nd#4015	\nli	r28	nd#4017	\nmult	r22	r28	\nmflo	r5	\naddu	r6	r27	r5	\nl.d	r56	nd#4022	\nli	r7	nd#4025	\naddu	r7	r13	r7	\nli	r8	nd#4028	\nmult	r22	r8	\nmflo	r9	\naddu	r10	r7	r9	\nl.d	r58	nd#4033	\nadd.d	r60	r56	r58	\ns.d	nd#4037	r60	\nli	r19	nd#4040	\naddu	r22	r22	r19	\nli	r20	nd#4043	\nsle	r21	r20	r22	\nbeqz	testdata.L53\n"];
+	Node33 -> {Node34 Node33 }
+	Node34 [label = "B34_0\n"];
+	Node34 -> {Node35 }
+	Node35 [label = "B35_5\ntestdata.L22:\nla	r19	nd#4051	\nmov.d	r32	r44	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node35 -> {Node36 }
+	Node36 [label = "B36_8\nmov.d	r44	r36	\nla	r19	nd#4059	\nli.d	r32	nd#4061	\nli.d	r34	nd#4063	\nmove	r4	r2	\nfst	r2	\ns.d	nd#4067	r44	\njalr	\n"];
+	Node36 -> {Node37 }
+	Node37 [label = "B37_6\nmov.d	r50	r36	\nla	r19	nd#4073	\nmov.d	r32	r44	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node37 -> {Node38 }
+	Node38 [label = "B38_8\nmov.d	r44	r36	\nla	r19	nd#4081	\nli.d	r32	nd#4083	\nli.d	r34	nd#4085	\nmove	r4	r2	\nfst	r2	\ns.d	nd#4089	r44	\njalr	\n"];
+	Node38 -> {Node39 }
+	Node39 [label = "B39_10\nmov.d	r46	r36	\nla	r19	nd#4095	\nla	r5	nd#4097	\nmov.d	r34	r50	\nmfc1	r7	r34	\nmfc1	r8	r35	\nmove	r4	r2	\nfst	r2	\ns.d	nd#4104	r46	\njalr	\n"];
+	Node39 -> {Node40 }
+	Node40 [label = "B40_10\nmul.d	r62	r50	r50	\ns.d	nd#4109	r62	\nla	r19	nd#4111	\nli.d	r62	nd#4113	\nmul.d	r32	r50	r50	\nsub.d	r32	r62	r32	\nli.d	r34	nd#4117	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node40 -> {Node41 }
+	Node41 [label = "B41_5\nl.d	r60	nd#4122	\nmul.d	r34	r60	r36	\nli	r22	nd#4125	\nc.lt.d	r34	r46	\nbc1t	testdata.L63\n"];
+	Node41 -> {Node42 Node43 }
+	Node42 [label = "B42_1\nmove	r22	r0	\n"];
+	Node42 -> {Node43 }
+	Node43 [label = "B43_1\ntestdata.L63:\nbnez	testdata.L22\n"];
+	Node43 -> {Node44 Node35 }
+	Node44 [label = "B44_5\nla	r19	nd#4133	\nli.d	r32	nd#4135	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node44 -> {Node45 }
+	Node45 [label = "B45_9\nmul.d	r46	r36	r50	\nla	r19	nd#4141	\nli.d	r36	nd#4143	\nmul.d	r38	r48	r48	\nadd.d	r32	r36	r38	\nli.d	r34	nd#4147	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node45 -> {Node46 }
+	Node46 [label = "B46_2\ndiv.d	r52	r46	r36	\nmul.d	r46	r40	r52	\n"];
+	Node46 -> {Node47 }
+	Node47 [label = "B47_1\ntestdata.L25:\nmove	r15	r0	\n"];
+	Node47 -> {Node48 }
+	Node48 [label = "B48_5\ntestdata.L54:\nla	r19	nd#4160	\nmov.d	r32	r44	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node48 -> {Node49 }
+	Node49 [label = "B49_14\nmov.d	r44	r36	\nli	r23	nd#4168	\naddu	r8	r13	r23	\nli	r24	nd#4171	\nmult	r15	r24	\nmflo	r25	\naddu	r16	r8	r25	\nla	r19	nd#4176	\nli.d	r32	nd#4178	\nli.d	r34	nd#4180	\nmove	r4	r2	\nfst	r2	\ns.d	nd#4184	r44	\njalr	\n"];
+	Node49 -> {Node50 }
+	Node50 [label = "B50_6\ns.d	nd#4188	r36	\nli	r26	nd#4191	\naddu	r15	r15	r26	\nli	r27	nd#4194	\nsle	r28	r27	r15	\nbeqz	testdata.L54\n"];
+	Node50 -> {Node51 Node48 }
+	Node51 [label = "B51_2\nli.d	r32	nd#4200	\nmove	r5	r0	\n"];
+	Node51 -> {Node52 }
+	Node52 [label = "B52_21\ntestdata.L55:\nli	r6	nd#4206	\naddu	r10	r13	r6	\nli	r7	nd#4209	\nmult	r5	r7	\nmflo	r8	\naddu	r9	r10	r8	\nl.d	r54	nd#4214	\nli	r10	nd#4217	\naddu	r9	r13	r10	\nli	r19	nd#4220	\nmult	r5	r19	\nmflo	r20	\naddu	r21	r9	r20	\nl.d	r56	nd#4225	\nmul.d	r58	r54	r56	\nadd.d	r32	r32	r58	\nli	r22	nd#4230	\naddu	r5	r5	r22	\nli	r23	nd#4233	\nsle	r24	r23	r5	\nbeqz	testdata.L55\n"];
+	Node52 -> {Node53 Node52 }
+	Node53 [label = "B53_4\nli.d	r60	nd#4239	\nli	r25	nd#4241	\nc.lt.d	r60	r32	\nbc1t	testdata.L64\n"];
+	Node53 -> {Node54 Node55 }
+	Node54 [label = "B54_1\nmove	r25	r0	\n"];
+	Node54 -> {Node55 }
+	Node55 [label = "B55_1\ntestdata.L64:\nbnez	testdata.L25\n"];
+	Node55 -> {Node56 Node47 }
+	Node56 [label = "B56_4\nla	r19	nd#4249	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node56 -> {Node57 }
+	Node57 [label = "B57_2\ndiv.d	r38	r46	r36	\nmove	r26	r0	\n"];
+	Node57 -> {Node58 }
+	Node58 [label = "B58_20\ntestdata.L56:\nli	r27	nd#4260	\naddu	r20	r13	r27	\nli	r28	nd#4263	\nmult	r26	r28	\nmflo	r5	\naddu	r6	r20	r5	\nli	r7	nd#4268	\naddu	r19	r13	r7	\nli	r8	nd#4271	\nmult	r26	r8	\nmflo	r9	\naddu	r10	r19	r9	\nl.d	r62	nd#4276	\nmul.d	r32	r62	r38	\ns.d	nd#4280	r32	\nli	r19	nd#4283	\naddu	r26	r26	r19	\nli	r20	nd#4286	\nsle	r21	r20	r26	\nbeqz	testdata.L56\n"];
+	Node58 -> {Node59 Node58 }
+	Node59 [label = "B59_1\nmove	r22	r0	\n"];
+	Node59 -> {Node60 }
+	Node60 [label = "B60_25\ntestdata.L57:\nla	r23	nd#4296	\nli	r24	nd#4298	\nmult	r22	r24	\nmflo	r25	\naddu	r26	r23	r25	\nla	r27	nd#4303	\nli	r28	nd#4305	\nmult	r22	r28	\nmflo	r5	\naddu	r6	r27	r5	\nl.d	r34	nd#4310	\nli	r7	nd#4313	\naddu	r21	r13	r7	\nli	r8	nd#4316	\nmult	r22	r8	\nmflo	r9	\naddu	r10	r21	r9	\nl.d	r36	nd#4321	\nadd.d	r38	r34	r36	\ns.d	nd#4325	r38	\nli	r19	nd#4328	\naddu	r22	r22	r19	\nli	r20	nd#4331	\nsle	r21	r20	r22	\nbeqz	testdata.L57\n"];
+	Node60 -> {Node61 Node60 }
+	Node61 [label = "B61_5\nli	r22	nd#4337	\naddu	r14	r14	r22	\nlw	r23	nd#4340	\nsle	r24	r23	r14	\nbeqz	testdata.L47\n"];
+	Node61 -> {Node62 Node12 }
+	Node62 [label = "B62_1\ntestdata.L65:\nj	testdata.__done55\n"];
+	Node62 -> {Node64 }
+	Node63 [label = "B63_1\ntestdata.L46:\nmove	r14	r0	\n"];
+	Node63 -> {Node64 }
+	Node64 [label = "B64_8\ntestdata.__done55:\nli	r25	nd#4350	\naddu	r26	r11	r25	\nla	r27	nd#4353	\nsw	nd#4356	r27	\nli	r28	nd#4360	\naddu	r5	r12	r28	\nlw	r12	nd#4363	\nmove	r6	r0	\n"];
+	Node64 -> {Node65 }
+	Node65 [label = "B65_21\ntestdata.L58:\nla	r7	nd#4371	\nli	r8	nd#4373	\nmult	r6	r8	\nmflo	r9	\naddu	r10	r7	r9	\nla	r19	nd#4378	\nli	r20	nd#4380	\nmult	r6	r20	\nmflo	r21	\naddu	r22	r19	r21	\nl.d	r52	nd#4385	\nlw	r23	nd#4388	\nmtc1	r54	r23	\ncvt.d.w	r56	r54	\ndiv.d	r58	r52	r56	\ns.d	nd#4393	r58	\nli	r24	nd#4396	\naddu	r6	r6	r24	\nli	r25	nd#4399	\nsle	r26	r25	r6	\nbeqz	testdata.L58\n"];
+	Node65 -> {Node66 Node65 }
+	Node66 [label = "B66_1\nmove	r27	r0	\n"];
+	Node66 -> {Node67 }
+	Node67 [label = "B67_21\ntestdata.L59:\nla	r28	nd#4409	\nli	r5	nd#4411	\nmult	r27	r5	\nmflo	r6	\naddu	r7	r28	r6	\nla	r8	nd#4416	\nli	r9	nd#4418	\nmult	r27	r9	\nmflo	r10	\naddu	r19	r8	r10	\nl.d	r60	nd#4423	\nlw	r20	nd#4426	\nmtc1	r62	r20	\ncvt.d.w	r32	r62	\ndiv.d	r34	r60	r32	\ns.d	nd#4431	r34	\nli	r21	nd#4434	\naddu	r27	r27	r21	\nli	r22	nd#4437	\nsle	r23	r22	r27	\nbeqz	testdata.L59\n"];
+	Node67 -> {Node68 Node67 }
+	Node68 [label = "B68_4\nmove	r13	r12	\nla	r24	nd#4445	\nsne	r25	r13	r24	\nbeqz	testdata.L41\n"];
+	Node68 -> {Node69 Node74 }
+	Node69 [label = "B69_1\ntestdata.L40:\nmove	r26	r0	\n"];
+	Node69 -> {Node70 }
+	Node70 [label = "B70_26\ntestdata.L60:\nli	r27	nd#4456	\naddu	r23	r13	r27	\nli	r28	nd#4459	\nmult	r26	r28	\nmflo	r5	\naddu	r6	r23	r5	\nli	r7	nd#4464	\naddu	r22	r13	r7	\nli	r8	nd#4467	\nmult	r26	r8	\nmflo	r9	\naddu	r10	r22	r9	\nl.d	r36	nd#4472	\nla	r19	nd#4475	\nli	r20	nd#4477	\nmult	r26	r20	\nmflo	r21	\naddu	r22	r19	r21	\nl.d	r38	nd#4482	\nsub.d	r52	r36	r38	\ns.d	nd#4486	r52	\nli	r23	nd#4489	\naddu	r26	r26	r23	\nli	r24	nd#4492	\nsle	r25	r24	r26	\nbeqz	testdata.L60\n"];
+	Node70 -> {Node71 Node70 }
+	Node71 [label = "B71_1\nmove	r26	r0	\n"];
+	Node71 -> {Node72 }
+	Node72 [label = "B72_26\ntestdata.L61:\nli	r27	nd#4502	\naddu	r25	r13	r27	\nli	r28	nd#4505	\nmult	r26	r28	\nmflo	r5	\naddu	r6	r25	r5	\nli	r7	nd#4510	\naddu	r24	r13	r7	\nli	r8	nd#4513	\nmult	r26	r8	\nmflo	r9	\naddu	r10	r24	r9	\nl.d	r54	nd#4518	\nla	r19	nd#4521	\nli	r20	nd#4523	\nmult	r26	r20	\nmflo	r21	\naddu	r22	r19	r21	\nl.d	r56	nd#4528	\nsub.d	r58	r54	r56	\ns.d	nd#4532	r58	\nli	r23	nd#4535	\naddu	r26	r26	r23	\nli	r24	nd#4538	\nsle	r25	r24	r26	\nbeqz	testdata.L61\n"];
+	Node72 -> {Node73 Node72 }
+	Node73 [label = "B73_6\nli	r26	nd#4545	\naddu	r27	r13	r26	\nlw	r13	nd#4548	\nla	r28	nd#4552	\nsne	r5	r13	r28	\nbnez	testdata.L40\n"];
+	Node73 -> {Node74 Node69 }
+	Node74 [label = "B74_2\ntestdata.L41:\nmove	r9	r12	\njr	\n"];
+	Node74 -> {Node1 }
+}

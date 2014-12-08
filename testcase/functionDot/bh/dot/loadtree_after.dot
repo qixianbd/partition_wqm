@@ -1,0 +1,32 @@
+digraph G{
+	label = "loadtree"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_10\nlw	r13	nd#685	\nlw	r14	nd#687	\nlw	r12	nd#689	\nmove	r11	r5	\nsw	nd#692	r6	\nsw	nd#694	r7	\nsw	nd#696	r8	\nla	r28	nd#699	\nseq	r5	r12	r28	\nbeqz	loadtree.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_2\nmove	r9	r11	\njr	\n"];
+	Node3 -> {Node1 }
+	Node4 [label = "B4_5\nloadtree.L1:\nmove	r6	r0	\nsne	r7	r14	r6	\nmove	r8	r0	\nseq	r9	r7	r8	\nbeqz	loadtree.L2\n"];
+	Node4 -> {Node5 Node7 }
+	Node5 [label = "B5_6\nla	r19	nd#715	\nla	r5	nd#717	\nli	r6	nd#719	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_5\nla	r19	nd#725	\nmove	r5	r0	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_6\nloadtree.L2:\nmove	r10	r0	\naddu	r19	r12	r10	\nlh	r24	nd#735	\nli	r20	nd#738	\nseq	r21	r24	r20	\nbeqz	loadtree.L3\n"];
+	Node7 -> {Node8 Node11 }
+	Node8 [label = "B8_5\nmove	r5	r0	\nla	r19	nd#745	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_8\nmove	r15	r9	\nla	r19	nd#752	\nmove	r5	r12	\nmove	r6	r13	\nmove	r7	r14	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_8\nli	r22	nd#761	\naddu	r25	r15	r22	\nli	r23	nd#764	\nmult	r9	r23	\nmflo	r24	\naddu	r25	r25	r24	\nsw	nd#769	r12	\nmove	r12	r15	\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_10\nloadtree.L3:\nla	r19	nd#776	\nla	r26	nd#779	\nlw	r5	nd#781	\nlw	r6	nd#784	\nlw	r7	nd#787	\nlw	r8	nd#790	\nmove	r4	r2	\nfst	r2	\nsw	nd#796	r14	\njalr	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_30\nli	r27	nd#801	\naddu	r27	r12	r27	\nli	r28	nd#804	\nmult	r9	r28	\nmflo	r5	\naddu	r6	r27	r5	\nlw	r10	nd#809	\nli	r8	nd#813	\naddu	r26	r12	r8	\nli	r19	nd#816	\nmult	r9	r19	\nmflo	r19	\naddu	r15	r26	r19	\nla	r19	nd#821	\nli	r20	nd#823	\nsra	r20	r14	r20	\nmove	r5	r11	\nla	r21	nd#828	\nlw	r6	nd#830	\nlw	r7	nd#833	\nlw	r8	nd#836	\nmove	r4	r2	\nfst	r2	\nla	r22	nd#841	\nlw	r23	nd#844	\nsw	nd#847	r23	\nsw	nd#851	r10	\nsw	nd#854	r20	\nsw	nd#857	r13	\njalr	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_3\nsw	nd#861	r9	\nmove	r9	r12	\njr	\n"];
+	Node13 -> {Node1 }
+}

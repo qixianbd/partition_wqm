@@ -1,0 +1,68 @@
+\subsection{annoteHelper.h}
+\label{secAnnoteHelper.h}
+
+This file contains the helper routines created for the machine library
+annotations.  Currently, we have stand-alone helper routines for only
+one annotation: [[k_vsym_info]].
+
+<<annoteHelper.h>>=
+/* file "annoteHelper.h" */
+
+<<SUIF copyright>>
+
+#ifndef ANNOTEHELPER_H
+#define ANNOTEHELPER_H
+
+/*		vsym_in_reg(var_sym *);		#* use SUIF is_reg() method */
+extern void	vsym_clear_hreg(var_sym *);	/* hard register methods */
+extern void	vsym_set_hreg(var_sym *, int);
+extern int	vsym_get_hreg(var_sym *);
+extern void	vsym_set_sp_offset(var_sym *, int);
+extern int	vsym_get_sp_offset(var_sym *);
+extern void	vsym_update_usage(var_sym *);	/* usage count methods */
+extern int	vsym_used(var_sym *);		/* returns usage count */
+extern void	vsym_set_preg(var_sym *, int);	/* parameter reg methods */
+extern boolean	vsym_passed_in_preg(var_sym *);
+extern int	vsym_get_preg(var_sym *);
+extern sym_addr vsym_get_auto_sym(base_symtab *, int, int);
+
+#endif /* ANNOTEHELPER_H */
+@
+
+As explained in Section~\ref{secVsyminfo}, the [[k_vsym_info]]
+annotation records several pieces of information related to automatic
+variables.  These helper routines supply mechanisms to set, access,
+and query this information.  In addition, we supply routines that set,
+clear, access, and query the SUIF register information attached to
+[[sym_node]]'s.  Please remember that we interpret a [[TRUE]] result
+from the [[sym_node::is_reg()]] method to mean that the [[sym_node]]
+is stored in a register, not that the [[sym_node]] is a register.  By
+creating these hard register helper routines that manipulate the SUIF
+structures, we can have a uniform interface for [[var_sym]]
+information.
+
+Currently, the parameter register methods are used to pass parameter
+register information between the [[*gen]] and [[ra*]] passes.  The
+stack pointer methods are used inside the [[*fin]] passes.  The usage
+methods are used by our stupid register allocator, [[ra0]], which is
+no longer distributed.  We do not consistently set the [[is_reg()]]
+flag when we allocate a [[var_sym]] to a register.  Notice that this
+current mechanism for mapping a [[var_sym]] to a register is not
+powerful enough for register allocators that implement live-range
+splitting.
+
+This documentation is out of date!
+The [[vsym_get_auto_sym]] scans the local symbol list from the
+indicated symbol table and returns the symbol that lives at the stack
+pointer offset specified in the argument.  This routine returns
+[[NULL]] if the offset does not correspond to an auto variable
+in the specified symbol table.  It requires the current size of
+the stack frame; passed as the second parameter.
+
+\begin{openissue}
+As stated in Section~\ref{secVsyminfo}, this organization of this
+information is not very pretty, and this whole issue needs to be
+revisited.
+\end{openissue}
+
+

@@ -1,0 +1,675 @@
+@c This file is part of the SUIF reference manual
+
+@node Types, Symbol Tables, Symbols, Top
+@chapter Types
+@cindex types
+
+@tindex type_node
+@tindex type_node_list
+SUIF types are used to describe the results of instructions and the
+contents of variables.  Each symbol table (@pxref{Symbol Tables})
+contains a list of types that are visible within the scope of that
+table.  All SUIF types are derived from the @code{type_node} base class,
+which is defined in the files @file{types.h} and @file{types.cc}.  The
+@code{type_node_list} class is provided for lists of pointers to types.
+
+@tindex type_ops
+@findex type_node, op
+Different kinds of type nodes are distinguished by their type operators.
+The @code{op} method returns the operator for a particular
+@code{type_node}.  Some type operators define complete types by
+themselves while others build upon existing types.  The @code{type_ops}
+enumeration lists the type operators:
+
+@table @code
+@item TYPE_VOID
+@itemx TYPE_INT
+@itemx TYPE_FLOAT
+These operators, along with @code{TYPE_ENUM} below, define the base
+types.  They use the @code{base_type} derived class.
+
+@item TYPE_PTR
+A pointer operator defines a type for pointers to an existing
+type.  The @code{ptr_type} derived class holds this kind of type node.
+
+@item TYPE_ARRAY
+The array operator uses the @code{array_type} class and defines a type
+that is an array with elements of another type.
+
+@item TYPE_FUNC
+The function operator defines a type for a SUIF procedure in terms of
+the return type and the types of the arguments.  The @code{func_type}
+derived class is used with this operator.
+
+@item TYPE_STRUCT
+@itemx TYPE_UNION
+These operators are for named structure and union types and both use the
+@code{struct_type} derived class.  Both combine fields of different
+types into a single record.
+
+@item TYPE_ENUM
+The enumerated type operator defines an integer type where each value
+may have a name.  Like the ordinary integer types, enumerated types are
+also base types.  Thus, the @code{enum_type} class is derived from the
+@code{base_type} class.
+
+@item TYPE_CONST
+@itemx TYPE_VOLATILE
+@itemx TYPE_CALL_BY_REF
+@itemx TYPE_NULL
+These operators are modifiers for other types.  They use the
+@code{modifier_type} derived class.
+@end table
+
+@noindent
+@findex type_node, is_scalar
+The integer, floating-point, pointer, and enumerated types are all
+classified as @dfn{scalar} types, and the @code{is_scalar} method checks
+if a type is one of these.  The array, structure, and union types
+are all @dfn{aggregate} types.
+
+The @code{type_node} base class defines several methods that are
+applicable to all types, and those are described in the first section
+below along with some other comments about types in general.  The bulk
+of this chapter is devoted to the various kinds of types and the
+corresponding derived classes.  The last section describes the common
+types that are predefined in the global symbol table.
+
+@menu
+* Type Features::               Features shared by all types.
+* Base Types::                  Void, integer, and floating-point types.
+* Pointer Types::               Pointers.
+* Array Types::                 Arrays.
+* Function Types::              Types for SUIF procedures.
+* Structure Types::             Structures and unions.
+* Enumerated Types::            Lists of named values.
+* Modifier Types::              Qualifiers for other types.
+* Predefined Types::            Simple types in the global symbol table.
+@end menu
+
+
+@node Type Features, Base Types,  , Types
+@section Features Shared By All Types
+
+The base @code{type_node} class defines some common features of all
+types.  This section describes the methods from this base class along
+with some comments about conventions for using types.  Besides the
+things covered here, each @code{type_node} contains an ID number that
+uniquely identifies it within a particular context.  @xref{Numbering
+Types and Symbols}.
+
+@findex type_node, copy
+New types can be created as necessary, but once a type has been entered
+in a symbol table it should generally not be changed.  This helps to
+avoid duplicate types and to prevent unintended side effects when a type
+is used in multiple places.  Instead, the @code{copy} method can be used
+to get a new type that is the same as the existing type, except that it
+does not copy annotations.  The copy can then be freely modified and
+installed in a symbol table.  If necessary, annotations on the type can
+be copied separately using the @code{copy_annotes} method.  @xref{SUIF
+Objects}.
+
+@findex type_node, parent
+When a type is entered in a symbol table, it automatically records a
+pointer to that parent table.  Similarly, when the type is removed from
+the symbol table, its parent pointer is cleared.  The @code{parent}
+method retrieves this parent pointer.
+
+@findex type_node, size
+Each type has a @code{size} method that returns the number of bits used
+to store values of that type.  (That is not very meaningful for function
+types, so they always have a fixed size of zero.)  The size for a type
+may or may not be set directly, depending on the type operator.  The
+sizes for type nodes from each of the derived classes are described in
+the appropriate sections below.
+
+@findex type_node, is_named
+Structures, unions, and enumerated types are all given names.  The
+@code{is_named} method checks to see if a @code{type_node} is one of
+these types.  The name of a type should be unique within the symbol
+table where it is defined, but the type name space is separate from the
+names for symbols.  Because the type names are automatically entered in
+the lexicon (@pxref{Lexicon}) when the types are created, they can be
+compared as pointers without doing string comparisons.
+
+@findex type_node, is_same
+More than one @code{type_node} can represent the same type.  That is,
+types may be equivalent even if they are represented by different type
+nodes.  Given that, the only reason to reuse existing types is to keep
+the symbol tables from getting too big.  The @code{is_same} method is
+provided to check if two types are equivalent, so that the symbol tables
+can be kept to a reasonable size.  However, @code{is_same} is only
+intended to help get rid of duplicates.  Because it assumes that
+duplicate types are still perfectly legal, it may potentially return
+false negatives to avoid the expense of comparing annotations on type
+nodes @footnote{Even if the current implementation compares annotations,
+future versions of the SUIF library may not, so do not depend on that
+behavior.}.  For named types, the @code{is_same} method assumes that all
+type nodes are unique; it does not check for structural equivalence.  In
+most cases, @code{is_same} need not be called directly.  Instead, the
+symbol table @code{install_type} method (@pxref{Adding and Removing
+Entries}), which uses @code{is_same} to detect and avoid duplicate
+types, is the recommended way to add new types to a symbol table.
+
+@findex type_node, compatible
+SUIF has its own definition of type compatibility.  Two types do not
+need to be strictly equivalent to be compatible.  Besides the rules for
+type equivalence, the following conditions define which types are
+compatible:
+
+@itemize @bullet
+@item
+Enumerated types and integers of the same size are compatible if they
+are both signed or both unsigned.
+
+@item
+Any two pointer types are compatible.
+
+@item
+Type modifiers and annotations do not affect compatibility.
+@end itemize
+
+@noindent
+The @code{compatible} method is included in the @code{type_node} class
+to determine if two types are compatible according to these rules.
+
+@findex type_node, print_abbrev
+@findex type_node, print
+@findex type_node, print_full
+There are three different methods for printing SUIF types.  The
+@code{print_abbrev} method is used when printing the result types of
+instructions.  It prints the type ID number along with a single
+character to identify the type operator followed by a period and the
+size (e.g.  @samp{i.32} for a 32-bit integer).  The @code{print} method
+shows the ID number prefixed with @samp{t:} to identify it as a type.
+The @code{print_full} method prints all of the type information and is
+used when listing symbol tables.  It's optional @code{depth} parameter
+can be used to specify the indentation level.
+
+Many kinds of type nodes contain fields that refer to other types.
+Moreover, each type may contain annotations that include references to
+other types.  With one exception, however, recursive type references are
+not allowed.  In other words, if the type nodes are viewed as a directed
+graph with the references between them forming the edges, there can be
+no cycles.  To support recursive data structures, we allow an exception
+to this rule: types within a field of a structure or union may refer
+back to the structure or union type.
+
+
+@node Base Types, Pointer Types, Type Features, Types
+@section Base Types
+@cindex base types
+@cindex types, base
+
+@tindex base_type
+The @code{TYPE_VOID}, @code{TYPE_INT}, @code{TYPE_FLOAT}, and
+@code{TYPE_ENUM} operators define the base types.  Whereas other kinds
+of types are defined in terms of existing types, the base types stand
+alone.  The @code{base_type} class is derived from @code{type_node} to
+hold the base types.  It has only two fields: the size and a flag to
+indicate whether integer and enumerated types are signed or unsigned.
+
+@findex base_type, set_size
+@findex base_type, is_signed
+@findex base_type, set_signed
+The @code{set_size} method sets the size of a base type in bits.  Types
+with a @code{TYPE_VOID} operator should always have a size of zero.
+Integer and floating-point types can have any sizes, although normally
+the sizes are restricted by the target machine parameters (@pxref{Target
+Machine Parameters}).  Other sizes may cause the code generator to fail.
+For integer and enumerated types, the @code{is_signed} method is used to
+check the flag that indicates whether they are signed or unsigned.  The
+@code{set_signed} method changes the value of the flag.
+
+Besides the features that they share with the other base types,
+enumerated types have other fields and methods used to record the names
+and values of their members.  @xref{Enumerated Types}.
+
+
+@node Pointer Types, Array Types, Base Types, Types
+@section Pointer Types
+@cindex pointer types
+@cindex types, pointer
+
+@tindex ptr_type
+@findex ptr_type, ref_type
+@findex ptr_type, set_ref_type
+Pointer types are defined using the @code{TYPE_PTR} operator and the
+@code{ptr_type} derived class.  The @code{ref_type} method returns the
+type that is pointed to by a particular @code{ptr_type} node.  The
+@code{set_ref_type} method can be used to change this referent type.
+The size of a pointer type is determined by the target machine
+(@pxref{Target Machine Parameters}); it cannot be changed for individual
+pointer types.
+
+
+@node Array Types, Function Types, Pointer Types, Types
+@section Array Types
+@cindex array types
+@cindex types, array
+
+A SUIF array type defines a new type that is a one-dimensional vector
+with elements of another type.  Multi-dimensional arrays are handled as
+nested arrays (i.e. arrays of arrays) as in C.  The size of an array is
+specified by the upper and lower bounds.  Each bound is either an
+integer expression or unknown.  If the bound is an integer expression,
+it can either be an integer known at compile time, or a SUIF variable
+symbol representing an integer value to be computed at run time.
+
+@tindex array_bound
+@vindex unknown_bound
+@findex array_bound, is_constant
+@findex array_bound, is_variable
+@findex array_bound, is_unknown
+@findex array_bound, constant
+@findex array_bound, variable
+@findex array_bound, print
+The upper and lower bounds of an array type are stored in objects of the
+@code{array_bound} class.  An array bound can be one of three things,
+an integer constant, a SUIF variable symbol, or entirely unknown.  The
+@code{is_constant}, @code{is_variable}, and @code{is_unknown} methods
+check for these three conditions.  If the bound is a constant, the
+@code{constant} method returns the integer value of the bound.
+Likewise, if it is a variable, the @code{variable} method returns a
+pointer to the variable symbol.  The @code{print} method is also
+available to print out the value of an array bound.  The global
+variable @code{unknown_bound} is a predefined array bound that can be
+used when a bound is unknown.
+
+@tindex array_type
+@findex array_type, elem_type
+@findex array_type, set_elem_type
+@findex array_type, lower_bound
+@findex array_type, set_lower_bound
+@findex array_type, upper_bound
+@findex array_type, set_upper_bound
+A type node with a @code{TYPE_ARRAY} operator is stored in an
+@code{array_type} object.  The @code{array_type} class contains three
+fields: the lower and upper bounds and the element type.  The
+@code{lower_bound}, @code{upper_bound}, and @code{elem_type} methods
+retrieve the contents of these fields, and the @code{set_lower_bound},
+@code{set_upper_bound}, and @code{set_elem_type} methods change their
+values.  The SUIF definition of arrays says that the elements will be
+stored adjacently.  If this would violate alignment restrictions, the
+element types must be padded with extra space.  For example, if some
+machine has 24 bit integers with a 32 bit alignment requirement, the
+24 bit integers may not be used directly as array elements; instead,
+one would have to create a structure of size 32 bits that contains a
+24 bit integer at offset zero and no other fields, and then use arrays
+of this structure type.
+
+The bounds of an array type tell two things: the number of elements
+and the how the index of an array access instruction will be
+interpreted.  The number of elements determines the size of the array
+-- the size will be the number of elements times the size of each
+element.  Any array type with an upper or lower bound that is anything
+but an integer constant will not have a size that is known at compile
+time, so such a type cannot be used anywhere a known size is required,
+such as for a variable type, an expression type, or the type of an
+object copied by a @code{memcpy} instruction.
+
+@findex array_type, are_bounds_unknown
+The other time when array bounds are meaningful is in an array access
+(a SUIF @code{in_array} instruction).  There each index is required to
+be between the given bounds or the result is undefined.  The location
+referred to is determined by subtracting the lower bound from the index
+and then multiplying by the size of the next lower dimension, or
+element size if there are no more dimensions in the array access
+instruction.  The size in this case is not necessarily known at
+compile time and is considered to be the difference between the upper
+and lower bounds plus one (the number of elements) times the size of
+the next lower dimension, or the element size if this is the smallest
+dimension.  The bounds are evaluated after all sub-expressions of the
+array access instruction have been evaluated and before the result of
+the array access instruction itself.  Any bounds needed in this
+calculation must evaluate to integers when this array access
+instruction is executed, so they must be integer constants or variable
+symbols, and if variable symbols they must have defined values at this
+point.  Note that this implies that the array type for an array access
+may not have unknown lower bounds and may have only one unknown upper
+bound, that of the outermost dimension.  The @code{are_bounds_unknown}
+method checks if the upper bound of an array type is unknown.
+
+Note also that all of this information from the array type is also
+available in a different form from the @code{in_array} class, between
+the @code{bound} expressions and @code{offset_op} expression.  The
+results are required to be the same at run time whether the array type
+bound information is used or whether the @code{bound} and
+@code{offset_op} expressions are used, or else the resulting behavior
+is undefined.  This redundancy allows more flexibility in analyzing
+array access patterns.  Code transformation passes can treat the
+@code{in_array} sub-expressions like any other expressions and
+propagate additional information in, and dependence analysis on
+individual accesses can look at these general expressions.  Code
+dealing with objects and types only has to deal with the symbolic
+placeholders.
+
+Array bounds are subject to certain constraints.  The upper bound may
+never be less than the lower bound.  If both are constants, this
+constraint applies to those constants.  If one or both are symbolic
+bounds, this constraint must hold for every array access for which
+this is the array type.  Symbolic bounds are typically local variables
+that are assigned once each at the very beginning of a procedure and
+used only as bounds, so their values have the same scope as the types
+they are used in.  This corresponds directly to the declarations in
+Fortran code of array types with non-constant bounds, but this
+particular form is not required by SUIF, and heavily transformed code
+may be somewhat different.  What is required is that symbolic bounds
+not be sub-variables or call-by-reference parameters, since these are
+really just short-hand for other expressions (@pxref{Fortran}).
+
+
+@node Function Types, Structure Types, Array Types, Types
+@section Function Types
+@cindex function types
+@cindex types, function
+
+@tindex func_type
+@findex func_type, return_type
+@findex func_type, set_return_type
+The @code{TYPE_FUNC} operator is used with the @code{func_type} derived
+type class to describe the types of SUIF procedures.  A function type
+includes the type of the return value and optionally the types of the
+arguments as well.  The @code{return_type} and @code{set_return_type}
+methods access the return type field.  The type system itself places no
+restrictions on the return types, but the SUIF call and return
+instructions do.  @xref{Call Instructions}.
+
+@findex func_type, num_args
+@findex func_type, set_num_args
+@findex func_type, arg_type
+@findex func_type, set_arg_type
+Most of the complexity of function types involves the arguments.
+Pointers to the argument types are stored in a dynamically-allocated
+array.  The number of arguments, and thus the size of the array, is
+stored in a field that can be accessed with the @code{num_args} and
+@code{set_num_args} methods.  The number of arguments can be changed at
+any time; if necessary the argument array will be reallocated.  The type
+of a particular argument can be retrieved with the @code{arg_type}
+method and set with the @code{set_arg_type} method.  The arguments are
+numbered beginning with zero.
+
+Argument types are under the same restrictions as result types of
+instructions (@pxref{Result Types}) -- they must be object types with
+known, non-zero size.
+
+@findex func_type, args_known
+@findex func_type, set_args_known
+@findex func_type, set_args_unknown
+Since functions can be declared in C without complete prototypes, a
+function type may not be able to include any information about the
+arguments.  This is indicated in a SUIF function type by the result of
+the @code{args_known} method.  This flag can be set with the
+@code{set_args_known} and @code{set_args_unknown} methods.  Setting
+@code{args_known} FALSE sets the argument count to zero and the
+@code{has_varargs} flag to FALSE.  Conversely, setting the argument
+count to a non-zero value or the @code{has_varargs} flag to TRUE sets
+the @code{args_known} flag to TRUE.
+
+@findex func_type, has_varargs
+@findex func_type, set_varargs
+Some functions in C and other languages have a variable number of
+arguments.  The SUIF function types support this by keeping a flag to
+indicate if there may be additional arguments besides the ones that are
+explicitly listed.  The @code{has_varargs} and @code{set_varargs}
+methods access this flag.  Note that the @code{has_varargs} flag should
+not be used if nothing else is known about the arguments.
+
+
+@node Structure Types, Enumerated Types, Function Types, Types
+@section Structure and Union Types
+@cindex structure types
+@cindex union types
+@cindex types, structure
+@cindex types, union
+
+@tindex struct_type
+@findex struct_type, name
+@findex struct_type, set_name
+Structure and union types are defined with the @code{TYPE_STRUCT} and
+@code{TYPE_UNION} operators and use the @code{struct_type} derived type
+class.  Both of these types include a name and a list of fields.  The
+difference between them is that the fields of a union are all stored at
+the same offset so that only one field may be used at a time, while the
+fields of a structure are not allowed to overlap.  The @code{name}
+method returns the name of a structure or union type, which should be
+distinct from the names of other types within the symbol table where it
+is defined.  The name is automatically entered in the lexicon
+(@pxref{Lexicon}) when it is set with the @code{set_name} method.
+
+@findex struct_type, set_size
+The @code{struct_type} class contains a field to record the total size
+of the type in bits.  The @code{set_size} method is used to assign to
+this field.  Because structure and union types may be used as array
+elements, they must be able to tile an array without violating any
+alignment restrictions.  This means that extra padding may need to be
+added at the end of a structure or union.  Consequently, the total size
+of the type may be greater than the sizes of the fields.
+
+@findex struct_type, num_fields
+@findex struct_type, set_num_fields
+@findex struct_type, field_name
+@findex struct_type, set_field_name
+@findex struct_type, field_type
+@findex struct_type, set_field_type
+@findex struct_type, offset
+@findex struct_type, set_offset
+The names, types, and offsets of the fields are stored in
+dynamically-allocated arrays within a @code{struct_type} node.  The
+@code{set_num_fields} method determines the number of fields and thus
+the size of these arrays.  The number of fields may be changed at any
+time.  If necessary, additional space will be allocated.  The
+@code{num_fields} method returns the current number of fields.  The
+@code{field_name}, @code{field_type}, and @code{offset} methods retrieve
+the field names, types, and offsets, and the @code{set_field_name},
+@code{set_field_type}, and @code{set_offset} methods change their
+values.  The fields are numbered beginning with zero.  For structures
+the fields must be in order of increasing offsets.  The field offsets
+for union types should all be zero.  The field names are automatically
+entered in the lexicon (@pxref{Lexicon}).
+
+@findex struct_type, find_field_by_offset
+@findex struct_type, find_field_by_name
+The @code{find_field_by_name} method can be used to search for a field
+with a particular name.  If successful, it returns the index of the
+field; otherwise, it returns a value of @code{-1}.  The
+@code{find_field_by_offset} method can also be used for structure types
+to find the field at a certain offset.  If the specified offset is not
+exactly at the beginning of a field, @code{find_field_by_offset} returns
+the index of the field containing it and saves the offset within that
+field in the @code{left} parameter.
+
+
+@node Enumerated Types, Modifier Types, Structure Types, Types
+@section Enumerated Types
+@cindex enumerated types
+@cindex types, enumerated
+
+@tindex enum_type
+Enumerated types are much like integer types, except that each member of
+an enumeration is given a name.  The @code{TYPE_ENUM} operator is
+classified as one of the base type operators, and the @code{enum_type}
+class which it uses is derived from the @code{base_type} class.
+@xref{Base Types}.  Since an enumerated type behaves like an integer
+type, the same @code{base_type} methods can be used to specify the size
+and whether or not it is signed.
+
+@findex enum_type, name
+@findex enum_type, set_name
+Like structures and unions, enumerated types are given names.  The
+@code{name} method returns the name for an @code{enum_type}, which
+should be different from the names of other types in the symbol table
+where it is defined.  The @code{set_name} method automatically enters
+the name in the lexicon (@pxref{Lexicon}).
+
+@findex enum_type, num_values
+@findex enum_type, set_num_values
+@findex enum_type, member
+@findex enum_type, set_member
+@findex enum_type, value
+@findex enum_type, set_value
+Each enumerated type contains arrays to hold the names and values of its
+members.  The @code{num_values} method returns the number of members.
+The @code{set_num_values} method may be called at any time to change the
+number of members.  It will allocate more space for the arrays if
+necessary.  The @code{member} method returns the name of a particular
+member, and the @code{value} method returns its value.  The members are
+numbered beginning with zero.  The @code{set_member} method changes the
+name of a member and enters the new name in the lexicon.  Similarly, the
+@code{set_value} method changes the value for a method.  All of the
+values must fit within the size of the type, and negative values are not
+allowed with unsigned enumerations.
+
+@findex enum_type, find_member_by_name
+@findex enum_type, find_member_by_value
+The @code{find_member_by_name} method searches through the members of an
+enumerated type for a particular name.  If successful, it returns the
+index of the member; otherwise, it returns a value of @code{-1}.  The
+@code{find_member_by_value} method returns the index of the first member
+that it finds with a certain value.  If the value is not found, it
+returns a value of @code{-1}, just like @code{find_member_by_name}.
+
+
+@node Modifier Types, Predefined Types, Enumerated Types, Types
+@section Modifier Types
+@cindex modifier types
+@cindex types, modifiers
+
+@tindex modifier_type
+@findex modifier_type, base
+@findex modifier_type, set_base
+Modifier types are used to add various attributes to other types.  Each
+attribute is represented by a different type operator:
+
+@table @code
+@item TYPE_CONST
+This modifier signals that the type is for constant values.
+
+@item TYPE_VOLATILE
+This is used for the types of variables whose contents may change at any
+time.
+
+@item TYPE_CALL_BY_REF
+This is used in the Fortran mode (@pxref{Fortran}) to identify
+call-by-reference parameters.
+
+@item TYPE_NULL
+This modifier has no effect on the type but simply provides a place to
+attach annotations.  This is needed for named types because copying them
+would create completely new types.
+@end table
+
+@noindent
+All of these modifier types use the @code{modifier_type} derived class.
+The @code{base} method returns a pointer to the type that is modified,
+and the @code{set_base} method changes that field.  More than one
+modifier can be applied to the same type.  The order of the modifiers
+does not matter, but no modifier should be used more than once with the
+same type (for example, a constant constant integer is illegal, but a
+constant pointer to a constant integer is OK).
+
+@findex type_node, is_const
+@findex type_node, is_volatile
+@findex type_node, is_call_by_ref
+@findex type_node, find_modifier
+@findex type_node, unqual
+The base @code{type_node} class includes several methods to deal with
+modifiers.  The @code{is_const}, @code{is_volatile}, and
+@code{is_call_by_ref} methods check for the corresponding modifiers on a
+type.  The @code{unqual} method skips over any modifier types and
+returns the unqualified type.  This is used frequently when checking for
+particular kinds of types.  Finally, the @code{find_modifier} method
+checks if a type is modified by a particular modifier type operator.  If
+so, it returns a pointer to that modifier type; otherwise it returns
+@code{NULL}.
+
+
+@node Predefined Types,  , Modifier Types, Types
+@section Predefined Types
+@cindex predefined types
+@cindex types, predefined
+
+The global symbol table (@pxref{Global Symbol Table}) is initialized
+with some predefined types.  The SUIF library also defines a number of
+variables containing pointers to these predefined types, so that you
+don't need to search the symbol tables for most cmonly-used types.
+The first set of predefined types are fixed-size scalar types:
+
+@vtable @code
+@item type_v0
+This is a @code{void} type with size zero.
+
+@item type_s8
+@itemx type_s16
+@itemx type_s32
+@itemx type_s64
+These are signed integer types of 8, 16, 32, and 64 bits.
+
+@item type_u8
+@itemx type_u16
+@itemx type_u32
+@itemx type_u64
+These are unsigned integer types of 8, 16, 32, and 64 bits.
+
+@item type_f32
+@itemx type_f64
+@itemx type_f128
+These are floating-point types of 32, 64, and 128 bits.
+
+@item type_error
+This variable is just set to @code{NULL}.  It may be used to represent
+various error conditions.
+@end vtable
+
+Because the fixed-size types do not necessarily match the target machine
+parameters (@pxref{Target Machine Parameters}), they should rarely be
+used.  Instead the SUIF library also predefines pointers to types that
+correspond to the most common C types.  These ``portable'' types are
+automatically initialized using the target machine parameters.
+
+@vtable @code
+@item type_void
+Since @code{void} types always have a size of zero, this type is
+equivalent to @code{type_v0}, but it is included for completeness.
+
+@item type_ptr
+This type is a pointer to @code{type_void}.  Like all other pointer
+types, it automatically has the size of pointers on the target machine.
+
+@item type_char
+This is an integer type with the size specified for @code{C_char} types
+in the target machine parameters.  The @code{char_is_signed} machine
+parameter determines whether it is signed or unsigned.
+
+@item type_signed_char
+@itemx type_unsigned_char
+These are signed and unsigned integer types with the size specified for
+@code{C_char} types in the target machine parameters.
+
+@item type_signed_short
+@itemx type_unsigned_short
+These are signed and unsigned integer types with the size specified for
+@code{C_short} types in the target machine parameters.
+
+@item type_signed
+@itemx type_unsigned
+These are signed and unsigned integer types with the size specified for
+@code{C_int} types in the target machine parameters.
+
+@item type_signed_long
+@itemx type_unsigned_long
+These are signed and unsigned integer types with the size specified for
+@code{C_long} types in the target machine parameters.
+
+@item type_signed_longlong
+@itemx type_unsigned_longlong
+These are signed and unsigned integer types with the size specified for
+@code{C_longlong} types in the target machine parameters.
+
+@item type_float
+@itemx type_double
+@itemx type_longdouble
+These are floating-point types with the sizes specified for
+@code{C_float}, @code{C_double}, and @code{C_longdouble} types in the
+target machine parameters.
+@end vtable

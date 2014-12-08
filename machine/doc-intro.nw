@@ -1,0 +1,128 @@
+\documentstyle[noweb]{article}
+\noweboptions{smallcode,nomargintag}
+
+% Give the l2h (LaTeX to HTML) filter some hints
+%
+% l2h ignore nwcodepenalty =
+% l2h ignore raggedbottom
+% l2h envblock openissue blockquote
+
+% Adjust dimensions before setting \pagestyle: it looks at
+% some of them
+%
+\textwidth 16.0cm
+\textheight 23.5cm
+\oddsidemargin 0.1in
+\evensidemargin 0.1in
+\topmargin -0.5in
+\parskip 1ex
+\sloppy
+\raggedbottom
+
+\pagestyle{noweb}
+
+% Replace some noweb.sty definitions to improve page breaks
+%
+\makeatletter
+\nwcodepenalty=9999			% Was =\@highpenalty (>9999 disallows
+					% ... _any_ break in code)
+\def\nwbegincode#1{%
+  \begingroup
+    \topsep \nwcodetopsep
+    \@beginparpenalty \nwcodepenalty	% Use \nwcodepenalty ...
+    \@endparpenalty -\nwcodepenalty	% ... instead of \@highpenalty
+    \@begincode}
+\def\nwendcode{%
+  \endtrivlist \endgroup \goodbreak}	% Use \goodbreak ...
+\let\nwdocspar=\goodbreak		% ... instead of \filbreak
+\makeatother
+
+\title{The SUIF Machine Library}	% (Leave \title{} at left margin ...
+					%  ... to aid HTML extraction.)
+\author{Michael D. Smith \\
+	smith@eecs.harvard.edu \\
+	Division of Engineering and Applied Sciences \\
+	Harvard University }
+\date{{\em Compatible with SUIF Release 1.1.2 \\
+	Revised March 29, 1998}}
+
+\newenvironment{openissue}{\begin{quote}{\bf OPEN DESIGN ISSUE:}}{\end{quote}}
+
+\begin{document}
+\maketitle
+
+% Start a new chunk to cause noweb to put source filename in heading
+%
+@
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+The SUIF compiler provides an excellent set of flexible libraries for
+parallel and machine-independent optimizations.  This document
+describes the SUIF {\em machine} library, a library which extends the
+base SUIF library with abstractions necessary for machine-specific
+optimizations.  At the core of this library is the [[machine_instr]]
+class, derived from the base SUIF [[in_gen]] class, that allows you to
+manipulate machine instructions within SUIF.  The library provides
+numerous abstractions for a machine instruction so that you can easily
+write compiler passes that perform machine-specific optimizations over
+a wide range of machine architectures.  We have designed the machine
+library so that it is relatively straightforward to add support for
+new instructions or instruction set architectures.
+
+The machine library consists of files in the [[machine]] subdirectory
+of the {\em machsuif} distribution package.  The makefile in
+[[machine]] creates and installs the machine library.  Further
+information about the {\em machsuif} package can be found in the {\em
+machsuif/doc} directory.  It is assumed that the reader is familiar
+with the SUIF system and both the SUIF and {\em machsuif} overview
+documents.
+
+This documentation was created using the noweb system 
+by Norman Ramsey.  This literate programming tool lets you combine
+documentation and code in the same source file.  It is our convention
+to use noweb to document only the most important header files---the
+files that describe the library interface.  We use simple C comments
+to document the interesting portions of the library implementation
+files, the parts that should be ``black boxes'' to the users of the
+machine library.
+
+We organize the code for the SUIF machine library into two distinct
+pieces: code that is target-architecture independent and code that is
+target-architecture dependent.  Except for {\em machineUtil.cc}, the
+code in the files {\em machine*.\{h,cc\}},
+{\em annoteHelper.\{h,cc\}}, {\em eaHelper.\{h,cc\}},
+and {\em archInfo.\{h,cc\}} is architecture
+independent.  The file {\em machineUtil.h} lists all of the helper
+routines that we use to encapsulate machine-specific information for
+the target-architecture-independent passes.  Definitions of these
+routines in the file {\em machineUtil.cc} dispatch to 
+machine-specific actions.
+You can think of this as a manual implementation of the virtual
+method dispatch that would occur if we simply derived a new set
+of instruction classes for each target architecture.
+Sections~\ref{secMachineHeader} through \ref{secMachineUtil.h}
+describe the classes and helper functions in {\em machine*.h}, while
+Sections~\ref{secAnnoteHelper.h} through~\ref{secRegs} cover the code
+in {\em annoteHelper.h}, {\em eaHelper.h}, and {\em archInfo.h}.
+
+Architecture-specific code is contained in files with names of the
+form {\em$<$archname$>$.data}, {\em $<$archname$>$Ops.\{h,cc\}}, and
+{\em $<$archname$>$Instr.\{h,cc\}}.  We put machine-specific opcode
+information
+in the {\em *Ops.*} files and any architecture-specific routines in
+the {\em *Instr.*} files.  We place all of the rest of the
+architecture and machine-specific data required during
+compilation in the {\em src/machsuif/impl} directory.  Please see the
+{\em machsuif} overview document and the {\em README.*} files in the
+{\em impl} directory for more information.
+Sections~\ref{secArchInfo.h} and~\ref{secRegs} describe how you can
+build and access the machine-specific data contained in the {\em impl}
+directory during compilation.
+Finally, Section~\ref{secHelpArchSpecific} presents the
+use of the architecture-specific routines in the
+{\em $<$archname$>$Instr.\{h,cc\}} files.
+

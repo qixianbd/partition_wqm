@@ -1,0 +1,12 @@
+digraph G{
+	label = "ubody_alloc"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_6\nmove	r11	r5	\nla	r19	nd#174	\nli	r5	nd#176	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_15\nmove	r7	r0	\naddu	r8	r9	r7	\nli	r10	nd#184	\nsh	nd#186	r10	\nli	r10	nd#190	\naddu	r19	r9	r10	\nsw	nd#193	r11	\nli	r20	nd#197	\naddu	r21	r9	r20	\nla	r22	nd#200	\nsw	nd#203	r22	\nli	r23	nd#207	\naddu	r24	r9	r23	\nsw	nd#210	r11	\njr	\n"];
+	Node3 -> {Node1 }
+}

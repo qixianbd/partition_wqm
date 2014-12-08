@@ -1,0 +1,24 @@
+digraph G{
+	label = "dis2_number"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_6\nmove	r12	r5	\nmove	r9	r6	\nmove	r11	r7	\nla	r26	nd#318	\nseq	r27	r12	r26	\nbeqz	dis2_number.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_1\njr	\n"];
+	Node3 -> {Node1 }
+	Node4 [label = "B4_6\ndis2_number.L1:\nmove	r28	r0	\naddu	r5	r12	r28	\nlh	r24	nd#329	\nli	r6	nd#332	\nseq	r7	r24	r6	\nbeqz	dis2_number.L2\n"];
+	Node4 -> {Node5 Node6 }
+	Node5 [label = "B5_9\nli	r8	nd#337	\naddu	r10	r12	r8	\nli	r19	nd#340	\naddu	r19	r9	r19	\ndiv	r20	r19	r11	\nsw	nd#344	r20	\nli	r21	nd#348	\naddu	r9	r9	r21	\njr	\n"];
+	Node5 -> {Node1 }
+	Node6 [label = "B6_1\ndis2_number.L2:\nmove	r13	r0	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_13\ndis2_number.L5:\nli	r22	nd#357	\naddu	r25	r12	r22	\nli	r23	nd#360	\nmult	r13	r23	\nmflo	r24	\naddu	r25	r25	r24	\nlw	r5	nd#365	\nla	r19	nd#369	\nmove	r6	r9	\nmove	r7	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_5\nli	r26	nd#376	\naddu	r13	r13	r26	\nli	r27	nd#379	\nsle	r28	r27	r13	\nbeqz	dis2_number.L5\n"];
+	Node8 -> {Node9 Node7 }
+	Node9 [label = "B9_1\njr	\n"];
+	Node9 -> {Node1 }
+}

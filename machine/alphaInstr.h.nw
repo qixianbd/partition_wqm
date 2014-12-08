@@ -1,0 +1,121 @@
+\section{Example of architecture-specific library files}
+\label{secHelpArchSpecific}
+
+In this section, we present the header files for one target
+architecture, Digital Alpha.  Each architecture has two header files
+and two data files in the {\em machsuif/machine} directory.  For the
+Alpha architecture, the file {\em alphaInstr.h} contains the
+Alpha-specific annotations and helper routines that are invoked by the
+machine library functions.  The file {\em alphaOps.h} simply contains
+the opcode and opcode-extension enumerations along with a few extra
+helper routines directly related to the determination of the machine
+instruction format for each opcode and to the printing of opcodes and
+opcode extensions.  The {\em alpha.data} file contains the actual
+complete listing of Alpha assembly opcodes and pseudo-ops.  This data
+file is read by the {\em alphaOps.\{h,cc\}} files using a lcc-like,
+table-driven macro.  This table collects all the data related to each
+opcode and ensures that we maintain alignment between the opcode
+enumeration value and its specific attributes.
+
+The {\em alpha*.*} files in the {\em machsuif/impl} directory are
+machine description files.  Please refer to the {\em machsuif}
+overview document and the {\em README.*} files in the {\em impl}
+directory for information on the format of these machine
+description files.
+
+\subsection{alphaInstr.h}
+
+We start with a presentation of {\em alphaInstr.h}.  It declares
+the architecture family string, [[k_alpha]], and the
+library initialization routine, [[init_alpha()]].
+The initialization routine is invoked by [[init_machine()]], which is
+invoked by [[init_suif()]].  The file also declares the 
+Alpha-specific helper functions needed to implement the generic
+library helper functions described in Section~\ref{secMachLibHelperFcns}.
+
+<<alphaInstr.h>>=
+/* file "alphaInstr.h" */
+
+<<SUIF copyright>>
+
+#ifndef ALPHA_INSTR_H
+#define ALPHA_INSTR_H
+
+class immed_list;
+class type_node;
+class instruction;
+class machine_instr;
+class mi_lab;
+class mi_bj;
+class mi_rr;
+class mi_xx;
+
+EXPORTED_BY_MACHINE char *k_alpha;
+
+<<alpha-specific annotations>>
+
+extern void init_alpha();
+
+<<alpha\_is\_* helper functions>>
+<<alpha\_*\_op helper functions>>
+<<alpha\_*\_print helper functions>>
+<<alpha\_print\_* helper functions>>
+
+#endif
+@
+
+We define one Alpha-specific annotation that extends the SUIF set of
+intial data annotations.  The [[k_gprel_init]] annotation indicates
+that a variable should be initialized with the (possibly truncated)
+signed displacement between the global pointer value and the address
+of a symbol [[V]] specified in the [[immed_list]].  The first entry in
+the [[immed_list]] is an integer [[N]] representing the size of the
+displacement in bits.  Currently, this value must be 32.  The second
+entry in the [[immed_list]] is the symbol [[V]].
+
+<<alpha-specific annotations>>=
+EXPORTED_BY_MACHINE char *k_gprel_init;
+@
+
+The following three sets of helper routines are needed by the machine
+library helper routines.  One should never need to invoke them
+directly.
+
+<<alpha\_is\_* helper functions>>=
+extern boolean alpha_is_ldc(instruction *);
+extern boolean alpha_is_move(instruction *);
+extern boolean alpha_is_cmove(instruction *);
+extern boolean alpha_is_line(instruction *);
+extern boolean alpha_is_ubr(instruction *);
+extern boolean alpha_is_cbr(instruction *);
+extern boolean alpha_is_call(instruction *);
+extern boolean alpha_is_return(instruction *);
+extern boolean alpha_reads_memory(instruction *);
+
+@
+
+<<alpha\_*\_op helper functions>>=
+extern mi_ops alpha_load_op(type_node *);
+extern mi_ops alpha_store_op(type_node *);
+extern mi_ops alpha_move_op(type_node *);
+
+@
+
+<<alpha\_*\_print helper functions>>=
+extern void alpha_lab_print(mi_lab *, FILE *);
+extern void alpha_bj_print(mi_bj *, FILE *);
+extern void alpha_rr_print(mi_rr *, FILE *);
+extern void alpha_xx_print(mi_xx *, immed_list *, FILE *);
+@
+
+<<alpha\_print\_* helper functions>>=
+extern void alpha_print_global_directives(file_set_entry *, FILE *);
+extern void alpha_print_extern_op(var_sym *, FILE *);
+extern void alpha_print_file_op(int, char *, FILE *);
+extern void alpha_print_var_def(var_sym *, int, FILE *);
+extern void alpha_print_proc_def(proc_sym *, FILE *);
+extern void alpha_print_proc_begin(proc_sym *, FILE *);
+extern void alpha_print_proc_entry(proc_sym *, int, FILE *);
+extern void alpha_print_proc_end(proc_sym *, FILE *);
+extern void alpha_print_operand(operand *, FILE *);
+@

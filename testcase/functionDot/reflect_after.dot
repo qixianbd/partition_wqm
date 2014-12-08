@@ -1,0 +1,62 @@
+digraph G{
+	label = "reflect"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_4\nmove	r19	r5	\nli	r22	nd#515	\nseq	r20	r19	r22	\nbeqz	reflect.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_1\nreflect.L18:\nj	reflect.__done15\n"];
+	Node3 -> {Node5 }
+	Node4 [label = "B4_2\nreflect.L1:\nli	r23	nd#521	\nseq	r20	r5	r23	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_1\nreflect.__done15:\nbeqz	reflect.L2\n"];
+	Node5 -> {Node6 Node17 }
+	Node6 [label = "B6_4\nmove	r21	r6	\nmove	r24	r0	\nslt	r25	r21	r24	\nbnez	reflect.L2\n"];
+	Node6 -> {Node7 Node17 }
+	Node7 [label = "B7_3\nli	r26	nd#531	\nslt	r27	r26	r21	\nbnez	reflect.L2\n"];
+	Node7 -> {Node8 Node17 }
+	Node8 [label = "B8_3\nmove	r28	r0	\nseq	r5	r21	r28	\nbnez	reflect.L4\n"];
+	Node8 -> {Node9 Node13 }
+	Node9 [label = "B9_3\nli	r7	nd#538	\nseq	r7	r21	r7	\nbnez	reflect.L5\n"];
+	Node9 -> {Node10 Node14 }
+	Node10 [label = "B10_3\nli	r8	nd#542	\nseq	r9	r21	r8	\nbnez	reflect.L7\n"];
+	Node10 -> {Node11 Node16 }
+	Node11 [label = "B11_3\nli	r10	nd#546	\nseq	r19	r21	r10	\nbnez	reflect.L6\n"];
+	Node11 -> {Node12 Node15 }
+	Node12 [label = "B12_1\nreflect.L16:\nj	reflect.L2\n"];
+	Node12 -> {Node17 }
+	Node13 [label = "B13_2\nreflect.L4:\nli	r9	nd#554	\njr	\n"];
+	Node13 -> {Node1 }
+	Node14 [label = "B14_2\nreflect.L5:\nmove	r9	r0	\njr	\n"];
+	Node14 -> {Node1 }
+	Node15 [label = "B15_2\nreflect.L6:\nli	r9	nd#563	\njr	\n"];
+	Node15 -> {Node1 }
+	Node16 [label = "B16_2\nreflect.L7:\nli	r9	nd#568	\njr	\n"];
+	Node16 -> {Node1 }
+	Node17 [label = "B17_3\nreflect.L2:\nmove	r20	r0	\nslt	r21	r6	r20	\nbnez	reflect.L9\n"];
+	Node17 -> {Node18 Node28 }
+	Node18 [label = "B18_3\nli	r22	nd#576	\nslt	r23	r22	r6	\nbnez	reflect.L9\n"];
+	Node18 -> {Node19 Node28 }
+	Node19 [label = "B19_3\nmove	r24	r0	\nseq	r25	r6	r24	\nbnez	reflect.L10\n"];
+	Node19 -> {Node20 Node24 }
+	Node20 [label = "B20_3\nli	r26	nd#583	\nseq	r27	r6	r26	\nbnez	reflect.L11\n"];
+	Node20 -> {Node21 Node25 }
+	Node21 [label = "B21_3\nli	r28	nd#587	\nseq	r5	r6	r28	\nbnez	reflect.L13\n"];
+	Node21 -> {Node22 Node27 }
+	Node22 [label = "B22_3\nli	r7	nd#591	\nseq	r7	r6	r7	\nbnez	reflect.L12\n"];
+	Node22 -> {Node23 Node26 }
+	Node23 [label = "B23_1\nreflect.L17:\nj	reflect.L9\n"];
+	Node23 -> {Node28 }
+	Node24 [label = "B24_2\nreflect.L10:\nli	r9	nd#599	\njr	\n"];
+	Node24 -> {Node1 }
+	Node25 [label = "B25_2\nreflect.L11:\nli	r9	nd#604	\njr	\n"];
+	Node25 -> {Node1 }
+	Node26 [label = "B26_2\nreflect.L12:\nli	r9	nd#609	\njr	\n"];
+	Node26 -> {Node1 }
+	Node27 [label = "B27_2\nreflect.L13:\nmove	r9	r0	\njr	\n"];
+	Node27 -> {Node1 }
+	Node28 [label = "B28_2\nreflect.L9:\nmove	r9	r0	\njr	\n"];
+	Node28 -> {Node1 }
+}

@@ -1,0 +1,28 @@
+digraph G{
+	label = "sum_adjacent"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_11\nmove	r14	r5	\nmove	r13	r6	\nmove	r12	r7	\nmove	r11	r8	\nspawn	sum_adjacent.L5\nmove	r19	r0	\naddu	r20	r14	r19	\nlbu	r9	nd#315	\nli	r21	nd#318	\nseq	r22	r9	r21	\nbeqz	sum_adjacent.L1\n"];
+	Node2 -> {Node3 Node8 }
+	Node3 [label = "B3_10\ncqip	sum_adjacent.L5\nsum_adjacent.L5:\npslice_entry	sum_adjacent.L5\npslice_exit	sum_adjacent.L5\nla	r15	nd#323	\nla	r19	nd#325	\nmove	r5	r14	\nmove	r6	r13	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_9\nli	r23	nd#332	\ndiv	r8	r11	r23	\nmove	r5	r9	\nmove	r6	r13	\nmove	r7	r12	\nmove	r4	r2	\nfst	r2	\nmove	r19	r15	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_8\nmove	r16	r9	\nla	r15	nd#343	\nla	r19	nd#345	\nmove	r5	r14	\nmove	r6	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_9\nli	r24	nd#352	\ndiv	r8	r11	r24	\nmove	r5	r9	\nmove	r6	r13	\nmove	r7	r12	\nmove	r4	r2	\nfst	r2	\nmove	r19	r15	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_2\naddu	r9	r16	r9	\njr	\n"];
+	Node7 -> {Node1 }
+	Node8 [label = "B8_6\nsum_adjacent.L1:\nmove	r25	r0	\naddu	r26	r14	r25	\nlbu	r10	nd#368	\nli	r27	nd#371	\nseq	r28	r10	r27	\nbeqz	sum_adjacent.L2\n"];
+	Node8 -> {Node9 Node10 }
+	Node9 [label = "B9_2\nmove	r9	r11	\njr	\n"];
+	Node9 -> {Node1 }
+	Node10 [label = "B10_2\nsum_adjacent.L2:\nmove	r9	r0	\njr	\n"];
+	Node10 -> {Node1 }
+	Node2 [shape = box ,style=filled ,color=red];
+	Node3 [shape = polygon ,style=filled ,color=yellow];
+}

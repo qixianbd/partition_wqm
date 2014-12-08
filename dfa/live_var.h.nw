@@ -1,0 +1,222 @@
+\section{Live Variable Analysis}
+\label{secLiveVarProblem}
+
+Aho, Sethi, and Ullman \cite{bibdragon} present live variable analysis as a
+typical backward data flow problem.  Our implementation closely follows
+their Algorithm 10.4.  The variables on which it operates are operands of
+machine SUIF instructions.  A library client invokes the analyzer by
+constructing an instance of class [[live_var_problem]], and it accesses the
+results via methods of that class.
+
+\subsection{Using class [[live_var_problem]]}
+
+Like all instances of [[bit_vector_problem]], a [[live_var_problem]] embeds
+a CFG at the time it is constructed.  The methods providing liveness results
+for each node of the CFG each take the node as an argument.  Here is an
+outline of the class:
+
+<<class [[live_var_problem]]>>=
+class live_var_problem : protected bit_vector_problem {
+    typedef void (*instruction_def_use_f)
+		 (instruction *, operand_bit_manager *, bit_set *, bit_set *);
+
+  public:
+    live_var_problem(cfg *, operand_bit_manager *,
+		     instruction_def_use_f = Instruction_def_use);
+    virtual ~live_var_problem();
+
+    boolean live_in(cfg_node *n, int var_num);
+    boolean live_out(cfg_node *n, int var_num);
+    bit_set *live_in_set(cfg_node *n);
+    bit_set *live_out_set(cfg_node *n);
+
+  protected:
+    <<[[live_var_problem]] protected>>
+
+  protected:
+    <<[[live_var_problem]] private>>
+};
+@
+
+\paragraph{Constructing a [[live_var_problem]].}
+
+As its declaration above shows, the [[live_var_problem]] constructor takes
+three arguments:
+\begin{enumerate}
+\item The control flow graph of the program.
+\item \label{enumLvpCtorObm}
+      An {\em operand bit manager}, which tells the analyzer how many
+      variables to expect and provides the mapping from operands
+      representing variable occurrences to indices in bit vectors.
+\item \label{enumLvpCtorIdu}
+      A function that inspects an instruction and produces two sets:
+      variables that it defines and variables that it references.
+\end{enumerate}
+\noindent
+The constructor performs the liveness analysis before it returns the
+constructed instance.  That is, it invokes [[bit_vector_problem::solve()]].
+
+Argument (\ref{enumLvpCtorObm}), the bit manager, is created as described
+in Section~\ref{secOperandBitManager}.  It tells the liveness analyzer how
+big to make the bit vectors that it associates with CFG nodes, and which
+bits to turn on to indicate liveness of a set of variables.  It also allows
+operands to be screened, so that uninteresting variables are omitted from
+the analysis.
+
+Argument (\ref{enumLvpCtorIdu}) provides a way to obtain the operand
+definition and use semantics of instructions in the program.  It is a
+function taking two inputs and two result parameters.  The inputs are an
+instruction and a bit manager for identifying operands.  The results are
+bit vectors that must be modified by the function to reflect variables
+defined and variables used, respectively, by its instruction argument.
+This functional parameter of the [[live_var_problem]] constructor can be
+omitted.  In that case, the helper function [[Instruction_def_use()]] is
+used.  Its behavior is described just below.
+
+\paragraph{Accessing liveness results.}
+
+There are two pairs of methods for accessing the results of liveness
+analysis at a given CFG node.
+
+\begin{itemize}
+\item Method [[live_in(cfg_node *n, int v)]] returns true exactly when the
+      variable with index [[v]] is live on entry to node [[n]].  Method
+      [[live_out(cfg_node *n, int v)]] is similar for exit from [[v]].
+\item Method [[live_in_set(cfg_node *n)]] returns (a pointer to) a bit
+      vector representing variables live on entry to [[n]];
+      [[live_out_set(cfg_node *n)]] similarly returns the set live on exit.
+      The caller should not modify the result sets of these methods.
+\end{itemize}
+
+\paragraph{Instruction analysis for registers, real and potential.}
+
+For cases in which the variables of interest are registers, virtual
+registers \cite{bibmachsuif}, and symbols that might be assigned to
+registers, the library provides this utility:
+
+<<function [[Instruction_def_use]]>>=
+void Instruction_def_use(instruction *, operand_bit_manager *,
+			 bit_set *def, bit_set *use);
+@
+\noindent
+This function first clears result vectors [[def]] and [[use]],
+then it scans the operands of the instruction.  Using its bit
+manager parameter to screen operands and to set bits, it
+reflects destination operand occurrences in [[def]] and source
+occurrences in [[use]].  Sources within effective address (EA)
+operands are treated similarly, but a symbol occurring as a
+memory reference in an EA calculation is not treated as a
+variable occurrence.
+
+For the most part, [[Instruction_def_use()]] ignores opcodes.
+It does, however, treat call and return instructions specially:
+\begin{itemize}
+\item At a call, it uses the [[k_regs_used]] annotation to
+      determine what registers are being used to pass arguments;
+      it adds these to [[use]]. It also treats all argument,
+      result, temporary, and assembler-temporary registers, in
+      all banks, as ``defined'' by the callee, and so adds them
+      to [[def]].
+\item At a return, it uses the [[k_instr_ret]] annotation to
+      decide whether a result is being returned in registers,
+      and if so to mark the appropriate result register(s) in
+      [[use]].
+\end{itemize}
+\noindent
+Function [[Instruction_def_use()]] is exported for use beyond the
+liveness application.  The register allocator [[raga]], for example,
+uses it as well.
+
+\paragraph{Accessing liveness results.}
+
+Method [[live_in(cfg_node *n, int v)]] of [[live_var_problem]]
+returns true exactly when the variable with index [[v]] is live
+on entry to node [[n]].  Method [[live_out(cfg_node *n, int v)]]
+is similar for exit from [[v]].
+Liveness information can also be obtained in set form:
+[[live_in_set(cfg_node *n)]] returns (a pointer to) the bit
+vector representing variables live on entry to [[n]];
+[[live_out_set(cfg_node *n)]] similarly returns the set live on
+exit.  These results may or may not point to copies; the caller
+should not modify the result sets.
+
+\subsection{Extending class [[live_var_problem]]}
+
+It has proven handy to make most of the implementation of
+[[live_var_problem]] accessible to derived classes, so we now
+describe the protected part of its interface.
+
+The implementation defines and extensible-array type
+[[bit_set_array]] that it uses to map CFG nodes to bit vectors.
+For storage reclamation, it also provides a helper function
+[[Delete_bit_set_array(bit_set_array *a)]] that invokes [[delete]] on
+[[a]] after first [[delete]]'ing each of its elements.  The array
+type and the delete function are declared by:
+
+<<[[bit_set_array]] declarations>>=
+DECLARE_X_ARRAY(bit_set_array, bit_set, 1024);
+
+void Delete_bit_set_array(bit_set_array *);
+@
+\noindent
+The protected members of [[live_var_problem]] are declared:
+<<[[live_var_problem]] protected>>=
+operand_bit_manager *bit_man;
+bit_set_array *defs;
+bit_set_array *uses;
+bit_set_array *live_ins;
+bit_set_array *live_outs;
+
+void build_sets();
+boolean solver_ops(cfg_node *);
+
+virtual void build_local_info(int n);
+virtual void note_instr_def_use(int node, instruction *,
+				bit_set *def, bit_set *use);
+@
+\noindent
+Here is a rundown of their meanings.
+\begin{itemize}
+\item [[bit_man]], the bit manager, provides the size of bit vectors for
+      the current problem.
+\item The [[defs]] and [[uses]] arrays map a CFG node to the local
+      information needed when solving for liveness.  [[(*defs)[n]]] is
+      the set of variables defined before being used in node number
+      [[n]].  [[(*uses)[n]]] is the set used before being defined.
+\item The [[live_ins]] and [[live_outs]] arrays map a CFG node's number
+      to the set of variables live on entry or exit to that node,
+      respectively.
+\item [[build_sets()]] and [[solver_ops(cfg_node *)]] are the virtual methods
+      that must be defined to satisfy the base class [[bit_vector_problem]].
+\item [[build_local_info(n)]] computes [[(*defs)[n]]] and [[(*uses)[n]]].
+      It is declared [[virtual]] as a ``hook'' for extenders to hang new
+      functionality on.
+\item [[note_instr_def_use(int n, instruction *instr, bit_set *def, bit_set *use)]]\\
+      is called in [[build_local_info(n)]] to assimilate the effect of
+      instruction [[instr]] on local liveness information.  It also
+      leaves [[def]] and [[use]] holding the def/use vectors for
+      [[instr]].  This helps make it another useful hook point.
+\end{itemize}
+
+
+\subsection{Header file for module [[live_var]]}
+
+Class [[live_var_problem]], type [[bit_set_array]], and the helper
+[[Instruction_def_use()]] are defined in module [[live_var]], which has
+the following header file.
+
+<<live\_var.h>>=
+/* Interface for bit-vector-based live-variable analyzer */
+
+<<SUIF copyright>>
+
+#ifndef LIVE_VAR_H
+#define LIVE_VAR_H
+
+<<[[bit_set_array]] declarations>>
+
+<<function [[Instruction_def_use]]>>
+
+<<class [[live_var_problem]]>>
+#endif /* LIVE_VAR_H */
+@

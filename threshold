@@ -1,0 +1,7 @@
+nloop_dependence_threshold 5
+nloop_thread_size_lower 10
+nloop_thread_size_upper 30
+nloop_spawning_distance_lower 5
+nloop_spawning_distance_upper 35
+definit_prob_delta 20
+time_ahead 2

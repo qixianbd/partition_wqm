@@ -1,0 +1,46 @@
+digraph G{
+	label = "MakeTree"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_13\nlw	r13	nd#1517	\nlw	r11	nd#1519	\nlw	r12	nd#1521	\nmove	r18	r5	\nmove	r17	r6	\nmove	r16	r7	\nmove	r15	r8	\nmove	r9	r0	\nla	r19	nd#1530	\nli	r5	nd#1532	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_15\nmove	r14	r9	\nli	r8	nd#1539	\naddu	r9	r14	r8	\nsw	nd#1542	r11	\nli	r10	nd#1546	\naddu	r19	r14	r10	\nlbu	r24	nd#1549	\nsb	nd#1551	r24	\nla	r19	nd#1555	\nmove	r5	r17	\nmove	r6	r16	\nmove	r7	r18	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_7\nspawn	MakeTree.L10\nli	r20	nd#1564	\ndiv	r18	r18	r20	\nspawn	MakeTree.L11\nmove	r21	r0	\nseq	r7	r9	r21	\nbnez	MakeTree.L1\n"];
+	Node4 -> {Node5 Node6 }
+	Node5 [label = "B5_6\nMakeTree.L9:\ncqip	MakeTree.L10\nMakeTree.L10:\npslice_entry	MakeTree.L10\nmove	r21	r0	\nseq	r7	r9	r21	\npslice_exit	MakeTree.L10\nj	MakeTree.__done5\n"];
+	Node5 -> {Node7 }
+	Node6 [label = "B6_2\nMakeTree.L1:\nli	r22	nd#1573	\nslt	r7	r18	r22	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_1\nMakeTree.__done5:\nbeqz	MakeTree.L2\n"];
+	Node7 -> {Node8 Node9 }
+	Node8 [label = "B8_21\nmove	r23	r0	\naddu	r24	r14	r23	\nli	r25	nd#1581	\nsb	nd#1583	r25	\nli	r26	nd#1587	\naddu	r27	r14	r26	\nla	r28	nd#1590	\nsw	nd#1593	r28	\nli	r5	nd#1597	\naddu	r6	r14	r5	\nla	r7	nd#1600	\nsw	nd#1603	r7	\nli	r8	nd#1607	\naddu	r9	r14	r8	\nla	r10	nd#1610	\nsw	nd#1613	r10	\nli	r19	nd#1617	\naddu	r20	r14	r19	\nla	r21	nd#1620	\nsw	nd#1623	r21	\nj	MakeTree.__done8\n"];
+	Node8 -> {Node18 }
+	Node9 [label = "B9_3\nMakeTree.L2:\nli	r22	nd#1629	\nseq	r23	r9	r22	\nbeqz	MakeTree.L3\n"];
+	Node9 -> {Node10 Node11 }
+	Node10 [label = "B10_21\nmove	r24	r0	\naddu	r25	r14	r24	\nmove	r26	r0	\nsb	nd#1637	r26	\nli	r27	nd#1641	\naddu	r28	r14	r27	\nla	r5	nd#1644	\nsw	nd#1647	r5	\nli	r6	nd#1651	\naddu	r7	r14	r6	\nla	r8	nd#1654	\nsw	nd#1657	r8	\nli	r9	nd#1661	\naddu	r10	r14	r9	\nla	r19	nd#1664	\nsw	nd#1667	r19	\nli	r20	nd#1671	\naddu	r21	r14	r20	\nla	r22	nd#1674	\nsw	nd#1677	r22	\nj	MakeTree.__done8\n"];
+	Node10 -> {Node18 }
+	Node11 [label = "B11_5\nMakeTree.L3:\nmove	r23	r0	\nsne	r24	r13	r23	\nmove	r25	r0	\nseq	r26	r24	r25	\nbeqz	MakeTree.L4\n"];
+	Node11 -> {Node12 Node13 }
+	Node12 [label = "B12_21\nmove	r27	r0	\naddu	r28	r14	r27	\nmove	r5	r0	\nsb	nd#1692	r5	\nli	r6	nd#1696	\naddu	r7	r14	r6	\nla	r8	nd#1699	\nsw	nd#1702	r8	\nli	r9	nd#1706	\naddu	r10	r14	r9	\nla	r19	nd#1709	\nsw	nd#1712	r19	\nli	r20	nd#1716	\naddu	r21	r14	r20	\nla	r22	nd#1719	\nsw	nd#1722	r22	\nli	r23	nd#1726	\naddu	r24	r14	r23	\nla	r25	nd#1729	\nsw	nd#1732	r25	\nj	MakeTree.__done8\n"];
+	Node12 -> {Node18 }
+	Node13 [label = "B13_35\nMakeTree.L4:\ncqip	MakeTree.L11\nMakeTree.L11:\npslice_entry	MakeTree.L11\npslice_exit	MakeTree.L11\naddu	r26	r15	r12	\nli	r27	nd#1739	\ndiv	r11	r26	r27	\naddu	r28	r15	r12	\nli	r5	nd#1744	\naddu	r6	r28	r5	\nli	r7	nd#1747	\ndiv	r23	r6	r7	\nsw	nd#1750	r23	\nli	r8	nd#1753	\naddu	r22	r14	r8	\nsw	nd#1756	r22	\nla	r19	nd#1758	\nsubu	r6	r17	r18	\nsubu	r7	r16	r18	\nlw	r21	nd#1762	\naddu	r9	r21	r12	\nli	r10	nd#1765	\naddu	r20	r9	r10	\nli	r21	nd#1768	\ndiv	r8	r20	r21	\nli	r21	nd#1771	\nli	r22	nd#1773	\nsubu	r23	r13	r22	\nmove	r5	r18	\nmove	r4	r2	\nfst	r2	\nsw	nd#1779	r12	\nsw	nd#1782	r14	\nsb	nd#1785	r21	\nsw	nd#1788	r23	\njalr	\n"];
+	Node13 -> {Node14 }
+	Node14 [label = "B14_24\nlw	r20	nd#1792	\nsw	nd#1794	r9	\nli	r24	nd#1798	\naddu	r19	r14	r24	\nsw	nd#1801	r19	\nla	r19	nd#1803	\naddu	r6	r17	r18	\nsubu	r7	r16	r18	\nlw	r10	nd#1807	\naddu	r25	r10	r12	\nli	r26	nd#1810	\ndiv	r27	r25	r26	\nli	r28	nd#1813	\nli	r5	nd#1815	\nsubu	r9	r13	r5	\nmove	r5	r18	\nlw	r8	nd#1819	\nmove	r4	r2	\nfst	r2	\nsw	nd#1823	r27	\nsw	nd#1826	r14	\nsb	nd#1829	r28	\nsw	nd#1832	r9	\njalr	\n"];
+	Node14 -> {Node15 }
+	Node15 [label = "B15_23\nlw	r10	nd#1836	\nsw	nd#1838	r9	\nli	r7	nd#1842	\naddu	r12	r14	r7	\nla	r19	nd#1845	\naddu	r6	r17	r18	\naddu	r7	r16	r18	\naddu	r8	r15	r11	\nli	r9	nd#1850	\naddu	r10	r8	r9	\nli	r20	nd#1853	\ndiv	r8	r10	r20	\nli	r20	nd#1856	\nli	r21	nd#1858	\nsubu	r22	r13	r21	\nmove	r5	r18	\nmove	r4	r2	\nfst	r2	\nsw	nd#1864	r11	\nsw	nd#1867	r14	\nsb	nd#1870	r20	\nsw	nd#1873	r22	\njalr	\n"];
+	Node15 -> {Node16 }
+	Node16 [label = "B16_21\nsw	nd#1877	r9	\nli	r23	nd#1881	\naddu	r12	r14	r23	\nla	r19	nd#1884	\nsubu	r6	r17	r18	\naddu	r7	r16	r18	\naddu	r24	r15	r11	\nli	r25	nd#1889	\ndiv	r26	r24	r25	\nmove	r27	r0	\nli	r28	nd#1893	\nsubu	r9	r13	r28	\nmove	r5	r18	\nmove	r8	r15	\nmove	r4	r2	\nfst	r2	\nsw	nd#1900	r26	\nsw	nd#1903	r14	\nsb	nd#1906	r27	\nsw	nd#1909	r9	\njalr	\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_5\nsw	nd#1913	r9	\nmove	r6	r0	\naddu	r7	r14	r6	\nli	r8	nd#1919	\nsb	nd#1921	r8	\n"];
+	Node17 -> {Node18 }
+	Node18 [label = "B18_2\nMakeTree.__done8:\nmove	r9	r14	\njr	\n"];
+	Node18 -> {Node1 }
+	Node4 [shape = box ,style=filled ,color=red];
+	Node4 [shape = box ,style=filled ,color=red];
+	Node5 [shape = polygon ,style=filled ,color=yellow];
+	Node13 [shape = polygon ,style=filled ,color=yellow];
+}

@@ -1,0 +1,379 @@
+@c This file is part of the SUIF reference manual
+
+@node Overview, File Representation, Top, Top
+@chapter An Overview of SUIF
+@cindex overview
+@cindex introduction
+
+The SUIF compiler system is a flexible framework for advanced compiler
+research.  The primary design goal for this compiler is that it be easy
+to use and build upon, without sacrificing its ability to compile
+real-world benchmark programs.  Compared to other publicly-available
+compilers, SUIF may be somewhat inefficient and less robust, but it is
+much easier to modify and extend.  This makes it an ideal platform for
+evaluating new compiler techniques.
+
+The SUIF system is organized as a set of compiler passes built on top of
+a kernel that defines the intermediate format.  The passes are
+implemented as separate programs that link with the kernel contained in
+the SUIF library.  Each pass typically performs a single analysis or
+transformation and then writes the results out to a file.  This is
+inefficient but flexible.  SUIF files always use the same output format
+so that passes can be reordered simply by running the programs in a
+different order.  New passes can be freely inserted at any point in a
+compilation.
+
+The SUIF library provides an object-oriented implementation of the SUIF
+intermediate format.  It is written in C++.  The library defines classes
+to represent all the various elements of the intermediate format and to
+perform some common operations on them.  It also contains the code to
+read and write the binary files that hold the SUIF code between passes
+of the compiler.
+
+This document is a reference manual for the SUIF library.  This first
+chapter provides an overview of the SUIF intermediate representation.
+Like many other complex data structures, this representation is roughly
+organized in a hierarchy.  Objects near the top of the hierarchy contain
+the lower-level objects.  The various elements of SUIF are described
+here starting from the top of the hierarchy and working down.
+
+@menu
+* File Level::                  File sets and global symbol tables.
+* Procedure Level::             Representation of procedure bodies.
+* Instruction Level::           SUIF instructions and expression trees.
+* Symbolic Information::        Symbols, types, and symbol tables.
+* Other Data::                  Annotations used to record other information.
+@end menu
+
+
+@node File Level, Procedure Level,  , Overview
+@section The File Level
+
+SUIF is designed to support interprocedural analysis and optimization
+with separate compilation.  At the root of the hierarchy for a SUIF
+program is a @dfn{file set} containing a list of the files being
+compiled.  @xref{File Set}.  Each entry within the file set is a
+@dfn{file set entry} that contains the input and output streams for a
+particular file.  @xref{File Set Entries}.
+
+The file level of the SUIF hierarchy also contains the global symbol
+tables.  The file set contains the global symbol table that is shared
+across all of the files.  This shared symbol table is the key to
+supporting interprocedural analysis.  References to a global symbol or
+type from different files can point to the same entry in the shared
+global symbol table, making it easy to determine that they refer to the
+same entity.  Each file set entry also contains its own symbol table for
+things declared privately within that file.
+
+Lower levels of the SUIF hierarchy can be reached through the global
+symbol tables.  Besides the types and variables, the global symbol
+tables contain symbols for the procedures.  The procedure bodies can be
+accessed through these procedure symbols.  If the body of a procedure is
+contained in one of the input files, the corresponding procedure symbol
+automatically records a pointer to the input file and provides a method
+to read the body into memory.  The procedure symbol also has other
+methods to write the body to an output file and to flush the body from
+memory.  Many SUIF programs need to process all the procedures.  This
+can be done by searching through the global symbol tables for the
+procedure symbols.  However since this is such a common task, the file
+set entries include procedure iterators to step through all the
+procedures.
+
+For passes that work on one file at a time, the file set is not worth
+much, but it is very helpful for interprocedural passes.  Without it,
+they would have to combine all the code into one big file.  While
+that may not be an unreasonable solution, SUIF file sets provide the
+benefits of separate compilation with only a moderate increase in
+complexity.
+
+
+@node Procedure Level, Instruction Level, File Level, Overview
+@section The Procedure Level
+@cindex high-SUIF
+@cindex low-SUIF
+
+Because SUIF is used in a wide variety of projects, the representation
+of procedure bodies includes both high-level and low-level information.
+In the first stages of a compilation, the high-level structure is
+represented by a language-independent form of abstract syntax trees
+(ASTs).  This format, which we call @dfn{high-SUIF}, is well-suited for
+passes such as dependence analysis and loop transformation that need the
+high-level structure of the code.  Later in the compilation process, the
+ASTs are reduced to sequential lists of instructions.  This form, which
+we call @dfn{low-SUIF}, works well for some scalar optimizations and for
+code generation.  Note that SUIF still has only one intermediate
+representation; high-SUIF and low-SUIF are both implemented with the
+same tree data structures.  @xref{Trees}.  They only differ in the
+amount of high-level information present.  As long as a SUIF pass does
+not depend on particular features of high-SUIF or low-SUIF, it can
+handle either format.  High-SUIF and low-SUIF may also be mixed together
+within the same procedure.
+
+The leaf nodes of an AST are @dfn{instruction nodes}.  @xref{Instruction
+Nodes}.  Each of these nodes contains a single instruction or expression
+tree.  In low-SUIF code, a procedure body is reduced to a list of
+instruction nodes containing individual instructions.  This form
+resembles the quadruple representation used by traditional scalar
+optimizers.
+
+@dfn{Block nodes} represent nested scopes.  @xref{Block Nodes}.  A block
+node contains a symbol table and a list of the AST nodes within the
+block.  The scope of the symbols and types defined in the symbol table
+is restricted to the AST nodes within the block.  They cannot be
+referenced from outside the block.  The root node of an AST is a special
+kind of block node called a @dfn{procedure node}.  Except for some extra
+methods and a slightly different kind of symbol table, a procedure node
+is the same as a block node.
+
+Conditional structures may be represented by @dfn{if nodes}.  @xref{If
+Nodes}.  An ``if'' node has three parts, each of which is a list of AST
+nodes.  The @dfn{header} list contains code to evaluate the condition
+and either branch to the @dfn{else} list or fall through to the
+@dfn{then} list.  Because the header can contain control flow, it is
+easy to implement short-circuit evaluation of conditional expressions.
+
+SUIF has two different kinds of loops.  Many optimizations only apply to
+certain well-behaved types of loops, so @dfn{for nodes} are provided for
+loops with scalar indices that vary from their initial to final values,
+being incremented or decremented on every iteration, and that meet
+various other requirements.  Most Fortran @code{DO} loops qualify as
+``for'' nodes.  Loops that do not meet those requirements are
+represented by @dfn{loop nodes}, which just record the control-flow
+structure of the loops and are used to represent generic ``do-while''
+loops.
+
+A loop node contains two lists of AST nodes.  @xref{Loop Nodes}.  The
+@dfn{body} list comes first and holds the loop body.  The @dfn{test}
+list contains code to evaluate the ``while'' expression and
+conditionally branch back to the beginning of the @code{body} list.  The
+body may contain branches to the @code{continue} and @code{break}
+labels, which are implicitly located at the beginning of the @code{test}
+list and the end of the loop, respectively.
+
+A ``for'' node is by far the most complicated type of AST node.  Besides
+the loop body, it must specify the index variable and the range of
+values for the index.  The lower bound, upper bound, and step operands
+are expressions that are evaluated once at the beginning of the loop.
+The index variable is initially assigned the value of the lower bound
+and then incremented by the value of the step operand on every iteration
+until it reaches the upper bound; the code to do this is automatically
+created when the ``for'' node is expanded to low-SUIF code.  The ``for''
+node must also specify the comparison operator used to determine when
+the index variable has reached the upper bound value.  The optional
+@code{landing_pad} part is a list of nodes to be executed once at the
+beginning of the loop; this provides a place to move loop-invariant
+code.  As with loop nodes, the @code{body} list may contain branches to
+the @code{continue} and @code{break} labels.
+
+
+@node Instruction Level, Symbolic Information, Procedure Level, Overview
+@section The Instruction Level
+
+Each instruction node in an abstract syntax tree holds a SUIF
+instruction.  @xref{Instructions}.  Most SUIF instructions perform
+simple operations; the opcodes resemble those for a typical RISC
+processor.  However, more complex instructions are used in places where
+it is important to retain high-level information.
+
+SUIF supports both expression trees and flat lists of instructions.  In
+an expression tree, the instructions for an expression are all grouped
+together.  This works well for high-level passes.  Because expression
+trees do not totally order the evaluation of the instructions, they do
+not work so well for back-end optimization and scheduling passes.  Thus
+SUIF also provides the flat list representation where each instruction
+node contains a single instruction.
+
+Most SUIF instructions use a ``quadruple'' format with a destination
+operand and two source operands; however, some instructions require more
+specialized formats.  For example, @code{ldc} (load constant)
+instructions have an immediate value field in place of the source
+operands.  While most SUIF instructions are very simple, it is important
+to retain sufficient high-level information to support detailed
+analysis.  Thus SUIF includes several instructions with more complex
+behavior:
+
+@itemize @bullet
+@item
+The @code{cal} (call) instruction implements a machine-independent
+procedure call with a list of parameters.  This hides the details of
+various linkage conventions.
+
+@item
+The @code{mbr} (multi-way branch) instruction transfers control to one
+of the given labels depending on the value of its source operand.  This
+represents computed @code{goto} and @code{switch} statements.
+
+@item
+The @code{array} instruction computes the address of an element in an
+array given a list of index values.  These instructions are eventually
+expanded to additions and multiplications to perform the necessary
+pointer arithmetic.
+@end itemize
+
+@noindent
+These instructions are much easier to analyze than the equivalent series
+of low-level instructions.
+
+The following example shows the low-SUIF instructions corresponding to a
+simple fragment of C code:
+
+@example
+x = 0;
+y = *ptr;
+if (y < x + z) @{
+    *ptr = x;
+@}
+@end example
+
+@example
+1: ldc (i.32) x = 0           // load integer constant 0
+2: lod (i.32) y = ptr         // load from address in ptr
+3: add (i.32) nd#3 = x, z     // add x and z
+4: sl  (i.32) nd#4 = y, nd#3  // set if y < x + z
+5: bfalse     nd#4, L:L1      // branch if false to label L1
+6: str        ptr = x         // store x to address in ptr
+7: lab        L:L1            // label L1
+@end example
+
+@noindent
+Most of the operands in this example are variables; however, the results
+of the @code{add} and @code{sl} instructions are temporary values and
+are not stored in variables.  Such temporary values occur frequently,
+and rather than requiring that new variables be created to hold them,
+SUIF allows them to be used directly.  Each temporary must have a single
+definition and a single use within the same basic block.  In the printed
+code above, the temporary values are indicated by ``node'' numbers,
+using the ID numbers of the instructions that produce the values.
+Internally, however, the operands contain pointers between the
+instructions.  For example, the @code{bfalse} source operand contains a
+pointer to the @code{sl} comparison instruction, and the @code{sl}
+destination operand contains a pointer to the branch instruction.  Thus
+the definition and use of a temporary value are directly connected,
+making it easy to find one from the other.
+
+Flat lists of instructions work well for many back-end compiler passes,
+but for high-level transformations expression trees are often a better
+representation.  Thus the SUIF system supports expression trees as well
+as flat lists.  @xref{Expression Trees}.  The difference between the two
+representations is actually quite small.  The temporary value pointers
+described above naturally create trees, except that with flat lists the
+nodes of the trees are listed in bottom-up order.  When using the
+expression tree representation, the instructions are rearranged so that
+only the roots of the expression trees are included in the AST
+instruction nodes.  The other instructions are reached through the
+pointers in the operands.  For example, by labeling each subtree (e.g.
+@code{e1} and @code{e2}), the expression tree in the example could be
+printed as:
+
+@example
+5: bfalse e1, L:L1
+4:   e1: sl (i.32) y, e2
+3:     e2: add (i.32) x, z
+@end example
+
+@noindent
+In this case, only the branch instruction is directly contained in an
+instruction node.  The @code{sl} instruction is reached through the
+branch's source operand, and the @code{add} instruction is contained in
+the second source operand of the @code{sl} instruction.
+
+
+@node Symbolic Information, Other Data, Instruction Level, Overview
+@section Symbolic Information
+
+SUIF includes detailed symbolic information.  Symbols and types are
+defined in nested scopes corresponding to the block structure of the
+program.  A symbol table is attached to each element of the main SUIF
+hierarchy that defines a new scope.  Symbols record information about
+variables, labels, and procedures.  The SUIF type system is similar to C
+but also has some support for Fortran and other languages.
+
+The symbol tables (@pxref{Symbol Tables}) are defined in a tree
+structure that forms a hierarchy parallel to the main SUIF hierarchy.
+Each table records a pointer to its parent and keeps a list of its
+children.  The global symbol table at the root is attached to the file
+set and is shared across all the files.  Its children are the file
+symbol tables attached to the file set entries.  The procedure symbol
+tables for the AST procedure nodes are in the next level down, followed
+by the block symbol tables for block nodes within the ASTs.  The block
+symbol tables may be nested to any level.
+
+Each symbol table contains a list of symbols (@pxref{Symbols}) that are
+defined within the corresponding scope.  There are three different kinds
+of symbols: variables, labels, and procedures.  Symbols are identified
+by name or ID number.  The ID numbers are assigned automatically and
+should always be unique within a particular scope.  Each symbol also has
+a set of flags to record various attributes.
+
+Variable symbols (@pxref{Variable Symbols}) may be declared in any
+scope.  A variable symbol contains a pointer to the type for the
+variable.  The type determines the amount of storage used to hold the
+variable as well as the interpretation of its contents.  Some additional
+flags are used for variable symbols.  These flags identify variables
+that are formal parameters of the procedure and variables that have
+their addresses taken.  Another flag is used to identify variables that
+represent machine registers.  For variables that are not allocated on
+the stack, a separate @dfn{variable definition} (@pxref{Variable
+Definitions}) must be entered in the symbol table.  A variable
+definition records the alignment restriction for the variable's storage
+and its initial contents.
+
+Label symbols (@pxref{Label Symbols}) can only be declared within
+procedures.  The position of a label in the code is marked with a
+special instruction.
+
+Procedure symbols (@pxref{Procedure Symbols}) can only be declared in
+the global and file scopes.  A procedure symbol contains a pointer to
+the AST for the body of the procedure if it exists.  It also provides
+methods to read the body from an input file, write it to an output file,
+and flush it from memory.  The procedure symbol also has a pointer to the
+type for the procedure.
+
+The SUIF type system (@pxref{Types}) is quite powerful.  It can
+represent most, if not all, high-level types for C programs and for many
+other languages.  The types are implemented with various kinds of type
+nodes.  Each type node contains an operator that specifies the kind of
+node.  Some of the type operators define base types that stand alone,
+while other operators refer to other types nodes.  For example, a type
+node with the @code{TYPE_INT} operator defines a new integer type.  A
+node with the @code{TYPE_PTR} operator can then refer to the integer
+type node to create a type for pointers to integers.  Operators are
+available for integers, floating-point types, pointers, arrays,
+functions, structures, unions, and enumerations.  Each type has a
+particular size.  For some types, such as integers, the size can be set
+directly, but for others it is determined automatically.
+
+
+@node Other Data,  , Symbolic Information, Overview
+@section Other Data
+
+SUIF is designed to be extended with new kinds of analyses and
+optimizations.  These future extensions will generally require that
+additional information be attached to SUIF objects and propagated
+between passes.  For example, one pass may analyze the SUIF code and
+produce information about data dependences.  That information must be
+saved in the SUIF files so that it can be used by other passes.  Because
+many different kinds of information may need to be stored, the SUIF
+library cannot predefine specific fields for future extensions.
+Instead, it provides @dfn{annotations} which allow user-defined data
+structures to be attached to most SUIF objects.  @xref{Annotations}.
+This is the primary mechanism for making SUIF easily extensible.
+
+Several different kinds of annotations are available.  They all include
+a name field that identifies the kind of data in the annotation.
+Besides the name, each annotation has some sort of data.  A
+@dfn{structured} annotation contains data in a user-defined data
+structure, whereas a @dfn{flat} annotation consists of a list of
+immediate values.  The names of structured and flat annotations are
+registered with the @dfn{annotation manager}.  @xref{Annotation
+Manager}.  The manager records information about each kind of
+annotation, such as whether they are flat or structured and whether they
+should be written to the output files.
+
+Annotations can also be used without registering them with the manager.
+To be able to write annotations to output files, SUIF must be able to
+represent them as lists of immediate values @footnote{The manager must
+be provided with functions to convert structured annotations to and from
+these immediate values.}.  Because unregistered annotations are not
+written to the output files, they may contain arbitrary data structures.
+Obviously, they can only be used internally within one pass.

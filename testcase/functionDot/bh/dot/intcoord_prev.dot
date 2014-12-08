@@ -1,0 +1,64 @@
+digraph G{
+	label = "intcoord"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_32\nla	r8	nd#1141	\nli	r9	nd#1143	\nsh	nd#1145	r9	\nli	r9	nd#1149	\naddu	r10	r7	r9	\nl.d	r40	nd#1152	\nla	r19	nd#1156	\nli	r20	nd#1158	\naddu	r27	r6	r20	\nl.d	r62	nd#1161	\ns.d	nd#1164	r62	\nla	r21	nd#1168	\nli	r22	nd#1170	\naddu	r23	r6	r22	\nl.d	r32	nd#1173	\ns.d	nd#1176	r32	\nla	r24	nd#1180	\nli	r25	nd#1182	\naddu	r26	r6	r25	\nl.d	r34	nd#1185	\ns.d	nd#1188	r34	\nla	r27	nd#1192	\nl.d	r36	nd#1194	\nmove	r28	r0	\naddu	r26	r7	r28	\nl.d	r38	nd#1199	\nsub.d	r52	r36	r38	\ndiv.d	r54	r52	r40	\nli.d	r56	nd#1205	\nli	r28	nd#1207	\nc.le.d	r56	r54	\nbc1t	intcoord.L13\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_1\nmove	r28	r0	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_1\nintcoord.L13:\nbnez	intcoord.L1\n"];
+	Node4 -> {Node5 Node6 }
+	Node5 [label = "B5_1\nintcoord.L19:\nj	intcoord.__done7\n"];
+	Node5 -> {Node8 }
+	Node6 [label = "B6_4\nintcoord.L1:\nli.d	r58	nd#1216	\nli	r28	nd#1218	\nc.lt.d	r54	r58	\nbc1t	intcoord.L14\n"];
+	Node6 -> {Node7 Node8 }
+	Node7 [label = "B7_1\nmove	r28	r0	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_1\nintcoord.L14:\nintcoord.__done7:\nbeqz	intcoord.L2\n"];
+	Node8 -> {Node9 Node10 }
+	Node9 [label = "B9_11\nla	r6	nd#1227	\nli.d	r60	nd#1229	\nmul.d	r62	r60	r54	\ncvt.w.d	r32	r62	\nmfc1	r8	r32	\nmtc1	r34	r8	\ncvt.d.w	r36	r34	\ncvt.w.d	r38	r36	\nmfc1	r8	r38	\nsw	nd#1238	r8	\nj	intcoord.__done8\n"];
+	Node9 -> {Node11 }
+	Node10 [label = "B10_3\nintcoord.L2:\nla	r8	nd#1244	\nmove	r9	r0	\nsh	nd#1247	r9	\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_11\nintcoord.__done8:\nla	r10	nd#1252	\nl.d	r52	nd#1254	\nli	r19	nd#1257	\naddu	r20	r7	r19	\nl.d	r54	nd#1260	\nsub.d	r56	r52	r54	\ndiv.d	r54	r56	r40	\nli.d	r58	nd#1266	\nli	r6	nd#1268	\nc.le.d	r58	r54	\nbc1t	intcoord.L15\n"];
+	Node11 -> {Node12 Node13 }
+	Node12 [label = "B12_1\nmove	r6	r0	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_1\nintcoord.L15:\nbnez	intcoord.L3\n"];
+	Node13 -> {Node14 Node15 }
+	Node14 [label = "B14_1\nintcoord.L20:\nj	intcoord.__done9\n"];
+	Node14 -> {Node17 }
+	Node15 [label = "B15_4\nintcoord.L3:\nli.d	r60	nd#1277	\nli	r6	nd#1279	\nc.lt.d	r54	r60	\nbc1t	intcoord.L16\n"];
+	Node15 -> {Node16 Node17 }
+	Node16 [label = "B16_1\nmove	r6	r0	\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_1\nintcoord.L16:\nintcoord.__done9:\nbeqz	intcoord.L4\n"];
+	Node17 -> {Node18 Node19 }
+	Node18 [label = "B18_11\nla	r21	nd#1288	\nli.d	r62	nd#1290	\nmul.d	r32	r62	r54	\ncvt.w.d	r34	r32	\nmfc1	r22	r34	\nmtc1	r36	r22	\ncvt.d.w	r38	r36	\ncvt.w.d	r52	r38	\nmfc1	r23	r52	\nsw	nd#1299	r23	\nj	intcoord.__done10\n"];
+	Node18 -> {Node20 }
+	Node19 [label = "B19_3\nintcoord.L4:\nla	r24	nd#1305	\nmove	r25	r0	\nsh	nd#1308	r25	\n"];
+	Node19 -> {Node20 }
+	Node20 [label = "B20_11\nintcoord.__done10:\nla	r26	nd#1313	\nl.d	r54	nd#1315	\nli	r27	nd#1318	\naddu	r28	r7	r27	\nl.d	r56	nd#1321	\nsub.d	r58	r54	r56	\ndiv.d	r54	r58	r40	\nli.d	r60	nd#1327	\nli	r6	nd#1329	\nc.le.d	r60	r54	\nbc1t	intcoord.L17\n"];
+	Node20 -> {Node21 Node22 }
+	Node21 [label = "B21_1\nmove	r6	r0	\n"];
+	Node21 -> {Node22 }
+	Node22 [label = "B22_1\nintcoord.L17:\nbnez	intcoord.L5\n"];
+	Node22 -> {Node23 Node24 }
+	Node23 [label = "B23_1\nintcoord.L21:\nj	intcoord.__done11\n"];
+	Node23 -> {Node26 }
+	Node24 [label = "B24_4\nintcoord.L5:\nli.d	r62	nd#1338	\nli	r6	nd#1340	\nc.lt.d	r54	r62	\nbc1t	intcoord.L18\n"];
+	Node24 -> {Node25 Node26 }
+	Node25 [label = "B25_1\nmove	r6	r0	\n"];
+	Node25 -> {Node26 }
+	Node26 [label = "B26_1\nintcoord.L18:\nintcoord.__done11:\nbeqz	intcoord.L6\n"];
+	Node26 -> {Node27 Node28 }
+	Node27 [label = "B27_11\nla	r6	nd#1349	\nli.d	r32	nd#1351	\nmul.d	r34	r32	r54	\ncvt.w.d	r36	r34	\nmfc1	r7	r36	\nmtc1	r38	r7	\ncvt.d.w	r52	r38	\ncvt.w.d	r54	r52	\nmfc1	r7	r54	\nsw	nd#1360	r7	\nj	intcoord.__done12\n"];
+	Node27 -> {Node29 }
+	Node28 [label = "B28_3\nintcoord.L6:\nla	r8	nd#1366	\nmove	r9	r0	\nsh	nd#1369	r9	\n"];
+	Node28 -> {Node29 }
+	Node29 [label = "B29_11\nintcoord.__done12:\nla	r10	nd#1375	\nla	r19	nd#1377	\nlw	r20	nd#1380	\nlw	r21	nd#1383	\nlw	r22	nd#1386	\nsw	nd#1389	r20	\nsw	nd#1392	r21	\nsw	nd#1395	r22	\nlw	r23	nd#1398	\nsw	nd#1401	r23	\njr	\n"];
+	Node29 -> {Node1 }
+}

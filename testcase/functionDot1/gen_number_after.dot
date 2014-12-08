@@ -1,0 +1,12 @@
+digraph G{
+	label = "gen_number"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_5\nmove\n# .loc\nla\nmove\nfst\njalr\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_2rem\njr\n"];
+	Node3 -> {Node1 }
+}

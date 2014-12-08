@@ -1,0 +1,30 @@
+digraph G{
+	label = "freetree"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_4\nmove	r11	r5	\nla	r28	nd#296	\nseq	r25	r11	r28	\nbeqz	freetree.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_1\nfreetree.L8:\nj	freetree.__done6\n"];
+	Node3 -> {Node5 }
+	Node4 [label = "B4_5\nfreetree.L1:\nmove	r5	r0	\naddu	r6	r11	r5	\nlh	r26	nd#305	\nli	r7	nd#308	\nseq	r25	r26	r7	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_1\nfreetree.__done6:\nbeqz	freetree.L2\n"];
+	Node5 -> {Node6 Node7 }
+	Node6 [label = "B6_1\njr	\n"];
+	Node6 -> {Node1 }
+	Node7 [label = "B7_1\nfreetree.L2:\nli	r12	nd#317	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_10\nfreetree.L7:\nli	r8	nd#321	\naddu	r27	r11	r8	\nli	r9	nd#324	\nmult	r12	r9	\nmflo	r10	\naddu	r19	r27	r10	\nlw	r5	nd#329	\nla	r20	nd#333	\nsne	r21	r5	r20	\nbeqz	freetree.L5\n"];
+	Node8 -> {Node9 Node10 }
+	Node9 [label = "B9_4\nla	r19	nd#339	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_5\nfreetree.L5:\nli	r22	nd#345	\naddu	r12	r12	r22	\nmove	r23	r0	\nslt	r24	r12	r23	\nbeqz	freetree.L7\n"];
+	Node10 -> {Node11 Node8 }
+	Node11 [label = "B11_5\nla	r19	nd#352	\nmove	r5	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_1\njr	\n"];
+	Node12 -> {Node1 }
+}

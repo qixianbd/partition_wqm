@@ -1,0 +1,94 @@
+\subsection{alphaOps.h}
+
+The file {\em alphaOps.h} contains the enumerations for the complete
+listing of the ALPHA assembly opcodes, pseudo-ops, opcode extensions,
+and the code generator/scheduler pseudo-ops.  To modify the contents
+of the opcode enumeration, you should modify {\em alpha.data}.  Currently,
+the opcode extensions are enumerated directly in this file.
+
+We have defined several special values to bracket the entire set of
+Alpha opcodes and opcode extensions.  You must make sure that any new
+values reside between these special values.
+
+<<alphaOps.h>>=
+/* file "alphaOps.h" */
+
+<<SUIF copyright>>
+
+#ifndef ALPHA_OPS_H
+#define ALPHA_OPS_H
+
+const int OP_BASE_ALPHA = 2000;	/* start of ai_ops enumeration */
+
+enum /* mi_ops */ {
+    ao_FIRST_OP = OP_BASE_ALPHA,	/* start of ALPHA enumeration */
+
+    #undef xx
+    #define xx(opcode, string, format) opcode,
+    #include "alpha.data"
+
+    ao_LAST_OP
+} ;
+
+enum /* mi_op_exts */ {
+    aoe_FIRST_OP_EXT = ao_LAST_OP,
+
+    /** VAX/IEEE rounding mode qualifiers */
+    aoe_round_normal,		/* normal rounding mode controlled by FPCR */
+    aoe_round_chopped,		/* chopped, i.e. truncate */
+    aoe_round_p_inf,		/* round toward plus infinity */
+    aoe_round_m_inf,		/* round toward minus infinity */
+
+    /** VAX/IEEE trap modes */
+    aoe_trap_none,		/* imprecise, underflow disabled, (and, for
+				 * IEEE, inexact disabled) */
+    aoe_trap_u,			/* imprecise, underflow enabled, (and, for
+				 * IEEE, inexact disabled) */
+    aoe_trap_s,			/* software and underflow disabled (not valid
+				 * option for IEEE FP) */
+    aoe_trap_su,		/* software, underflow enabled, (and, for
+				 * IEEE, inexact disabled) */
+    aoe_trap_sui,		/* software, underflow enabled, and inexact
+				 * enabled (not valid option for VAX) */
+
+    /** VAX/IEEE convert-to-integer trap modes */
+    aoe_itrap_none,		/* imprecise, int overflow disabled, (and,
+				 * for IEEE, inexact disabled) */
+    aoe_itrap_v,		/* imprecise, int overflow enabled, (and,
+				 * for IEEE, inexact disabled) */
+    aoe_itrap_s,		/* software, int overflow disabled, (not
+				 * valid option for IEEE) */
+    aoe_itrap_sv,		/* software, int overflow enabled, (and,
+				 * for IEEE, inexact disabled) */
+    aoe_itrap_svi,		/* software, int overflow ensabled, and inexact
+				 * enabled (not valid option for VAX) */
+
+    aoe_LAST_OP_EXT
+} ;
+
+extern char *alpha_op_string(mi_ops o);
+extern mi_formats alpha_which_mformat(mi_ops o);
+extern char *alpha_op_ext_string(mi_op_exts e);
+
+<<opcode helper tables>>
+
+#endif /* ALPHA_OPS_H */
+@
+
+As we saw in {\em alphaInstr.h}, the helper functions in this file are
+also used only by the machine library class methods and helper
+routines.  The [[alpha_op_string(mi_ops)]] function returns the string
+name of an Alpha opcode value. The [[alpha_which_mformat(mi_ops)]]
+function returns the machine instruction format used by each Alpha
+opcode.  The [[alpha_op_ext_string(mi_op_exts)]] function returns the
+string name of the Alpha opcode extension value.
+
+We have also created the table [[alpha_invert_table]] to help with the
+mapping of a conditional branch opcode to its inversion.  Only a
+single entry is required for any opcode pair.  This table is used by
+the helper routine [[Invert_cbr_op]].
+
+<<opcode helper tables>>=
+extern int alpha_invert_table[];
+@
+

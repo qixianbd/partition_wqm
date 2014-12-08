@@ -1,0 +1,132 @@
+\input psfig.sty \def\ifhtml{\doignore{ifhtml}} \input texinfo   @c -*-texinfo-*-
+
+@c %**start of header
+@setfilename suif1.info
+@settitle The SUIF Version 1 Library
+@setchapternewpage odd
+@c %**end of header
+
+@c Merge the function, variable, and type indices
+
+@synindex vr fn
+@synindex tp fn
+
+@c If "finalout" is commented out, the printed output will show
+@c black boxes that mark lines that are too long.  Thus, it is
+@c unwise to comment it out when running a master in case there are
+@c overfulls which are deemed okay.
+
+@iftex
+@finalout
+@end iftex
+
+@ifinfo
+This file documents the SUIF library.
+
+Copyright @copyright{} 1994 Stanford University.  All rights reserved.
+
+Permission is given to use, copy, and modify this documentation for any
+non-commercial purpose as long as this copyright notice is not removed.
+All other uses, including redistribution in whole or in part, are
+forbidden without prior written permission.
+@end ifinfo
+
+
+@titlepage
+@title The SUIF Library
+@subtitle A set of core routines for manipulating @sc{suif} data structures
+@sp 8
+@ifhtml
+<img src="suif_logo_small.gif">Version 1.0
+@end ifhtml
+@tex
+\centerline{
+\psfig{figure=suif_logo.epsf,width=2.0in}
+} 
+\centerline{Version 1.0}
+@end tex
+
+@author Stanford Compiler Group
+
+@page
+@vskip 0pt plus 1filll
+This manual is part of the @sc{suif} compiler documentation set.
+@sp 2
+
+Copyright @copyright{} 1994 Stanford University.  All rights reserved.
+@sp 2
+
+Permission is given to use, copy, and modify this documentation for any
+non-commercial purpose as long as this copyright notice is not removed.
+All other uses, including redistribution in whole or in part, are
+forbidden without prior written permission.
+@end titlepage
+
+
+@ifinfo
+@node Top, Overview, (dir), (dir)
+@top The SUIF Library Reference Manual
+
+This is a reference manual for the SUIF library.  It describes the
+data structures that make up the SUIF intermediate representation and
+conventions for their usage.  This is intended for those who are writing
+new SUIF passes.  While it provides essential information for new SUIF
+programmers, it is definitely not a tutorial.
+@end ifinfo
+
+@menu
+* Overview::                    An overview of the SUIF system.
+* File Representation::         Support for separate compilation.
+* Trees::                       Abstract syntax trees (ASTs).
+* Instructions::                Instructions and expression trees.
+* Symbols::                     Symbolic information.
+* Types::                       The SUIF type system.
+* Symbol Tables::               Tables for holding symbols and types.
+* Annotations::                 Attaching arbitrary data to SUIF objects.
+* Cloning::                     Methods for replicating ASTs and instructions.
+* Fortran::                     Features for compiling Fortran.
+* Generics::                    Generic data structures.
+* Other::                       Other features of the SUIF library.
+* Appendix::                    Diagrams/info about SUIF data structures.
+* Function Index::              Index of functions, variables, and types.
+* Concept Index::               Index of concepts.
+@end menu
+
+
+@include overview.texi
+
+@include fileset.texi
+
+@include trees.texi
+
+@include instruction.texi
+
+@include symtab.texi
+
+@include symbols.texi
+
+@include types.texi
+
+@include annote.texi
+
+@include cloning.texi
+
+@include fortran.texi
+
+@include generics.texi
+
+@include misc.texi
+
+@include appendix.texi
+
+@node Function Index, Concept Index, Appendix, Top
+@unnumbered Function, Variable, and Type Index
+@printindex fn
+
+
+@node Concept Index,  , Function Index, Top
+@unnumbered Concept Index
+@printindex cp
+
+@contents
+@bye

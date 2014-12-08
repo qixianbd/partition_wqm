@@ -1,0 +1,24 @@
+digraph G{
+	label = "dealwithargs"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_6\nmove	r11	r5	\nla	r19	nd#187	\nla	r5	nd#189	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_3\nli	r10	nd#195	\nslt	r19	r10	r11	\nbnez	dealwithargs.__done4\n"];
+	Node3 -> {Node4 Node5 }
+	Node4 [label = "B4_2\nli	r20	nd#200	\nsw	nd#202	r20	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_3\ndealwithargs.__done4:\nli	r21	nd#206	\nslt	r22	r21	r11	\nbnez	dealwithargs.__done5\n"];
+	Node5 -> {Node6 Node7 }
+	Node6 [label = "B6_2\nli	r23	nd#211	\nsw	nd#213	r23	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_3\ndealwithargs.__done5:\nli	r24	nd#217	\nslt	r25	r24	r11	\nbnez	dealwithargs.__done6\n"];
+	Node7 -> {Node8 Node9 }
+	Node8 [label = "B8_2\nli	r26	nd#222	\nsw	nd#224	r26	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_1\ndealwithargs.__done6:\njr	\n"];
+	Node9 -> {Node1 }
+}

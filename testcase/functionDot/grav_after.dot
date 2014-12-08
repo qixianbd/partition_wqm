@@ -1,0 +1,22 @@
+digraph G{
+	label = "grav"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_9\nl.d	r42	nd#230	\nlw	r13	nd#232	\nmov.d	r40	r32	\nmove	r12	r7	\nmove	r11	r8	\nmove	r14	r0	\nla	r27	nd#240	\nsne	r28	r11	r27	\nbeqz	grav.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_0\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_3\ngrav.L1:\nla	r5	nd#249	\nsne	r6	r11	r5	\nbeqz	grav.L2\n"];
+	Node4 -> {Node5 Node7 }
+	Node5 [label = "B5_11\ngrav.L5:\nloopbegin	grav.L6\nspawn	grav.L7\ngrav.L6:\nla	r19	nd#256	\nmov.d	r32	r40	\nmove	r7	r12	\nmove	r8	r11	\nmove	r4	r2	\nfst	r2	\nsw	nd#263	r13	\ns.d	nd#266	r42	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_16\nli	r7	nd#271	\naddu	r8	r11	r7	\nlw	r11	nd#274	\nli	r9	nd#278	\ncqip	grav.L7\ngrav.L7:\npslice_entry	grav.L7\nli	r7	nd#0	\naddu	r8	r11	r7	\nlw	r11	nd#0	\nli	r9	nd#0	\npslice_exit	grav.L7\naddu	r14	r14	r9	\nla	r10	nd#281	\nsne	r19	r11	r10	\nbnez	grav.L5\nloopend	grav.L6\n"];
+	Node6 -> {Node7 Node5 }
+	Node7 [label = "B7_1\ngrav.L2:\njr	\n"];
+	Node7 -> {Node1 }
+	Node5 [shape = box ,style=filled ,color=red];
+	Node6 [shape = polygon ,style=filled ,color=yellow];
+}

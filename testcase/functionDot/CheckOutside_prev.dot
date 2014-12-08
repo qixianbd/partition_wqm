@@ -1,0 +1,18 @@
+digraph G{
+	label = "CheckOutside"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_8\nmult	r5	r5	\nmflo	r19	\nmult	r6	r6	\nmflo	r20	\naddu	r21	r19	r20	\nli	r22	nd#137	\nslt	r23	r22	r21	\nbeqz	CheckOutside.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_2\nli	r9	nd#142	\njr	\n"];
+	Node3 -> {Node1 }
+	Node4 [label = "B4_3\nCheckOutside.L1:\nli	r24	nd#147	\nslt	r25	r21	r24	\nbeqz	CheckOutside.L2\n"];
+	Node4 -> {Node5 Node6 }
+	Node5 [label = "B5_2\nli	r9	nd#152	\njr	\n"];
+	Node5 -> {Node1 }
+	Node6 [label = "B6_2\nCheckOutside.L2:\nmove	r9	r0	\njr	\n"];
+	Node6 -> {Node1 }
+}

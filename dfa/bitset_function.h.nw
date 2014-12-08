@@ -1,0 +1,193 @@
+% -*- mode: Noweb; noweb-code-mode: c++-mode -*-
+\section{Boolean Bitset Functions}
+\label{secBitsetFunctions}
+
+Muchnick, \cite{bibmuchnick}, and many other authors present the
+theoretical basis for dataflow problems in terms of ``flow functions''
+or ``transfer functions''.
+
+Here we define the three monotone boolean $\to$ boolean functions,
+extended pointwise to  sets of booleans.  
+We define useful routines for applying these functions to [[bitset]]s.
+This will allow us to encode operations on [[bitset]]s directly from
+the theory.
+
+The reason that we can get away with using the theory in practice is
+that there are only three monotone boolean functions (the identity
+function, the function that always returns the constant top (true, 1),
+and the function that always returns the constant bottom (false, 0).
+So we only need two bits to represent a monotone boolean $\to$ boolean
+function. 
+Thus the pointwise extension of boolean functions to sets of sets of
+booleans, can be represented in only twice as much space as the
+[[bitset]]s that they manipulate.
+
+
+\subsection{Using class [[bitset_function]]}
+
+<<class [[bitset_function]]>>=
+class bitset_function {
+private:
+  <<[[bitset_function]] private>>
+
+protected:
+  <<[[bitset_function]] protected>>
+
+public:
+  bitset_function(int initial_number_of_bits);
+  ~bitset_function();
+  bitset_function(const bitset_function&);
+  bitset_function& operator=(const bitset_function&);
+
+  void topfn()            <<[[bitset_function::topfn()]] inlined>>
+  void topfn(int bitnum)  <<[[bitset_function::topfn(bitnum)]] inlined>>
+  void botfn()            <<[[bitset_function::botfn()]] inlined>>
+  void botfn(int bitnum)  <<[[bitset_function::botfn(bitnum)]] inlined>>
+  void idfn()             <<[[bitset_function::idfn()]] inlined>>
+  void idfn(int bitnum)   <<[[bitset_function::idfn(bitnum)]] inlined>>
+
+  void apply(bit_set* updated) <<[[bitset_function::apply(updated)]] inlined>>
+  void compose(const bitset_function* old) <<[[bitset_function::compose(old)]] inlined>>
+
+  void print(FILE* fp = stdout);
+};
+@ %def 
+
+When you create a boolean bitset function, it is initialized to the
+identity function.
+
+[[topfn(n)]] modifies the function to set bit [[n]] to 1 (top).
+
+[[topfn()]] modifies the function to set all bits to 1 (top).
+
+[[botfn(n)]] modifies the function to set bit [[n]] to 0 (bottom).
+
+[[botfn()]] modifies the function to set all bits to 0 (bottom).
+
+[[idfn(n)]] modifies the function to pass the value of bit [[n]] unchanged.
+
+[[idfn()]] modifies the function to pass the values of all bits unchanged.
+
+[[apply(b)]] applies the boolean function to a [[bit_set*]] [[b]],
+overwriting [[b]].
+
+[[f.compose(g)]] sets the function [[f]] to [[f]]$\,o\,$[[g]], overwriting [[f]].
+
+We provide the standard copy constructor and assignment operator
+functionality which may be used in combination with [[compose]] to
+perform nondestructuve composition (by performing destructuve
+composition on a copy).
+
+\subsection{Header file for module [[bitset_function]]}
+
+Class [[bitset_function]] is  defined in module [[bitset_function]], which has
+the following header file.
+
+<<bitset\_function.h>>=
+/*  Bit Set Definitions */
+
+<<SUIF copyright>>
+
+#ifndef BITSET_FUNCTION_H
+#define BITSET_FUNCTION_H
+
+#pragma interface
+
+<<class [[bitset_function]]>>
+#endif /* BITSET_FUNCTION_H */
+@
+
+Close your eyes: the content of the following sections is are not for
+public viewing and may change without notice.
+
+\subsubsection{Protected methods: subject to change without notice}
+
+<<[[bitset_function]] protected>>=
+int hbn;
+bit_set* id;
+bit_set* cs;
+bitset_function();
+@ %def 
+
+[[hbn]] is the number of the first unused bit (or the number of bits
+managed by the bitset\_function since it always manages bits starting
+from bit 0).
+
+[[id]] is a bitset.  If [[id(n) == 0]] then the function is a constant
+function at [[n]].  If [[id(n) == 1 && cs(n) == 0]] then the function
+is the identity function at [[n]].
+
+[[cs]] is a bitset.  If [[id(n) == 0 && cs(n) == 0]] then the function
+is the constant bottom function at [[n]].  [[id(n) == 0 && cs(n) == 1]]
+then the function is the constant top function at [[n]].
+
+[[bitset_function()]] is a constructor for internal use: private and
+protected variables are set to default values and must be updated later
+before the function is usable.
+
+\subsubsection{Private methods: subject to change without notice}
+
+<<[[bitset_function]] private>>=
+@ %def 
+
+\subsubsection{Inlined code: subject to change without notice}
+<<[[bitset_function::topfn()]] inlined>>=
+{
+  id->clear();			// set function to "constant 1" on all bits
+  cs->universal();
+}
+
+<<[[bitset_function::topfn(bitnum)]] inlined>>=
+{
+  assert_msg(bitnum >= 0 && bitnum < hbn,
+    ("bitset_function::topfn - bit %d not in range %d-%d", bitnum,0,hbn));
+  id->remove(bitnum);
+  cs->add(bitnum);
+}
+
+<<[[bitset_function::botfn()]] inlined>>=
+{
+  id->clear();			// set function to "constant 0" on all bits
+  cs->clear();
+}
+
+<<[[bitset_function::botfn(bitnum)]] inlined>>=
+{
+  assert_msg(bitnum >= 0 && bitnum < hbn,
+     ("bitset_function::botfn - bit %d not in range %d-%d", bitnum,0,hbn));
+  id->remove(bitnum);
+  cs->remove(bitnum);
+}
+
+<<[[bitset_function::idfn()]] inlined>>=
+{
+  id->universal();		// set function to "identity" on all bits
+  cs->clear();
+}
+
+<<[[bitset_function::idfn(bitnum)]] inlined>>=
+{
+  assert_msg(bitnum >= 0 && bitnum < hbn,
+     ("bitset_function::idfn - bit %d not in range %d-%d", bitnum,0,hbn));
+  id->add(bitnum);
+  cs->remove(bitnum);
+}
+
+<<[[bitset_function::apply(updated)]] inlined>>=
+{
+  *updated *= *id;		// if identity function, keep bits
+  *updated += *cs;		// set bits by const fns
+				// requires representation invariant
+				// that (cs == cs - id)
+}
+
+<<[[bitset_function::compose(old)]] inlined>>=
+{
+  bit_set tmp(0,hbn);		// temporary bit set in scope
+  tmp = *id;
+  tmp *= *(old->cs);
+  *cs += tmp;
+  *id *= *(old->id);
+}
+@ %def
+

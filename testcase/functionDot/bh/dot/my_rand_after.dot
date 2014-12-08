@@ -1,0 +1,10 @@
+digraph G{
+	label = "my_rand"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_15\nli.d	r34	nd#94	\nmul.d	r36	r34	r32	\nli.d	r38	nd#97	\nadd.d	r52	r36	r38	\nli.d	r54	nd#101	\nli.d	r56	nd#103	\ndiv.d	r58	r52	r56	\ncvt.w.d	r60	r58	\nmfc1	r25	r60	\nmtc1	r62	r25	\ncvt.d.w	r32	r62	\nmul.d	r34	r54	r32	\nsub.d	r32	r52	r34	\nmov.d	r36	r32	\njr	\n"];
+	Node2 -> {Node1 }
+}

@@ -1,0 +1,475 @@
+\section{Access to machine-specific data}
+\label{secArchInfo.h}
+
+To perform machine-specific optimizations, we must have some
+information concerning the target machine.  The current version of
+{\em machsuif} maintains pointers to machine-specific information.
+This pointer information is recorded in a [[k_target_arch]] annotation
+which is attached to each [[file_set_entry]].  Using this pointer
+information, we build separate classes to manage the different kinds
+of architecture and machine-specific information.  The rest of this
+section reviews how we access machine-specific data.  The next
+section describes a particular class that encapsulates a piece of
+machine-specific data.
+
+\subsection{[[k_target_arch]] annotation}
+
+The [[k_target_arch]] annotation is created during code generation by
+the [[*gen]] {\em machsuif} passes, since these passes are machine
+specific.  Please see the {\em machsuif} overview document for additional
+information on how the values for this annotation are set.
+
+The [[k_target_arch]] annotation is a structured annotation
+with the following fields:
+
+\begin{tabular}{l@{\hspace{.3in}}c@{\hspace{.3in}}l}
+[[immed]]\ \#0 & [[char*]] & {\em architecture\_family\_name}   \\
+[[immed]]\ \#1 & [[char*]] & {\em arch\_version\_number}        \\
+[[immed]]\ \#2 & [[char*]] & {\em vendor\_and\_OS\_designation} \\
+[[immed]]\ \#3 & [[char*]] & {\em machine\_implementation}      \\
+\end{tabular}\\[\parskip]
+The {\em architecture\_family\_name} is a string and is the same as
+the string stored in the [[architecture()]] method of each instruction
+in a procedure [[tree_node_list]].  It quickly distinguishes, for
+example, between MIPS and Alpha instructions, but it does not
+distinguish between a MIPS-I and a MIPS-IV architecture.
+Distinguishing versions within an architecture family is handled by
+the {\em arch\_version\_number} value.  Please note that this value
+is encoded as a string.  By convention, we start version numbers with
+a number.  For example, the MIPS-I architecture would be recorded
+as version [[1]] while MIPS-IV would be recorded as [[4]].  Following
+this convention, we can use [[strcmp()]] to perform ordering tests,
+e.g. the code [[strcmp("1.3a", version()) <= 0]] will verify that a
+feature implemented in version [[1.3a]] will work in the current
+target.
+
+The third value in this annotation contains the vendor and operating
+system information for the target machine.  This item completes the
+$\langle{architecture}\rangle{-}\langle{vendor}\rangle{-}\langle{os}\rangle$
+string kept in the SUIF [[MACHINE]] environment variable.
+
+The final value in this annotation is a string describing the target
+hardware implementation.  We use the value of this string, along with
+the architectural family and version strings, to construct a basename
+for the files containing the architecture and machine-specific
+information to be used during compilation.  The {\em machsuif}
+overview document provides more information on the structure and
+location of these machine-specific data files.
+
+\subsection{[[archinfo]] class}
+
+We have built a common interface to manage the architecture- and
+machine-specific data used during compilation.  The key to this common
+interface is the [[<<class archinfo>>]] described below.  From this class,
+we can build other classes that manage particular pieces of
+machine-specific information.  The [[<<class reginfo>>]] is one example of
+these associated classes.  The {\em machsuif} scheduling library
+provides other examples of hardware-resource-management classes that
+rely on the [[<<class archinfo>>]].
+
+<<archInfo.h>>=
+/* file "archInfo.h */
+
+<<SUIF copyright>>
+
+#ifndef ARCHINFO_H
+#define ARCHINFO_H
+
+<<class archinfo>>
+
+<<reginfo enums>>
+
+<<class reginfo>>
+
+<<register defines>>
+
+#endif /* ARCHINFO_H */
+@
+
+The [[archinfo]] class is defined as follows:
+
+<<class archinfo>>=
+class archinfo {
+  private:
+    char *fam;		/* architectural family name */
+    char *ver;		/* architectural revision/version number */
+    char *vos;		/* vendor and os designation for target */
+    char *impl;		/* chip name and variant */
+
+    if_ops first; 	/* range of valid opcodes for this arch. */
+    if_ops last; 	/* range is [first_op, last_op) */
+
+  protected:
+    void init_from_annote(file_set_entry *fse);
+
+  public:
+    archinfo(file_set_entry *fse)	{ init_from_annote(fse); }
+    archinfo(proc_sym *p)		{ init_from_annote(p->file()); }
+    ~archinfo()				{}
+
+    char *family()		{ return fam; }
+    char *version()		{ return ver; }
+    char *vendor_os()		{ return vos; }
+    char *implementation()	{ return impl; }
+
+    if_ops first_op()		{ return first; }
+    if_ops last_op()		{ return last; }
+    char *op_string(if_ops);
+
+    FILE *fopen_mdfile(char *ext, char *mode="r"); 
+
+    void print(FILE *fd = stdout);
+};
+
+EXPORTED_BY_MACHINE archinfo *target_arch;	/* pointers to target data */
+@
+
+Most of the methods in this class are obvious.  The only interesting
+method is [[archinfo::fopen_mdfile(char *, char *)]].  This method
+takes a filename extension and some access mode information, and then
+searches the {\em impl} directory for the specified machine-specific
+data file.  It returns a handle to the file containing the
+machine-specific data.  This handle is passed to a class capable of
+reading and managing access to the data.  The [[<<class reginfo>>]]
+in the next section is an example of such a class.
+
+The machine library provides access to the target architecture and
+implementation data through the global variable [[target_arch]].
+When building a {\em machsuif} pass, you would typically define 
+this variable within your [[file_set]] iterator loop.  The following
+code illustrates this concept.
+
+<<example code that reads some machine-specific data>>=
+    /* Process each input file */
+    file_set_entry *fse;
+    fileset->reset_iter();
+    while ((fse = fileset->next_file())) {
+	ifile = fse->name();
+
+	/* get machine-specific data needed by this optimization */
+	target_arch = new archinfo(fse);
+	target_regs = new reginfo(target_arch->fopen_mdfile("reg"));
+
+	/* perform optimization */
+	Process_file(fse);
+
+	delete target_regs;
+	delete target_arch;
+    }
+@
+
+The example code indicates that this optimization pass requires
+information about the registers in the target architecture.  This
+information is read from the appropriate file in the {\em impl}
+directory.  The register information is kept in files with the
+file extension ``.reg'' as explained in the next section.  A pass
+might require multiple [[target_*]] managers for each type of
+machine-specific data that it requires.  Notice that you only need to
+read the data you require.
+
+
+\section{Registers and the [[reginfo]] class}
+\label{secRegs}
+
+One piece of architecture information that is commonly needed is the
+specifics of the register set of the target machine.  The
+[[<<class reginfo>>]] manages this information.
+
+We use abstract register names (actually an integer) when referring to
+hard registers in the machine library.  The actual string value
+expected by the assembler for a specific architectural register is
+available from the [[name(int)]] method in the [[<<class reginfo>>]].
+With abstract register names, routines that do not
+care, for example, about the specific number for the stack pointer
+register in the current target architecture can still reference the
+stack pointer using the abstract name [[REG_sp]].  The
+architecture-specific print routines automatically translate these
+abstract register names into the appropriate target-specific
+register number.
+
+We organize an architecture's hard registers into a two-level
+hierarchy.  The first level of this hierarchy splits an architecture's
+registers into register {\em banks}.  Currently, the machine library
+defines four register banks, as shown below.  The second level of this
+hierarchy splits the hard registers into one of several register {\em
+conventions}.  Within a register convention, an architecture will have
+zero or more hard registers.  In a {\em machsuif/impl/*.reg} file, you
+assign each hard register within a register bank and convention a unique id
+(i.e. a number from 0 to one less than the number of registers in that
+bank's convention).  Given this assignment, we can now refer to a hard
+register abstractly by specifying its bank, convention, and index
+number.
+
+<<reginfo enums>>=
+enum {	/* register banks */
+    GPR = 0,		/* general-purpose (e.g. integer) registers */
+    FPR,		/* floating-point registers */
+    SEG,		/* segment registers */
+    CTL,		/* control (e.g. PC, condition code) registers */
+    LAST_REG_BANK	/* must be the last entry in the enum */
+}; 
+
+extern char *reg_bank_string(int);
+
+enum {	/* register conventions */
+    CONST0 = 0,		/* constantly zero */
+    RA,			/* return address register */
+    SP,			/* stack pointer */
+    GP,			/* global pointer */
+    FP,			/* frame pointer */
+    ARG,		/* argument registers */
+    RET,		/* function return registers */
+    SAV,		/* callee saved registers */
+    TMP,		/* caller saved registers */
+    ASM_TMP,		/* assembler temporary registers (caller saved) */
+    GEN,		/* generic -- catch all for other registers in bank */
+    LAST_REG_CONV	/* must be the last entry in the enum */
+}; 
+
+extern char *reg_conv_string(int);
+@
+
+We also provide two routines, [[reg_bank_string(int)]] and
+[[reg_conv_string(int)]], to help with the human-readable
+printing of the [[reginfo enum]]'s.
+
+We place every architecture's hard register into this hierarchy in
+exactly one place, even though a hard register can belong
+theoretically to multiple conventions within a single register bank.
+For example, parameter registers are often considered to be temporary
+(caller-saved) registers too.  This is not a problem as long as {\em
+each hard register appears only once in the hierarchy}.  The small,
+ugly aspect of this situation is that the abstract reference may not
+always be the best name for a particular context.  To continue the
+example, it would be nice to refer to a parameter register with a
+temporary register reference when the register allocator assigns it as
+a temporary register, but you cannot.
+
+We define a register bank to be any set of registers that have the
+same access cost with respect to a particular instruction.  This means
+that architectures with multiple GPR banks (e.g. clustered VLIW register
+files) should contain multiple ``GPR'' register banks (e.g. GPR1, GPR2,
+etc.).  Our current system does not provide a register allocator capable
+of bank assignment and inter-bank register allocation for these types
+of architectures.
+
+As the file {\em impl/alpha.reg} illustrates, an architecture defines only
+those banks and conventions that it uses.  You can easily change the
+number of registers in a bank, the number of banks in an architecture,
+or the conventions used by a bank by simply changing the appropriate
+data file for that architecture.  The only time that you need to
+modify the machine library and recompile the {\em machsuif} system is
+when you add new values to the register banks and conventions
+[[enum]]'s.  Remember to fix the {\em archData.l} and {\em archData.y}
+files too.
+
+To deal with architectures that gang registers together to handle
+operations on larger datatypes (e.g. the use of two FP registers in
+the MIPS-I architecture to hold double-precision FP numbers) and
+architectures that grew in the size of their datapath as they grew
+older (e.g. the x86 architecture permits the addressing of two
+separate 8-bit chunks of the A register), the machine library
+maintains information about the {\em natural width} and the {\em
+addressable grain size} of the registers in each register bank.  This
+information is specified in the {\em *.reg} file.  In the
+simplest case, a register is always accessed in its natural width.
+For example, the Alpha architecture has 64-bit registers (the natural
+width), and you modify all 64 bits whenever you write one of these
+registers.  Thus, the grain size of the GPR and FPR banks in the Alpha
+architecture is 64 bits.  In the latest x86 architecture, the A
+register can be accessed as an 8-bit, 16-bit, or 32-bit quantity.  The
+natural size of this register is 32 bits, but its grain size is 8
+bits (not all 8-bit grains are addressable in the architecture though
+an abstract name exists for each grain).
+
+To see how the machine library uses this information, we consider a
+simple example from the MIPS-I architecture.  In this architecture, the
+FPR bank has a natural width of 32 bits and a grain size of 32 bits.
+When a DP FP value is written to an even FP register, the size of the
+operand data is 64 bits (indicated by the operand [[type]]
+information).  The machine library uses the grain size information to
+realize that a write of this operand data requires two FPR registers.
+By convention, the library uses the specified abstract register and
+the next sequential grains in the machine description file until the
+total grain size is equal to the operand data size.  The implication
+here is that the MIPS-I {\em machsuif} instruction that writes a DP FP
+value specifies only a single abstract register name as the
+destination.  The machine library (including the register allocation
+and dependence analysis passes) realizes that multiple registers are
+written.  Another implication is that your passes had better maintain
+the correct operand type information if you expect the machine library
+to work correctly.
+
+As an aside, virtual registers have no predefined width.  They are as
+wide as they need to be in order to hold the operand data.  When
+assigning hard registers to virtual registers, even if the value in
+a virtual register requires multiple hard registers, we place only
+the name for the starting hard register grain in the destination
+operand corresponding to the virtual register.  The type information
+conveys the extra information indicating the other occupied grains.
+You create multiple destination operands only when an instruction
+produces multiple distinct results.
+
+Looking at things for the other direction, consider the x86
+architecture.  We define that the A, B, C, and D registers each
+comprise four 8-bit grains for a total natural width of 32 bits.  How
+many of these grains are used depends upon the size of the operand.
+An 8-bit operand that wants to write only AL, for example, would write
+only the first 8-bit grain.  An 8-bit operand that wants to write AH
+would write the grain following the one for AL.  A 16-bit operand that
+wants to write only AX would write the first two 8-bit grains for hard
+register A (i.e. it would write AL and AH); the operand uses the same
+abstract register name used by the write to AL.  A 32-bit operand
+would write all four grains.  Notice that if we wanted to write an
+8-bit value into EAX, we would specify the operand size as 32-bits.
+
+\begin{openissue}
+Make sure that the passes know about the size of a memory container, i.e.
+make sure that the correct code is generated when we want to write only
+the lower 8 bits of EAX into an 8-bit wide memory location.
+\end{openissue}
+
+To manage this register information, the machine library defines
+the [[<<class reginfo>>]].  You define the information in this class
+in your {\em impl/*.reg} file.  You access this information through
+the [[target_regs]] variable with help from the [[target_arch]] variable.
+Please see the [[<<example code that reads some machine-specific data>>]].
+
+<<class reginfo>>=
+struct reg_desc {
+    int	bank;		/* register bank */
+    int conv;		/* primary convention */
+    int encoding;	/* hardware encoding */
+    char *name;		/* assembler name */
+}; 
+
+class reginfo {
+    friend int yyparse(void); 
+    friend void yy_rpair(int, char *);
+
+  private:
+    int n;		/* number of grains contained in all register banks */
+    int *num_in_b;	/* size n_banks */
+    int *num_in_bc; 	/* size n_banks * n_conventions */
+    int *start_of_b;	/* size n_banks */
+    int *start_of_bc;	/* size n_banks * n_conventions */
+    int *width_of_b;	/* size n_banks */
+    int *gsize_of_b;	/* size n_banks */
+    reg_desc *desc;	/* size n */
+    int *m2a_map;	/* machine encoding to abstract number map; size n */
+
+  public:	
+    int total_grains() const { return n; }
+    int num_in(int b) const { 
+	assert(b < LAST_REG_BANK); 
+	return num_in_b[b]; 
+    }
+    int num_in(int b, int c) const {
+	assert(b < LAST_REG_BANK && c < LAST_REG_CONV); 
+	return num_in_bc[b * LAST_REG_CONV + c]; 
+    }
+    int start_of(int b) const {
+	assert(b < LAST_REG_BANK); 
+	return start_of_b[b];
+    }
+    int start_of(int b, int c) const {
+	assert(b < LAST_REG_BANK && c < LAST_REG_CONV); 
+	return start_of_bc[b * LAST_REG_CONV + c]; 
+    }
+    int width_of(int b) const {
+	assert(num_in(b) > 0);
+	return width_of_b[b];
+    }
+    int grain_size_of(int b) const {
+	assert(num_in(b) > 0);
+	return gsize_of_b[b];
+    }
+    int lookup(int b, int c, int i) const {
+	assert(i < num_in(b, c)); 
+	return start_of(b, c) + i; 
+    }
+
+    reg_desc describe(int ar) const {
+	assert(ar < n);
+	return desc[ar];
+    }
+    char *name(int ar) const { return describe(ar).name; }
+
+    /* mapping functions between abstract reg numbers and machine encodings */
+    int a2m(int ar);
+    int m2a(int b, int mr);
+
+    void print(FILE *fd = stdout);
+
+    reginfo(FILE *fd); 
+    ~reginfo(); 
+};
+
+EXPORTED_BY_MACHINE reginfo *target_regs;    /* target register information */
+@
+
+The [[total_grains()]] method returns the total number of register
+grains in the machine.  This number is the same as the number of
+registers in the machine ONLY IF the grain size equals the natural
+width in each register bank.  There is a simple calculation that you
+can perform to determine the total number of architecturally-visible
+hard registers in the machine (we never need it so we don't have a
+method for it).  The methods [[num_in(int b)]] and
+[[num_in(int b, int c)]] return the number of grains in a register bank
+[[b]] and in a
+register bank [[b]]'s convention [[c]], respectively.  If a [[num_in]]
+method returns [[0]], then the bank and/or its convention queried do
+not exist.  The [[start_of]] methods return the number of the first
+abstract register in the queried bank and queried bank's convention
+respectively.  The [[width_of(int b)]] method returns the natural
+width of the bank [[b]] in bits.  The [[grain_size_of(int b)]] method
+returns the grain size of the bank [[b]] in bits.  All registers within
+a bank have the same natural width and grain size.
+
+The [[lookup(int b, int c, int i)]] method returns the abstract
+register number for the hard register assigned to index [[i]] of bank
+[[b]] in convention [[c]].  The index starts at 0 and goes to
+[[num_in(b,c) - 1]].  Since the registers in each bank's convention
+are numbered sequentially in the space of abstract register numbers,
+one can build a [[bit_set]] for a bank [[b]] and convention [[c]]
+knowing the value returned by [[lookup(b,c,0)]] and [[num_in(b,c)]].
+
+The method [[describe(int ar)]] provides the reverse mapping from an
+abstract register number [[ar]] to its bank, convention, machine
+encoding, and assembler string.  The data is returned in a
+[[reg_desc]] structure.  To get the index, you subtract the abstract
+register number of the zeroth element of [[ar]]'s bank and convention
+from [[ar]].  The machine encoding is the value used in a machine
+instruction to specify this register.  We need this information, for
+example, when setting the saved register bit masks in Alpha.  Notice
+that the encoding is unique only within a bank.  We provide the method
+[[name(int ar)]] as a short cut to get to the assembler name for the
+abstract register number [[ar]].
+
+The methods [[a2m(int)]] and [[m2a(int,int)]] perform the mappings
+between an abstract register name and the machine encoding.  As stated
+above, in order to obtain the abstract register name from a machine
+encoding, you must also specify the register bank for this hard
+register.
+
+We use the [[print]] method for debugging purposes only.
+
+Finally, it is inconvenient to type [[target_regs->lookup(b,c,i)]]
+every time that you want to refer to a register.  Hence, we created
+some macro's to make our lives easier.
+
+<<register defines>>=
+#define REG(b, c, i) (target_regs->lookup(b, c, i))
+#define REG_const0	(REG(GPR, CONST0, 0))
+#define REG_ra		(REG(GPR, RA, 0))
+#define REG_sp		(REG(GPR, SP, 0))
+#define REG_gp		(REG(GPR, GP, 0))
+#define REG_fp		(REG(GPR, FP, 0))
+@
+
+\begin{openissue}
+Currently we have an implicit mapping between an operand type and
+its home register bank.  We may want to make this mapping explicit
+in the machine description file someday.
+\end{openissue}
+

@@ -1,0 +1,46 @@
+digraph G{
+	label = "Bimerge"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_17\nmove	r14	r5	\nmove	r13	r6	\nmove	r12	r7	\nmove	r8	r0	\naddu	r9	r14	r8	\nlw	r9	nd#877	\nli	r10	nd#881	\naddu	r19	r14	r10	\nlw	r5	nd#884	\nli	r20	nd#888	\naddu	r21	r14	r20	\nlw	r6	nd#891	\nslt	r28	r13	r9	\nxor	r11	r28	r12	\nmove	r22	r0	\nsne	r23	r11	r22	\nbeqz	Bimerge.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_4\nmove	r24	r0	\naddu	r25	r14	r24	\nsw	nd#904	r13	\nmove	r13	r9	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_3\nBimerge.L1:\nla	r26	nd#911	\nsne	r27	r5	r26	\nbeqz	Bimerge.L2\n"];
+	Node4 -> {Node5 Node15 }
+	Node5 [label = "B5_25\nBimerge.L5:\nloopbegin	Bimerge.L13\nBimerge.L13:\nmove	r28	r0	\naddu	r7	r5	r28	\nlw	r10	nd#920	\nli	r7	nd#924	\naddu	r8	r5	r7	\nlw	r16	nd#927	\nli	r9	nd#931	\naddu	r19	r5	r9	\nlw	r15	nd#934	\nmove	r19	r0	\naddu	r20	r6	r19	\nlw	r9	nd#940	\nli	r21	nd#944	\naddu	r22	r6	r21	\nlw	r17	nd#947	\nspawn	Bimerge.L14\nli	r23	nd#951	\naddu	r24	r6	r23	\nlw	r18	nd#954	\nslt	r7	r9	r10	\nxor	r7	r7	r12	\nmove	r25	r0	\nsne	r26	r11	r25	\nbeqz	Bimerge.L6\n"];
+	Node5 -> {Node6 Node10 }
+	Node6 [label = "B6_3\nmove	r27	r0	\nsne	r28	r7	r27	\nbeqz	Bimerge.L7\n"];
+	Node6 -> {Node7 Node9 }
+	Node7 [label = "B7_8\nla	r19	nd#969	\nmove	r7	r15	\nmove	r8	r18	\nmove	r4	r2	\nfst	r2	\nsw	nd#975	r10	\nsw	nd#978	r9	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_3\nmove	r5	r16	\nmove	r6	r17	\nj	Bimerge.__done12\n"];
+	Node8 -> {Node14 }
+	Node9 [label = "B9_3\nBimerge.L7:\nmove	r5	r15	\nmove	r6	r18	\nj	Bimerge.__done12\n"];
+	Node9 -> {Node14 }
+	Node10 [label = "B10_3\nBimerge.L6:\nmove	r8	r0	\nsne	r7	r7	r8	\nbeqz	Bimerge.L8\n"];
+	Node10 -> {Node11 Node13 }
+	Node11 [label = "B11_8\nla	r19	nd#999	\nmove	r7	r16	\nmove	r8	r17	\nmove	r4	r2	\nfst	r2	\nsw	nd#1005	r10	\nsw	nd#1008	r9	\njalr	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_3\nmove	r5	r15	\nmove	r6	r18	\nj	Bimerge.__done12\n"];
+	Node12 -> {Node14 }
+	Node13 [label = "B13_2\nBimerge.L8:\nmove	r5	r16	\nmove	r6	r17	\n"];
+	Node13 -> {Node14 }
+	Node14 [label = "B14_9\nBimerge.__done12:\ncqip	Bimerge.L14\nBimerge.L14:\npslice_entry	Bimerge.L14\nmove	r5	r16	\nmove	r6	r17	\npslice_exit	Bimerge.L14\nla	r7	nd#1023	\nsne	r8	r5	r7	\nbnez	Bimerge.L5\nloopend	Bimerge.L13\n"];
+	Node14 -> {Node15 Node5 }
+	Node15 [label = "B15_6\nBimerge.L2:\nli	r9	nd#1030	\naddu	r10	r14	r9	\nlw	r19	nd#1033	\nla	r20	nd#1036	\nsne	r21	r19	r20	\nbeqz	Bimerge.L9\n"];
+	Node15 -> {Node16 Node19 }
+	Node16 [label = "B16_16\nli	r22	nd#1042	\naddu	r23	r14	r22	\nlw	r5	nd#1045	\nli	r24	nd#1049	\naddu	r25	r14	r24	\nlw	r11	nd#1052	\nmove	r26	r0	\naddu	r27	r14	r26	\nlw	r6	nd#1058	\nmove	r28	r0	\naddu	r14	r14	r28	\nla	r19	nd#1064	\nmove	r7	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_8\nsw	nd#1070	r9	\nla	r19	nd#1074	\nmove	r5	r11	\nmove	r6	r13	\nmove	r7	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node17 -> {Node18 }
+	Node18 [label = "B18_1\nmove	r13	r9	\n"];
+	Node18 -> {Node19 }
+	Node19 [label = "B19_2\nBimerge.L9:\nmove	r9	r13	\njr	\n"];
+	Node19 -> {Node1 }
+	Node5 [shape = box ,style=filled ,color=red];
+	Node14 [shape = polygon ,style=filled ,color=yellow];
+}

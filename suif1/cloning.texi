@@ -1,0 +1,178 @@
+@c This file is part of the SUIF reference manual
+
+@node Cloning, Fortran, Annotations, Top
+@chapter Replicating Trees and Instructions
+@cindex cloning
+@cindex duplication
+
+Many SUIF programs need to duplicate parts of abstract syntax trees or
+expression trees.  For example, loop transformations such as unrolling
+and peeling require copies of the loop bodies, and entire procedures
+must be copied to implement procedure inlining.  Because code
+replication can be quite complicated in SUIF, it is handled in the
+library by the @dfn{cloning} methods.
+
+@findex tree_node, clone
+@findex tree_instr, clone
+@findex tree_if, clone
+@findex tree_for, clone
+@findex tree_loop, clone
+@findex tree_proc, clone
+@findex tree_block, clone
+@findex tree_node_list, clone
+@findex instruction, clone
+@findex operand, clone
+Several different kinds of SUIF objects can be cloned.  The
+@code{tree_node}, @code{tree_node_list}, @code{instruction}, and
+@code{operand} classes have @code{clone} methods.  The various derived
+@code{tree_node} classes also have wrapper methods to cast the result of
+the base class @code{clone} method to the appropriate pointer types.
+When an object is cloned, everything within it is recursively cloned.
+In addition to the child nodes and instructions, this includes symbol
+tables and the types and symbols within them.  All of the known
+references to cloned objects (including those in registered annotations)
+are updated.
+
+The complexity of cloning is primarily due to SUIF's scope rules.  The
+code being copied may reference symbols and types that are not visible
+in the scope where the copy will be used.  Thus the cloning process is
+divided into three steps:
+
+@enumerate
+@item
+The code to be copied is scanned for references to symbols and types
+that are not visible in the specified destination scope.  These are
+referred to as @dfn{exposed references}.
+
+@item
+The exposed references are resolved in the symbol table for the
+destination scope.  New variables are created to replace the exposed
+variables.  Types are usually moved up in the symbol table hierarchy so
+that they are visible in both the source and destination scopes.
+
+@item
+The code is actually copied.  Symbol tables nested within the code are
+copied and references to them and their contents are updated to use the
+copies.  Similarly, the exposed references are replaced with references
+to any new symbols or types that were created in the previous step.
+@end enumerate
+
+Each of these steps is described in more detail below.  The methods that
+perform the individual steps are available to users who need more
+control over the cloning process.  For example, you may want to insert
+code to initialize new variables that are created in the destination
+scope due to exposed references.  The cloning methods can also be used
+to replace references to particular symbols or types without actually
+copying anything.
+
+@tindex replacements
+The @code{replacements} structure is used throughout the cloning process
+to keep track of exposed references and objects that have been replaced.
+This structure includes lists of symbols, types, variable definitions,
+symbol tables, and instructions.  For each kind of object, there are two
+lists.  Except in intermediate steps, these lists should be the same
+length.  An entry on the first list refers to an object in the original
+code and the corresponding entry on the second list is a new object that
+has been created to replace the original.
+
+@menu
+* Finding Exposed References::  Finding things not visible at the destination.
+* Resolving Exposed References::  Creating replacement objects.
+* Copying the Objects::         Copying the code and updating references.
+@end menu
+
+
+@node Finding Exposed References, Resolving Exposed References, Cloning, Cloning
+@section Finding Exposed References
+
+@findex tree_node_list, find_exposed_refs
+@findex tree_node, find_exposed_refs
+@findex operand, find_exposed_refs
+@findex instruction, find_exposed_refs
+@findex block_symtab, find_exposed_refs
+The first step in the cloning process is to scan through the code being
+copied to search for references to objects that are not visible in the
+destination scope.  The @code{tree_node_list}, @code{tree_node},
+@code{operand}, @code{instruction}, and @code{block_symtab} classes have
+@code{find_exposed_refs} methods to perform this operation.  The results
+are returned in a @code{replacements} structure by putting the exposed
+references in the lists of original objects.  The lists of new objects
+are left empty.
+
+@findex suif_object, find_annote_refs
+Besides checking for exposed references in the objects themselves, the
+@code{find_exposed_refs} methods also check for references contained in
+annotations attached to the objects.  Both flat and structured
+annotations are checked, but unregistered annotations are ignored since
+they are not copied.  The @code{find_annote_refs} method is used to
+check a @code{suif_object} for exposed references.
+
+Label symbols are a special case.  Even if a label symbol is visible in
+the destination scope, it must be replaced if the label instruction is
+to be cloned.  Otherwise, there would be two label instructions sharing
+the same label symbol!  Thus, the @code{find_exposed_refs} method adds
+the symbol in a label instruction to the list of exposed references.
+The exception to this is that label symbols that are defined within
+cloned symbol tables will automatically be replaced and are not included
+in the exposed references.
+
+
+@node Resolving Exposed References, Copying the Objects, Finding Exposed References, Cloning
+@section Resolving Exposed References
+
+@findex base_symtab, resolve_exposed_refs
+After the exposed references have been found, the destination scope must
+be updated to include definitions for the objects in the exposed
+references.  The @code{base_symtab} class provides the
+@code{resolve_exposed_refs} method to accomplish this.  This method
+takes the lists of original objects in the @code{replacements} structure
+produced by the @code{find_exposed_refs} method (@pxref{Finding Exposed
+References}) and adds corresponding entries to the lists of new objects.
+New symbols are created and added to the symbol table to replace the
+originals.  Variable definitions are also created as needed.
+
+Because some types use name equivalence, they cannot be copied without
+creating different types.  Thus, whenever possible, types are moved up
+in the symbol table hierarchy so that they are visible in both the
+source and destination scopes.  If a type is successfully moved, the old
+and new entries for the @code{replacements} lists are the same.  Some
+types contain references to variables (e.g. as array bounds), and if
+those variables are not already visible in the destination scope, the
+types cannot be moved.  When that happens, @code{resolve_exposed_refs}
+resorts to making a new type where the variable references are updated
+to use the cloned variables.
+
+
+@node Copying the Objects,  , Resolving Exposed References, Cloning
+@section Copying the Objects
+
+@findex tree_node_list, clone_helper
+@findex tree_node, clone_helper
+@findex operand, clone_helper
+@findex instruction, clone_helper
+@findex block_symtab, clone_helper
+@findex proc_symtab, clone_helper
+Once the exposed references have been resolved, the code can be copied.
+The @code{tree_node_list}, @code{tree_node}, @code{operand},
+@code{instruction}, @code{block_symtab}, and @code{proc_symtab} classes
+have @code{clone_helper} methods to perform the actual copying.  These
+methods change references to objects in the original objects lists of
+the @code{replacements} structure to references to the newly created
+replacements.
+
+@findex suif_object, clone_annotes
+Annotations on the objects are also cloned.  The @code{clone_annotes}
+method is used to copy the annotations from one @code{suif_object} to
+another.  Unregistered annotations cannot be copied because the
+structure of their data fields is unknown.  The @code{clone_helper}
+methods call @code{clone_annotes} for each object that is cloned; you
+generally do not need to call it directly.
+
+The @code{clone_helper} and @code{clone_annotes} methods can also be
+used to perform another related function.  It is occasionally necessary
+to replace references to one set of objects with references to another
+set of objects.  Since the cloning methods do that anyway, it is easy to
+have them update the references without actually making copies.  Setting
+the @code{no_copy} parameter causes them to update the references as
+specified in a @code{replacements} structure without copying the
+objects.

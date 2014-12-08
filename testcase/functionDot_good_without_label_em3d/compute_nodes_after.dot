@@ -1,0 +1,25 @@
+digraph G{
+	label = "compute_nodes"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_3	\n# .loc	\n# .loc	\nla	r19	nd#402	\nsne	r20	r5	r19	\nbeqz	r20	\n"];
+	Node2 -> {Node3 Node9 }
+	Node3 [label = "B3_6	\n# .loc	\nmove	r21	r0	\nli	r22	nd#410	\naddu	r23	r5	r22	\nlw	r24	nd#413	\nslt	r25	r21	r24	\nbeqz	r25	\n"];
+	Node3 -> {Node4 Node7 }
+	Node4 [label = "B4_1move	r26	r0	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_40	\n# .loc	\n# .loc	\nspawn	\nli	r27	nd#422	\naddu	r28	r5	r27	\nlw	r6	nd#425	\nli	r7	nd#428	\nmult	r26	r7	\nmflo	r7	\naddu	r8	r6	r7	\nlw	r9	nd#433	\n# .loc	\nli	r10	nd#437	\naddu	r19	r5	r10	\nlw	r20	nd#440	\nli	r21	nd#443	\nmult	r26	r21	\nmflo	r22	\naddu	r23	r20	r22	\nl.d	r56	nd#448	\n# .loc	\nmove	r24	r0	\naddu	r25	r9	r24	\nl.d	r58	nd#454	\n# .loc	\nmove	r27	r0	\naddu	r27	r5	r27	\nl.d	r60	nd#460	\nmul.d	r62	r56	r58	\nsub.d	r32	r60	r62	\ns.d	nd#465	r32	\nli	r28	nd#468	\naddu	r26	r26	r28	\nli	r6	nd#471	\naddu	r6	r5	r6	\ncqip	\n	\npslice_entry	\nli	r28	nd#0	\naddu	r26	r26	r28	\nli	r6	nd#0	\naddu	r6	r5	r6	\npslice_exit	\nlw	r7	nd#474	\nsle	r8	r7	r26	\nbeqz	r8	\n"];
+	Node5 -> {Node6 Node5 }
+	Node6 [label = "B6_1	\nj	\n"];
+	Node6 -> {Node8 }
+	Node7 [label = "B7_1	\nmove	r26	r0	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_6	\n# .loc	\n# .loc	\nli	r9	nd#486	\naddu	r10	r5	r9	\nlw	r5	nd#489	\n# .loc	\nla	r19	nd#493	\nsne	r20	r5	r19	\nbnez	r20	\n"];
+	Node8 -> {Node9 Node3 }
+	Node9 [label = "B9_1	\n# .loc	\njr	r1	\n"];
+	Node9 -> {Node1 }
+	Node5 [shape = ellipse ,style=filled ,color=blue];
+}

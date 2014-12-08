@@ -1,0 +1,75 @@
+\section{Class [[bit_vector_problem]]}
+\label{secBitVectorProblem}
+
+The [[bit_vector_problem]] class is a parent class for
+bit-vector-based DFA problems.  It was modeled after a similar class
+originally implemented by Steve Tjiang of Synopsys and Prof.\
+Todd Mowry's students at the University of Toronto.  Here is its
+declaration:
+
+<<class [[bit_vector_problem]]>>=
+const int INFINITY = 0x7fffffff;
+enum DFA_direction_type { forward, backward };
+
+class bit_vector_problem {
+  private:
+    DFA_direction_type dfa_dir;
+
+  protected:
+    cfg *the_cfg;
+    DFA_direction_type direction()    { return dfa_dir; }
+
+    virtual void build_sets() = 0;
+    virtual boolean solver_ops(cfg_node *n) = 0;
+
+  public:
+    bit_vector_problem(DFA_direction_type dir, cfg *graph);
+    boolean solve(int iteration_limit = INFINITY);
+};
+@
+\noindent
+This class is abstract; a particular data flow analyzer is created by
+deriving a subclass of it.  The abstract class is explicitly parameterized
+by the two arguments of its constructor: the direction ([[forward]] or
+[[backward]]) of bit-vector propagation and the CFG of the program to be
+analyzed.  The iterative propagation algorithm is defined by method
+[[solve(iteration_limit)]], which returns true unless it reaches
+[[iteration_limit]] traversals of the CFG before the analysis converges.
+
+The [[bit_vector_problem]] class above is also implicitly parameterized by
+its two pure virtual methods:
+\begin{itemize}
+\item [[build_sets()]] must initialize the bit vectors for the graph, and
+      it should represent the effect of each node so that the
+      solving phase can combine bit vectors, without having to
+      inspect code.
+\item [[solver_ops(cfg_node *n)]] finds and combines the bit vectors of
+      nodes impinging on [[n]] and then propagates the result through [[n]]
+      using its precomputed effect description.  These two aspects of
+      [[solver_ops]]'s role are sometimes called {\em confluence} and {\em
+      transfer}, respectively.  It also detects whether propagation has
+      produced any change in [[n]]'s attached properties.  If so, it
+      returns true; otherwise, false.
+\end{itemize}
+\noindent
+Note that nothing in class [[bit_vector_problem]] dictates the way that
+properties are associated with CFG nodes.  Property sets even don't
+need to be vectors of bits.  However, Section~\ref{secLiveVarProblem}
+defines a simple scheme for connecting bit vectors with CFG nodes, and this
+is likely to be useful for most analyzers.
+
+Class [[bit_vector_problem]] resides in module [[bit_vector_dfa]], which
+has the following header file.
+
+<<bit\_vector\_dfa.h>>=
+/* Bit-vector-based dataflow analysis problems */
+
+<<SUIF copyright>>
+
+#ifndef BIT_VECTOR_DFA_H
+#define BIT_VECTOR_DFA_H
+
+<<class [[bit_vector_problem]]>>
+
+#endif /* BIT_VECTOR_DFA_H */
+@

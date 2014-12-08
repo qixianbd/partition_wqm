@@ -1,0 +1,142 @@
+\subsection{machineUtil.h}
+\label{secMachineUtil.h}
+
+This file contains helper functions that allow one to write
+machine-independent code for machine-specific optimizations.
+
+<<machineUtil.h>>=
+/* file "machineUtil.h" */
+
+<<SUIF copyright>>
+
+#ifndef MACHINE_UTIL_H
+#define MACHINE_UTIL_H
+
+<<architecture and format distinguishers>>
+
+<<instruction kind distinguishers>>
+
+<<uniform access methods>>
+
+<<architecture-specific opcode generators>>
+
+<<other print helpers>>
+
+#endif
+@
+
+There are five kinds of routines in this file.  The first kind takes
+a SUIF opcode and returns the architecture or instruction format for
+this opcode.  Please note that both these routines work with the
+SUIF opcodes in addition to the Machine SUIF opcodes.
+
+<<architecture and format distinguishers>>=
+extern char *which_architecture(mi_ops o);
+extern int which_mformat(mi_ops o);
+@
+
+The next kind of routine takes a SUIF [[instruction]] pointer as the
+only parameter and then tells you something about the instruction
+(e.g. that it's an unconditional jump instruction).  These routines are
+useful if your analysis or optimization pass is looking for a
+particular kind of instruction, but it does not care about the actual
+opcode.
+
+<<instruction kind distinguishers>>=
+extern boolean Is_null(instruction *);
+extern boolean Is_label(instruction *);
+extern boolean Is_ldc(instruction *);
+extern boolean Is_move(instruction *);
+extern boolean Is_cmove(instruction *);		// conditional move
+extern boolean Is_line(instruction *);		// line number marker
+
+extern boolean Is_cti(instruction *);		// One of below is true
+extern boolean Is_ubr(instruction *);		// unconditional jump/branch
+extern boolean Is_cbr(instruction *); 		// conditional (2 targets)
+extern boolean Is_mbr(instruction *); 		// multiway (n targets)
+extern boolean Is_call(instruction *);		// includes coroutines calls
+extern boolean Is_return(instruction *);
+
+extern boolean Reads_memory(instruction *);
+extern boolean Writes_memory(instruction *);
+@
+
+Hopefully, most of the routines are self-explanatory from their
+names; only a few deserve some explanation.  The routine [[Is_null()]]
+returns [[TRUE]] if the opcode of the instruction is the null opcode.
+This is not the same as a NOP.  Null opcodes are used as placeholders
+for annotations or assembly-language comments.  The routine [[Is_line()]]
+returns [[TRUE]] if the instruction is a directive indicating the
+source line number at this point in the program.
+
+The branching methods also deserve some explanation.  The routine
+[[Is_cti()]] returns [[TRUE]] if the instruction is a control-transfer
+instruction.  This also means that at least one of the next five
+helper routines are [[TRUE]].  The abbreviations are defined as follows:
+UBR stands for unconditional branch (single target); CBR stands for
+conditional branch (two targets, one implicit); and MBR stands for
+multi-way branch ([[N]] targets where [[N]] may be unknown).  Please
+note that an instruction is a CBR whenever it has two targets, one of
+which is implicit (the fall-through target typically).  This is
+independent of whether the branch evaluation is constant or
+conditional.
+
+The third kind of routine provides us with a uniform way
+to access particular parts of instructions that require different
+methods depending upon whether the [[instruction]] is a simple SUIF
+[[instruction]] or a {\em machsuif} [[machine_instr]].  For example,
+code that creates a control-flow graph doesn't care about the actual
+opcode of an [[instruction]], it just wants the target [[sym_node]] if
+the [[instruction]] is an unconditional jump.
+
+<<uniform access methods>>=
+extern label_sym *Get_label(instruction *);	/* of label instr */
+extern sym_node *Get_target(instruction *);	/* of branch/jump instr */
+extern proc_sym *Get_proc(instruction *); 	/* of call instr */
+@
+
+The fourth kind of routine is one that takes a pointer to an
+architectural description of the target machine and possibly a
+[[type_node]] pointer, and returns a machine-specific opcode
+that fulfills the requested action.  For example, the helper
+routine [[Ubr_op(archInfo *)]] returns the opcode corresponding
+to an unconditional branch in the indicated architecture.
+
+<<architecture-specific opcode generators>>=
+extern mi_ops Ubr_op(archinfo *);
+extern mi_ops Label_op(archinfo *);
+extern mi_ops Null_op(archinfo *);
+extern mi_ops Load_op(archinfo *, type_node *);
+extern mi_ops Store_op(archinfo *, type_node *);
+extern mi_ops Move_op(archinfo *, type_node *);
+extern mi_ops Invert_cbr_op(archinfo *, mi_ops);
+@
+
+The final set of routines help with printing.  In particular, they
+are used by [[printmachine]] to create an ASCII assembly file.
+Again, most of these are straightforward, though a few deserve a
+few extra words of documentation.
+The [[Print_global_directives]] routine allows you to insert
+assembler directives at the top of your output assembly-language
+file that are valid during the entire file.  For example, we use
+this feature to disable code reordering by the assembler.
+The [[Print_file_op]] routine takes a file number and a file string name.
+The [[Print_var_def]] routine requires,  for some architectures, an
+integer that indicates the maximum size of a data item that is placed
+in the global pointer area.  If the architecture does not require this
+parameter, the [[int]] value is ignored.
+The [[Print_proc_begin]] routine takes a file number that is then used
+for the initial line directive.  This information aids in debugging.
+Again, some architectures do not need this information, and in those
+cases, this [[int]] value is ignored.
+
+<<other print helpers>>=
+extern void Print_global_directives(archinfo *, file_set_entry *, FILE *);
+extern void Print_extern_op(archinfo *, var_sym *, FILE *);
+extern void Print_file_op(archinfo *, int, char *, FILE *);
+extern void Print_var_def(archinfo *, var_sym *, int, FILE *);
+extern void Print_proc_def(archinfo *, proc_sym *, FILE *);
+extern void Print_proc_begin(archinfo *, proc_sym *,  FILE *);
+extern void Print_proc_entry(archinfo *, proc_sym *, int, FILE *);
+extern void Print_proc_end(archinfo *, proc_sym *, FILE *);
+@

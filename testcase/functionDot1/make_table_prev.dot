@@ -1,0 +1,12 @@
+digraph G{
+	label = "make_table"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7\n# .loc\nla\nli\nmultu\nmflo\nmove\nfst\njalr\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_1# .loc\njr\n"];
+	Node3 -> {Node1 }
+}

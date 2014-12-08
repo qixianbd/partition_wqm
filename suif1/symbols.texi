@@ -1,0 +1,552 @@
+@c This file is part of the SUIF reference manual
+
+@node Symbols, Types, Instructions, Top
+@chapter Symbols
+@cindex symbols
+
+@tindex sym_node
+@tindex sym_node_list
+@tindex sym_kinds
+@findex sym_node, kind
+SUIF symbols are stored in the symbol tables (@pxref{Symbol Tables}) to
+represent variables, labels, and procedures.  The @code{sym_node} class
+is the base class for all SUIF symbols.  This is an abstract class so it
+cannot be used directly.  The library also defines the
+@code{sym_node_list} class for lists of pointers to symbols.  Classes
+are derived from the @code{sym_node} class for each kind of symbol.
+Given an arbitrary symbol, the @code{kind} method identifies the kind of
+symbol and thus the derived class to which it belongs.  This method
+returns a value from the @code{sym_kinds} enumerated type.  The
+following values are defined in that enumeration:
+
+@table @code
+@item SYM_VAR
+Variable symbol.  The @code{var_sym} class represents variable symbols.
+
+@item SYM_LABEL
+Label symbol.  The @code{label_sym} class represents label symbols.
+
+@item SYM_PROC
+Procedure symbol.  The @code{proc_sym} class represents procedure symbols.
+@end table
+
+All symbols share some common fields including the symbol names.  These
+are described in the first section below.  Each kind of symbol also uses
+additional fields that are specific to that kind.  For example, variable
+symbols specify the types of the variables.  The subsequent sections
+describe the specific features of each kind of symbol.
+
+The @file{symbols.h} and @file{symbols.cc} files contain the source
+code for SUIF symbols.
+
+@menu
+* Symbol Features::             Basic features of all symbols.
+* Procedure Symbols::           Procedures.
+* Label Symbols::               Labels.
+* Variable Symbols::            Variables.
+@end menu
+
+
+@node Symbol Features, Procedure Symbols,  , Symbols
+@section Basic Features of Symbols
+
+@findex sym_node, name
+@findex sym_node, set_name
+The @code{sym_node} class defines several fields that are used by all
+kinds of symbols.  The most obvious of these is the symbol name.  Each
+symbol has a name that should be unique within the symbol table where it
+is defined.  The @code{name} and @code{set_name} methods access this
+field.  The names are automatically entered in the lexicon
+(@pxref{Lexicon}) by @code{set_name}.  Because the name of a symbol
+alone is generally insufficient to uniquely identify it, the symbols are
+also given ID numbers.  @xref{Numbering Types and Symbols}.
+
+@findex sym_node, parent
+When a symbol is entered in a symbol table, it automatically records a
+pointer to that parent table.  Similarly, when the symbol is removed
+from the symbol table, its parent pointer is cleared.  The @code{parent}
+method retrieves this parent pointer.
+
+@findex sym_node, is_userdef
+@findex sym_node, set_userdef
+@findex sym_node, reset_userdef
+All symbols contain flags to specify various attributes.  The
+@code{sym_node} class provides methods to access these flags.  The
+@code{is_userdef} method tests a flag to see if it is a user-defined
+symbol (from the source code) or a new symbol introduced by the
+compiler.  The @code{set_userdef} and @code{reset_userdef} methods
+change the value of this flag.
+
+@findex sym_node, is_extern
+Another flag is used to mark symbols that are only declarations of
+external symbols, rather than actual definitions.  This flag is set
+automatically.  The @code{is_extern} method retrieves its value.  Label
+symbols are never @code{extern}.  A procedure symbol is @code{extern}
+unless the procedure body is defined in the input file(s).  A global
+variable symbol is @code{extern} unless it has a separate definition
+(@pxref{Variable Definitions}); no other variables are @code{extern}.
+
+@findex sym_node, is_global
+@findex sym_node, is_private
+Since symbols may be treated differently depending on their scopes, the
+@code{sym_node} class includes methods to determine which kind of symbol
+table contains a symbol.  The @code{is_global} method checks if the
+parent table is a global or file symbol table.  This is really only
+useful for variable symbols, because procedures are always global and
+labels are never global.  The @code{is_private} method checks if a
+symbol is global but private to one source file by checking if the
+parent symbol table is a file symbol table.  This is obviously
+irrelevant for label symbols.
+
+@findex sym_node, remove_from_table
+@findex sym_node, add_to_table
+The @code{add_to_table} and @code{remove_from_table} methods are
+provided for convenience when adding or removing symbols from symbol
+tables.  In the case of variable symbols, the entire hierarchy of
+sub-variables (@pxref{Sub-Variables}) is added or removed at one time
+by this method.
+
+@findex sym_node, copy
+The @code{copy} method makes a copy of a symbol.  This is a virtual
+function so it copies the fields that are specific to each kind of
+symbol.  However, it only copies the symbol itself: copying a procedure
+symbol will not copy the procedure body and copying a variable symbol
+will not copy the variable definition.  The @code{copy} method does not
+copy annotations on the symbol, either.  Since the copy will have the
+same name as the original symbol, it should generally be renamed or used
+in a different symbol table.
+
+@findex sym_node, print
+@findex sym_node, print_full
+Two different methods are available for printing symbols.  The
+@code{print} method just prints the name of the symbol.  Label symbols
+are prefixed by @samp{L:} and procedure symbols by @samp{P:} to
+distinguish them from variable symbols.  The @code{print_full} method is
+used by the library when listing the contents of symbol tables.  It
+includes all the fields from the @code{sym_node}.
+
+
+@node Procedure Symbols, Label Symbols, Symbol Features, Symbols
+@section Procedure Symbols
+@cindex procedure symbols
+@cindex symbols, procedure
+
+@tindex proc_sym
+Procedure symbols are represented by objects of the @code{proc_sym}
+class.  SUIF does not support nested procedures, so these symbols may
+only be entered in global and file symbol tables.  The fields in a
+procedure symbol hold information about the procedure, including a
+pointer to the body if it is in memory.  The @code{proc_sym} class also
+provides methods to read procedure bodies from input files, write them
+to the output files, and flush them from memory.
+
+@tindex src_lang_type
+@findex proc_sym, src_lang
+@findex proc_sym, set_src_lang
+Each procedure symbol contains a field to record the source language for
+the procedure.  The @code{src_lang} and @code{set_src_lang} methods
+access this field, which holds a value from @code{src_lang_type}
+enumeration: @code{src_unknown}, @code{src_c}, @code{src_fortran}, or
+@code{src_verilog}.  Other values may be added in the future.
+
+@findex proc_sym, type
+@findex proc_sym, set_type
+A procedure symbol also has a field that specifies the type of the
+procedure.  The @code{type} and @code{set_type} methods retrieve and
+change this field.  The type must be a function type.  @xref{Function
+Types}.
+
+@findex proc_sym, block
+@findex proc_sym, set_block
+@findex proc_sym, is_in_memory
+The body of a procedure is represented by its abstract syntax tree.
+@xref{Trees}.  The procedure symbol contains a pointer to the root node
+of this tree.  The @code{block} and @code{set_block} methods access this
+pointer.  If the body is not in memory, the @code{block} pointer will be
+@code{NULL}; the @code{is_in_memory} method is provided to check this
+condition.
+
+@findex proc_sym, file
+@findex proc_sym, is_written
+@findex proc_sym, is_readable
+@findex proc_sym, read_proc
+The @code{proc_sym} class contains the methods to read procedure bodies
+from binary SUIF files and to write them out again.  The details of SUIF
+I/O are thus hidden from users; only entire procedures can be read and
+written.  If one of the input files contains the body for a procedure, a
+pointer to the file set entry (@pxref{File Set Entries}) is recorded in
+the procedure symbol.  The @code{file} method retrieves this pointer for
+a particular @code{proc_sym}.  The same procedure can be read in and
+flushed from memory many times, but once it has been written out it can
+no longer be read or written again.  The procedure symbol contains a
+flag to indicate if it has been written out yet.  The @code{is_written}
+method returns the value of this flag.  The @code{is_readable} method
+checks if the procedure body exists in one of the input files and if it
+has not yet been written out.  If this method returns @code{TRUE}, the
+@code{read_proc} method can be used to read the body of the procedure.
+By default, @code{read_proc} also converts the procedure to expression
+tree form (@pxref{Expression Trees}) but it does not convert to Fortran
+form (@pxref{Fortran}).  The @code{exp_trees} and
+@code{use_fortran_form} parameters to @code{read_proc} can be used to
+override these defaults.
+
+@findex proc_sym, write_proc
+After a procedure body has been read in and possibly modified, it can be
+written to the output file using the procedure symbol's
+@code{write_proc} method.  You must specify the file set entry to which
+the procedure should be written.  In most cases, the input and output
+file set entry will be the same, and you will just use the @code{file}
+method to determine the output file set entry.  As mentioned above, once
+a procedure has been written out it cannot be rewritten or read in
+again.  Obviously, it should not be changed after that point because the
+changes could not be saved.  Besides avoiding changes directly to the
+procedure, however, you must also be careful to avoid certain changes to
+the global symbol tables.  The symbols and types within the procedure
+are written out using their ID numbers.  @xref{Numbering Types and
+Symbols}.  Thus, you must not do anything to the global symbol tables
+that would cause the ID numbers for those symbols and types to change.
+For example, moving a symbol from a file symbol table to the global
+symbol table would require that its ID number change.  The best solution
+to this is to not write out the procedures until you are certain that
+such changes to the symbol tables will not be needed.
+
+@findex proc_sym, flush_proc
+When a procedure body is no longer needed, typically after it has been
+written out, call the @code{flush_proc} method for the procedure symbol
+to deallocate the storage used by the procedure.  In some cases, you may
+want to flush the procedure before it is written.  For example,
+interprocedural analysis requires that all procedures be read in and
+analyzed together.  To save space, the procedures can be summarized for
+the purpose of the particular analysis and then flushed.  After the
+analysis is complete, they can be re-read and the results can be
+attached to the code.
+
+
+@node Label Symbols, Variable Symbols, Procedure Symbols, Symbols
+@section Label Symbols
+@cindex label symbols
+@cindex symbols, label
+
+@tindex label_sym
+The @code{label_sym} class represents label symbols.  Labels are used
+within procedures to specify targets of branch and jump instructions.
+They may not be entered in global or file symbol tables.  The position
+of a label is usually indicated by a label instruction (@pxref{Label
+Instructions}), but for labels associated with high-level AST nodes, the
+label positions may be implicit.  The @code{label_sym} class contains no
+extra fields beyond those in the base @code{sym_node} class.
+
+
+@node Variable Symbols,  , Label Symbols, Symbols
+@section Variable Symbols
+@cindex variable symbols
+@cindex symbols, variable
+
+@tindex var_sym
+In SUIF, variable symbols represent data objects.  Variable symbols
+are represented by objects of the @code{var_sym} class.  This class
+adds a field to specify the type of the variable as well as some
+additional flags.  Unlike procedures and labels, variables may be
+defined in any scope.
+
+SUIF provides optional @dfn{sub-variables} to make it easier to deal
+with pieces of aggregate objects that may or may not overlap, in
+particular Fortran equivalences and reshaped common blocks.  Instead of
+referring to a piece of an aggregate by an offset combined with the
+aggregate symbol, a sub-variable can be created to represent the data at
+a particular offset within the aggregate, so that it can be referenced
+in the same way as if it were not contained within an aggregate
+structure.
+
+@menu
+* Variable Features::           Basic features of variables.
+* Sub-Variables::               Variables contained within aggregates.
+* Variable Definitions::        Definitions of global and static variables.
+@end menu
+
+
+@node Variable Features, Sub-Variables, Variable Symbols, Variable Symbols
+@subsection Basic Features of Variables
+
+@findex var_sym, type
+@findex var_sym, set_type
+The type of a variable can be accessed via the @code{type} and
+@code{set_type} methods.  The type must be visible in the scope where
+the variable is defined.  Since the type specifies the amount of storage
+occupied by the variable, the size of the type must not be zero.  This
+means that function types, void types, incomplete structure and union
+types, and array types with unknown bounds cannot be used for variables
+@footnote{This rule may appear to be violated when using Fortran form
+with call-by-reference arrays with unknown bounds, but the actual type
+of such a variable is a pointer to the array type (@pxref{Call-By-Ref
+Parameters}).}.  Pointers to those types are acceptable, of course.
+Sub-variables may have any type so long as the size of that type and
+the sub-variable's offset allow it to remain within the parent
+variable.
+
+@cindex machine registers
+@cindex registers, machine
+@findex var_sym, is_reg
+@findex var_sym, set_reg
+@findex var_sym, reset_reg
+Variable symbols may also be allocated to machine registers.  A flag is
+used to indicate variables that are contained in registers; the
+@code{is_reg} method returns the value of this flag and the
+@code{set_reg} and @code{reset_reg} methods change its value.  The
+@code{reg_num} annotation can be attached to a register variable to
+specify the corresponding machine register number (@pxref{Miscellaneous
+Annotes}).  Variables cannot be registers if they have variable
+definitions.  Whether a sub-variable is a register or not is slaved to
+this property in its parent.
+
+@findex var_sym, has_var_def
+@findex var_sym, definition
+Symbols for variables that are not allocated on the stack must have
+separate variable definitions (@pxref{Variable Definitions}) or else
+they are merely declarations of external symbols.  The
+@code{has_var_def} method checks if a variable symbol has a separate
+definition, and the @code{definition} method returns a pointer to the
+definition.  It is an error to call @code{definition} for a variable
+that does not have a definition, so be sure to check first.
+Sub-variables are never allowed to have their own definitions.
+
+@findex var_sym, is_auto
+@findex var_sym, is_static
+The @code{var_sym} class includes several methods to check various
+attributes and flags for variables.  The @code{is_auto} method checks if
+a variable is in the automatic storage class, i.e. if it will be
+allocated on the stack.  Global variables and static local variables
+(those with variable definitions) are not automatic and @code{is_auto}
+returns @code{FALSE} for them; other variables are automatic.  The
+@code{is_static} method is the opposite of @code{is_auto}, except that
+register variables are not considered to be static.
+
+@findex var_sym, is_param
+@findex var_sym, set_param
+@findex var_sym, reset_param
+The formal parameters of a procedure are represented by variables that
+have a special flag set.  The @code{is_param} method returns the value
+of this flag, and the @code{set_param} and @code{reset_param} methods
+change its value.  Identifying the formals with flags does not allow
+their order to be specified, so the procedure symbol table maintains a
+list of the formals (@pxref{Procedure Symbol Tables}).  All of the
+variables for which @code{is_param} returns @code{TRUE} should be on the
+list of parameters, and conversely, all variables on the parameter list
+should have the flag set.  Sub-variables are not allowed to be
+parameters; sub-variables of parameters are allowed, but these are not
+considered parameters themselves.
+
+@findex var_sym, is_addr_taken
+@findex var_sym, set_addr_taken
+@findex var_sym, reset_addr_taken
+Because many compiler optimizations are only applicable to variables
+that are not aliased, it is important to identify such variables.  Each
+variable symbol includes a flag to indicate whether the variable has its
+address taken, and thus whether it could be aliased.  The
+@code{is_addr_taken} method returns the value of this flag.  The
+front-end should set these flags, but they may also need to be updated
+as the code is transformed.  The @code{set_addr_taken} and
+@code{reset_addr_taken} methods can be used to change the flag for a
+particular variable symbol.  For sub-variables, this property is
+slaved to this property in the parent variable.
+
+@findex var_sym, is_scalar
+Besides requiring that variables not be aliased, most optimizations also
+do not apply to aggregate data structures.  The @code{is_scalar} method
+checks the type of a variable symbol and returns @code{TRUE} if it is
+not an aggregate type.  Arrays, structures, and unions are considered to
+be aggregates.
+
+@findex var_sym, is_spilled
+In general, most optimizations target scalar variables that are
+guaranteed not to be aliased.  Since it is difficult to guarantee that
+global variables with external linkage are not addressed, those
+variables may be aliased even if their flags indicate that they are not
+addressed.  Rather than checking these conditions separately, the
+library provides one method to check them all.  The @code{is_spilled}
+method returns @code{TRUE} for variables that are static, addressed, or
+aggregates.  Variables that are not spilled can then be targeted for
+optimization.
+
+
+@node Sub-Variables, Variable Definitions, Variable Features, Variable Symbols
+@subsection Sub-Variables
+@cindex sub-variables
+
+The data objects represented by variable symbols are allowed to
+overlap, but only in a carefully controlled way.  The mechanism that
+allows this is the existence of sub-variables.  One variable symbol is
+allowed to be a sub-variable of another, occupying a portion of the
+parent variable symbol specified by an offset and the types of the two
+variables.  This allows arbitrary hierarchies of variable symbols and
+the relations among them are known at all times.
+
+For any hierarchy, there will always be one root ancestor in terms of
+which everything else can be specified.  If neither of two variables
+is a sub-variable of anything else, the two variables are guaranteed
+to be completely independent objects.
+
+Use of sub-variables is optional.  Anything that can be represented
+with the sub-variable can be represented in terms of its parent by
+loading from the parent's address plus the offset and with the type of
+the child variable.
+
+Sub-variable names are independent of their parent variable symbols.
+Whether or not they have the @code{userdef} flag set is also independent
+of the parent.  There is nothing inconsistent in having a parent which
+is user-defined and a sub-variable which is not (if some stage of the
+compiler decides a particular piece of a larger user-defined object has
+some special property and wants a handle on it), and neither is there
+anything inconsistent in a sub-variable that is user-defined in a parent
+which is not (user-defined variables that are equivalenced cause the
+system to create a new aggregate object).
+
+Among the properties general to the @code{sym_node} class that may be
+changed by the user, the only one for which sub-variables have any
+special restriction is the symbol table in which they reside.
+A sub-variable should be in the same symbol table as its parent.  They
+may be temporarily in different symbol tables while being moved
+around, so the library doesn't enforce the restriction that they
+always be in the same symbol table at all times.  The library does
+enforce the restrictions that they must be in the same table when a
+symbol is first linked in as a sub-variable by the
+@code{var_sym::add_child} method and when the owning symbol table of
+the parent or child variable is written out.
+
+@cindex slaving sub-variable properties
+Among properties specific to variable symbols that the user has
+control over, some may be set independently in sub-variables, and some
+are kept consistent between sub-variables and their parents.  For the
+properties that are kept consistent, the value of the property in the
+sub-variable is slaved to that in the parent.  In that case, either
+setting or getting the property from the sub-variable has exactly the
+same effect as getting or setting it from the parent variable.  If and
+when the sub-variable is removed from being a sub-variable by the
+@code{var_sym::remove_child} method, the current values of those
+properties in the sub-variable are set to the values of the parent at
+the time of separation and can be changed independently from then on.
+
+@findex var_sym, add_child
+@findex var_sym, remove_child
+Sub-variables are attached to parent variables by the @code{add_child}
+method.  The user tells the parent which variable symbol is to be the
+sub-variable and at what offset it begins and the library makes it a
+sub-variable.  If it is ever necessary to remove a sub-variable, the
+@code{remove_child} method may be used.  It undoes what
+@code{add_child} did making the sub-variable into a fully independent
+variable.  The argument of @code{remove_child} must already be a
+sub-variable of the given variable.  This method should be called
+before a sub-variable is deleted, or else there will be dangling
+pointers from the parent.
+
+@findex var_sym, parent_var
+@findex var_sym, offset
+Two methods, @code{parent_var} and @code{offset}, provide a way to see
+whether a variable is a sub-variable, and if so what variable it is a
+sub-variable of and where it is in that variable.  If a variable is
+not a sub-variable, @code{parent_var} will return @code{NULL}.  If it
+is a sub-variable, this method will return the variable symbol for the
+variable of which it is a sub-variable.  If it is a sub-variable, the
+@code{offset} method will return the offset in bits of the beginning
+of the sub-variable from the beginning of the parent variable.  If
+called on a variable that is not a sub-variable, @code{offset} will
+return zero.
+
+@findex var_sym, child_var
+@findex var_sym, num_children
+There are also methods provided to access all the variables that are
+sub-variables of a given variable.  The @code{num_children} method
+will return the number of sub-variables for a given variable symbol.
+Given a non-negative number less than the number of children, the
+@code{child_var} method will return one of the sub-variables.  The
+ordering of the sub-variables is the order in which they were added,
+starting with zero for the oldest remaining sub-variable.  For
+example, @code{child_var(2)} will return the sub-variable that was the
+third added of those that are still sub-variables.  Hence calling this
+method for each integer from zero through the number of children minus
+one will give all the sub-variables.  It is an error to call
+@code{child_var} with an argument greater than or equal to the number
+of sub-variables or less than zero.
+
+@findex var_sym, root_ancestor
+@findex var_sym, root_offset
+@findex var_sym, overlaps
+Given a variable that may or may not be a sub-variable, the
+@code{root_ancestor} will return the unique ancestor of a sub-variable
+that is not itself a sub-variable, or the variable itself if it is not
+a sub-variable.  The @code{root_offset} method will return the offset
+of the variable within that root ancestor, which will be the sum of
+all the offsets along the path up.  The @code{overlaps} method is
+provided to determine whether any two variables overlap to any extent.
+If the result is @code{TRUE}, then they definitely overlap, at least
+in part; otherwise, the result is @code{FALSE}, and the variables do
+not overlap at all.
+
+@findex var_sym, find_child
+It is often useful to know whether a given portion of a variable
+treated as a given type has a corresponding sub-variable.  The
+@code{find_child} method will answer that question.  If such a
+sub-variable exists, it will return a pointer to it, otherwise it will
+return NULL.
+
+@findex var_sym, build_child
+As an alternative to attaching an existing variable symbol as a
+sub-variable to another variable, the @code{build_child} method is
+provided.  Given a location and type within a variable and a name, it
+creates an sub-variable, installs it in the proper symbol table if the
+parent variable was in a symbol table, and adds it as a sub-variable,
+all at once.
+
+
+@node Variable Definitions,  , Sub-Variables, Variable Symbols
+@subsection Variable Definitions
+@cindex variable definitions
+
+@tindex var_def
+@findex var_def, variable
+@findex var_def, set_variable
+Variable definitions are used to allocate storage for variables that are
+not on the stack.  These variable definitions are implemented by the
+@code{var_def} class, which is defined in the @file{vardef.h} and
+@file{vardef.cc} files.  Each variable definition contains a field with
+a pointer to the corresponding variable.  The @code{variable} and
+@code{set_variable} methods access this field.
+
+The effects of a variable definition depend on the kind of variable.
+Without separate variable definitions, the symbols for global variables
+are merely declarations of external symbols.  Adding a definition for a
+global variable changes it from a declaration to an actual definition.
+The local variables in a procedure or nested scope are allocated on the
+stack by default.  Adding a definition for a local variable makes it
+static.  Similarly, if you remove a definition of a local variable, it
+reverts to being allocated on the stack.  Because of their special
+status, register variables cannot have definitions.  Sub-variables are
+also not allowed to have their own definitions.
+
+The location of a @code{var_def} identifies the place where the variable
+is defined.  For most variables, the @code{var_def} will be in the same
+symbol table as the variable.  However, variables in the global symbol
+table must be defined in exactly one of the source files.  Thus, the
+@code{var_def} for a variable in the global symbol table must be in one
+of the file symbol tables.
+
+@findex var_def, alignment
+@findex var_def, set_alignment
+Besides identifying the location of the definition, a @code{var_def}
+also specifies the alignment restriction for the variable's storage.
+The @code{alignment} method retrieves the size of the alignment unit in
+bits, and the @code{set_alignment} method sets the alignment unit size.
+The alignment unit should be at least as big as the smallest addressable
+unit for the target architecture.
+
+The initial data for a static variable can be specified by attaching
+annotations to the variable definition.  These annotations are optional.
+If omitted, the initial data is assumed to be all zeros.  The initial
+data annotations are described elsewhere in this manual.  @xref{Initial
+Data Annotes}.
+
+@findex var_def, print
+Variable definitions are printed out as part of each symbol table.  The
+@code{print} method is used for this.  You may also use this method for
+debugging.  The optional @code{depth} parameter specifies the
+indentation level for the output.

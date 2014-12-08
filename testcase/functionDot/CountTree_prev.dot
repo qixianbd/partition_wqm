@@ -1,0 +1,36 @@
+digraph G{
+	label = "CountTree"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_16\nmove	r26	r5	\nli	r28	nd#391	\naddu	r5	r26	r28	\nlw	r5	nd#394	\nli	r6	nd#398	\naddu	r7	r26	r6	\nlw	r12	nd#401	\nli	r8	nd#405	\naddu	r9	r26	r8	\nlw	r11	nd#408	\nli	r10	nd#412	\naddu	r19	r26	r10	\nlw	r13	nd#415	\nla	r20	nd#419	\nseq	r27	r5	r20	\nbnez	CountTree.L3\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_1\nCountTree.L9:\nj	CountTree.__done7\n"];
+	Node3 -> {Node9 }
+	Node4 [label = "B4_3\nCountTree.L3:\nla	r21	nd#426	\nseq	r27	r12	r21	\nbnez	CountTree.L2\n"];
+	Node4 -> {Node5 Node6 }
+	Node5 [label = "B5_1\nCountTree.L10:\nj	CountTree.__done6\n"];
+	Node5 -> {Node9 }
+	Node6 [label = "B6_3\nCountTree.L2:\nla	r22	nd#433	\nseq	r27	r11	r22	\nbnez	CountTree.L1\n"];
+	Node6 -> {Node7 Node8 }
+	Node7 [label = "B7_1\nCountTree.L11:\nj	CountTree.__done5\n"];
+	Node7 -> {Node9 }
+	Node8 [label = "B8_2\nCountTree.L1:\nla	r23	nd#440	\nseq	r27	r13	r23	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_1\nCountTree.__done5:\nCountTree.__done6:\nCountTree.__done7:\nbeqz	CountTree.L4\n"];
+	Node9 -> {Node10 Node11 }
+	Node10 [label = "B10_2\nli	r9	nd#449	\njr	\n"];
+	Node10 -> {Node1 }
+	Node11 [label = "B11_4\nCountTree.L4:\nla	r19	nd#454	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_6\nmove	r14	r9	\nla	r19	nd#460	\nmove	r5	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_6\naddu	r12	r14	r9	\nla	r19	nd#467	\nmove	r5	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node13 -> {Node14 }
+	Node14 [label = "B14_6\naddu	r11	r12	r9	\nla	r19	nd#474	\nmove	r5	r13	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node14 -> {Node15 }
+	Node15 [label = "B15_2\naddu	r9	r11	r9	\njr	\n"];
+	Node15 -> {Node1 }
+}

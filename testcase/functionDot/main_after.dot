@@ -1,0 +1,30 @@
+digraph G{
+	label = "main"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_4\nla	r19	nd#394	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_9\nmove	r11	r9	\nspawn	main.L1\nla	r19	nd#401	\nla	r5	nd#403	\nmove	r6	r11	\nlw	r7	nd#406	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_20\ncqip	main.L1\nmain.L1:\npslice_entry	main.L1\npslice_exit	main.L1\nla	r19	nd#412	\nli	r5	nd#414	\nmove	r6	r0	\nmove	r7	r0	\nmove	r8	r0	\nli	r22	nd#419	\nlw	r23	nd#421	\nsubu	r24	r23	r22	\nla	r25	nd#424	\nli	r26	nd#427	\nmove	r4	r2	\nfst	r2	\nsw	nd#431	r24	\nsw	nd#434	r25	\nsb	nd#437	r26	\nsw	nd#440	r11	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_6\nmove	r11	r9	\nla	r19	nd#446	\nmove	r5	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_7\nspawn	main.L2\nla	r19	nd#453	\nla	r5	nd#455	\nmove	r6	r9	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_9\ncqip	main.L2\nmain.L2:\npslice_entry	main.L2\npslice_exit	main.L2\nla	r19	nd#462	\nli	r6	nd#464	\nmove	r5	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_6\nla	r19	nd#471	\nla	r5	nd#473	\nmove	r6	r9	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_5\nla	r19	nd#480	\nmove	r5	r0	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_2\nmove	r9	r0	\njr	\n"];
+	Node10 -> {Node1 }
+	Node3 [shape = box ,style=filled ,color=red];
+	Node6 [shape = box ,style=filled ,color=red];
+	Node4 [shape = polygon ,style=filled ,color=yellow];
+	Node7 [shape = polygon ,style=filled ,color=yellow];
+}

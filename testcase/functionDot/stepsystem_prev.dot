@@ -1,0 +1,20 @@
+digraph G{
+	label = "stepsystem"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_8\nmove	r12	r5	\nmove	r11	r6	\nli	r21	nd#266	\naddu	r22	r12	r21	\nlw	r23	nd#269	\nla	r24	nd#272	\nsne	r25	r23	r24	\nbeqz	stepsystem.L1\n"];
+	Node2 -> {Node3 Node5 }
+	Node3 [label = "B3_7\nla	r19	nd#278	\nli	r26	nd#280	\naddu	r27	r12	r26	\nlw	r5	nd#283	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_4\nli	r28	nd#290	\naddu	r5	r12	r28	\nla	r6	nd#293	\nsw	nd#296	r6	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_10\nstepsystem.L1:\nla	r19	nd#301	\nmove	r9	r0	\nmove	r5	r13	\nlw	r6	nd#305	\nmove	r7	r12	\nmove	r8	r11	\nmove	r4	r2	\nfst	r2	\nsw	nd#311	r9	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_9\nli	r8	nd#316	\naddu	r10	r12	r8	\nsw	nd#319	r9	\nla	r19	nd#323	\nmove	r5	r12	\nmove	r6	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_1\njr	\n"];
+	Node7 -> {Node1 }
+}

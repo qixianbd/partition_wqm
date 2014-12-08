@@ -1,0 +1,499 @@
+@c This file is part of the SUIF reference manual
+
+@node Symbol Tables, Annotations, Types, Top
+@chapter Symbol Tables
+@cindex symbol tables
+
+Symbol tables contain the definitions of the symbols and types used
+within a SUIF program.  Each symbol table is associated with an object
+corresponding to a particular scope.  For example, a procedure symbol
+table is attached to the abstract syntax tree representing the body of
+the procedure.  The symbol tables can be reached through the
+corresponding objects and vice versa.
+
+This section describes the symbol table hierarchy and the details of the
+symbol table operations, such as looking up symbol table entries and
+adding new entries.  It also explains how the symbol tables handle the
+task of assigning unique ID numbers to the symbols and types.  The
+@file{symtab.h} and @file{symtab.cc} files contain the code for symbol
+tables.
+
+@menu
+* Symbol Table Hierarchy::      Different kinds of symbol tables.
+* Basic Symtab Features::       Basic features common to all symbol tables.
+* Lookup Methods::              Finding symbol table entries.
+* Creating New Entries::        Creating new objects in a symbol table.
+* Adding and Removing Entries::  Changing the symbol table contents.
+* Numbering Types and Symbols::  Assigning ID numbers to types and symbols.
+@end menu
+
+
+@node Symbol Table Hierarchy, Basic Symtab Features,  , Symbol Tables
+@section Symbol Table Hierarchy
+
+@findex base_symtab, children
+@findex base_symtab, parent
+@findex base_symtab, is_ancestor
+The SUIF symbol tables are organized in a hierarchy of nested scopes and
+maintained internally within a tree structure.  Every table contains a
+list of the symbol tables that are its children, and each table also has
+a pointer back to its parent in the tree (except for the global symbol
+table which does not have a parent).  The @code{children} method returns
+a pointer to the list of children and the @code{parent} method gets the
+pointer to the parent symbol table.  Thus, to search through all of the
+enclosing scopes, one can follow the parent pointers back to the global
+symbol table, visiting all of the symbol tables along the way.  The
+@code{is_ancestor} method provides an easy way to check if a given
+symbol table is an ancestor (i.e. an enclosing scope) of the current
+table.
+
+Note that the symbol table hierarchy is not independent.  The primary
+objects in a SUIF program are the files and the abstract syntax trees
+for the procedures.  The symbol tables are always attached to these
+primary objects and are generally treated as if they are parts of those
+objects.  For example, when a block of code is deleted the associated
+symbol table is automatically removed from the hierarchy and deleted.
+
+@tindex base_symtab
+The @code{base_symtab} class is the base class from which the other
+symbol table classes are derived, but it is an abstract class and cannot
+be used directly.  There are four different derived symbol tables
+classes.  They have much in common, but each is used at a different
+level in the hierarchy and thus has slightly different features.
+
+@menu
+* Global Symbol Table::         Global scope (shared across files).
+* File Symbol Tables::          File-level global scopes.
+* Procedure Symbol Tables::     Top-level procedure scopes.
+* Block Symbol Tables::         Nested scopes within procedures.
+@end menu
+
+
+@node Global Symbol Table, File Symbol Tables,  , Symbol Table Hierarchy
+@subsection The Global Symbol Table
+@cindex global symbol table
+@cindex symbol table, global
+
+The global symbol table is at the top of the symbol table hierarchy and
+corresponds to the outermost global scope.  It contains objects that are
+visible across source files (i.e. shared types and global symbols with
+external linkage).  For this reason, it is associated with the
+@code{file_set} object.  @xref{File Set}.
+
+The advantage of using a shared global symbol table appears when
+performing interprocedural analyses and transformations.  Without a
+common symbol table, it can be quite a burden to deal with references to
+symbols that are defined in some files but not in others.  Even trying
+to determine which symbols from different files correspond to the same
+objects is difficult.  In essence, each interprocedural pass would need
+to do the work of a linker!  The shared global symbol table avoids all
+of these problems and makes interprocedural optimization relatively
+easy.
+
+Along with the benefits of the global symbol table come a few
+difficulties.  Sharing the global symbol table across files makes it
+difficult to support separate compilation.  Each file must contain a
+copy of the global symbol table, and if these files are manipulated
+individually, their copies of the global symbol table will not be
+consistent.  Thus, before a group of files can be combined in a SUIF
+file set, their global symbol tables must be ``linked'' together using
+the SUIF linker pass.  Whether this is preferable to just combining all
+of the source files into one big SUIF file is debatable.
+
+@tindex global_symtab
+The @code{global_symtab} class is used to represent the global symbol
+table.  It is also used as the base class for file symbol tables.
+Because procedure symbols may only be entered in global and file symbol
+tables, this class contains the methods to deal with them.  The
+@code{new_proc} method creates a new procedure symbol and enters it in
+the table (@pxref{Creating New Entries}), and the @code{lookup_proc}
+method searches for an existing procedure symbol (@pxref{Lookup
+Methods}).  The @code{number_globals} method in this class handles the
+task of assigning ID numbers to the symbols and types in global and file
+symbol tables (@pxref{Numbering Types and Symbols}).
+
+
+@node File Symbol Tables, Procedure Symbol Tables, Global Symbol Table, Symbol Table Hierarchy
+@subsection File Symbol Tables
+@cindex file symbol tables
+@cindex symbol tables, file
+
+A file symbol table corresponds to the global scope for a source file.
+It contains procedure symbols and global variable symbols with static
+linkage, as well as types that are only used within the file.  Each file
+symbol table is associated with a particular file set entry.  @xref{File
+Set Entries}.
+
+@tindex file_symtab
+@findex file_symtab, fse
+The @code{file_symtab} class is derived from the @code{global_symtab}
+class to implement the file symbol tables.  Besides the features that
+this class inherits from its base class, it also contains a field to
+record the file set entry with which it is associated.  This field is
+set automatically when the file symbol table is created by the file set
+entry.  The @code{fse} method retrieves the value of this field.
+
+
+@node Procedure Symbol Tables, Block Symbol Tables, File Symbol Tables, Symbol Table Hierarchy
+@subsection Procedure Symbol Tables
+@cindex procedure symbol tables
+@cindex symbol tables, procedure
+
+@tindex proc_symtab
+Procedure symbol tables represent the top-level scopes within procedures
+and are associated with the @code{tree_proc} objects at the roots of the
+abstract syntax trees for the procedures.  @xref{Procedure Nodes}.
+Because the procedure symbol tables provide a superset of the block
+symbol table functions, they are implemented by deriving the
+@code{proc_symtab} class from the @code{block_symtab} class.  Thus, all
+of the @code{block_symtab} methods can also be applied to
+@code{proc_symtab} objects.
+
+@cindex formal parameters
+@cindex parameters, formal
+@findex proc_symtab, params
+Besides the inherited methods, the procedure symbol tables have some
+added features.  Each procedure symbol table contains a list of the
+formal parameters for the procedure.  The @code{params} method returns a
+pointer to this list.  The entries on this list must be pointers to
+symbols for variables that are contained within the procedure symbol
+table.  (Formal parameters cannot be global variables or local variables
+in inner scopes.)  The symbols are listed in order.  If the function
+type for the procedure specifies the parameter types, they should match
+the types of the variables on the parameter list.
+
+The procedure symbol table also records the next instruction ID number
+for the procedure (@pxref{ID Numbers}).  The @code{number_locals} method
+handles the task of assigning ID numbers to the symbols and types in
+symbol tables within the procedure (@pxref{Numbering Types and
+Symbols}).
+
+
+@node Block Symbol Tables,  , Procedure Symbol Tables, Symbol Table Hierarchy
+@subsection Block Symbol Tables
+@cindex block symbol tables
+@cindex symbol tables, block
+
+@tindex block_symtab
+@findex block_symtab, block
+The @code{block_symtab} class is used for nested block symbol tables and
+as the base class for procedure symbol tables.  Each one is associated
+with a particular @code{tree_block} (or @code{tree_proc}) node in an
+abstract syntax tree.  @xref{Block Nodes}.  Each block symbol table
+contains a pointer to the corresponding @code{tree_block} node.  The
+@code{block} method retrieves the value of this pointer.  When a symbol
+table is connected to a @code{tree_block}, its @code{block} pointer is
+set automatically.
+
+Since label symbols may not be declared in global scopes, the
+@code{block_symtab} class is the natural place to provide methods for
+working with labels.  The @code{new_label} method creates a new label
+symbol and enters it in the table (@pxref{Creating New Entries}).  The
+@code{new_unique_label} does the same thing but it first makes sure that
+the label will have a unique name.  The @code{lookup_label} method
+searches for an existing label symbol (@pxref{Lookup Methods}).
+
+Block symbol tables also provide a method to create a new child symbol
+table, i.e. an inner scope.  The @code{new_unique_child} method can be
+used to create a new child block symtab with a unique name
+(@pxref{Creating New Entries}).  This method is not provided for global
+symbol tables, because their children must correspond to procedures,
+which already have unique names.
+
+
+@node Basic Symtab Features, Lookup Methods, Symbol Table Hierarchy, Symbol Tables
+@section Basic Features
+@cindex symbol tables, basic features
+
+Symbol tables contain three different kinds of objects: types, symbols,
+and variable definitions.  The entries within a symbol table may only be
+referenced within the corresponding scope.  This includes references
+within registered annotations.  Violating this condition may lead to
+strange and unexpected errors.
+
+@findex base_symtab, symbols
+@findex base_symtab, var_defs
+@findex base_symtab, types
+For simplicity, the symbol table entries are stored on lists instead of
+using hash tables.  In theory, the actual implementation (lists or hash
+tables) should not be visible in the symbol table interface.
+Unfortunately that is not completely true for the current implementation
+of SUIF---the lists can be accessed directly.  The @code{types},
+@code{symbols}, and @code{var_defs} methods return pointers to the
+lists.  However, these lists should only be accessed to examine the
+entries and should never be modified directly.  The symbol table classes
+provide other methods to add and remove entries from the lists and those
+methods should always be used.  If the list implementation becomes a
+performance bottleneck, we may need to switch to hash tables, and code
+that modifies the lists directly will be relatively hard to convert.
+
+@cindex symbol table name
+@findex base_symtab, name
+@findex base_symtab, set_name
+To distinguish the symbol tables nested within a particular scope, each
+table is given a name.  The @code{name} and @code{set_name} methods
+retrieve and modify this name.  If a scope in the source program has a
+name associated with it, that name may be used for the corresponding
+symbol table.  For example, the name of a procedure-level symbol table
+should generally be the same as the name of the procedure.  On the other
+hand, nested scopes within procedures are typically unnamed, and names
+must be generated for the corresponding symbol tables.
+
+@cindex symbol table chain name
+@findex base_symtab, chain_name
+The symbol table names are used when printing a reference to a symbol or
+named type.  Because the symbol or type name alone may not be sufficient
+to identify it uniquely, the @code{chain_name} method is used to
+identify the symbol table.  The chain name of a symbol table includes
+the names of all of the symbol tables from the procedure-level downward,
+separated by slashes (as in a Unix path).  The file-level name is not
+included since it should always be clear from the context.  The chain
+name for a global or file symbol table is the empty string.
+
+@findex base_symtab, rename_duplicates
+Duplicate names within a symbol table should be avoided whenever
+possible.  Each kind of symbol has a separate name space.  A variable,
+for example, may have the same name as a label in the same symbol table.
+Named types and child symbol table names are also in separate name
+spaces.  Duplicate names may be temporarily introduced but to avoid
+problems they should be renamed as soon as possible.  The
+@code{rename_duplicates} method is provided to check for and rename any
+duplicates in a symbol table.  This method is automatically called
+before writing out each symbol table.
+
+
+@node Lookup Methods, Creating New Entries, Basic Symtab Features, Symbol Tables
+@section Lookup Methods
+@cindex symbol tables, lookup methods
+
+SUIF symbol tables provide a number of methods to search for and
+retrieve particular types, symbols, and variable definitions.  Most of
+these lookup methods will optionally search all the ancestor symbol
+tables, making it easy to determine if an object is defined in the
+current scope.
+
+@findex base_symtab, lookup_type
+The @code{lookup_type} method is available at all levels in the symbol
+table hierarchy to search for SUIF types.  Given an existing type, the
+method searches for a type that is the same.  It uses the @code{is_same}
+method from the @code{type_node} class to perform these comparisons.  If
+a matching type is not found within the current symbol table,
+@code{lookup_type} will continue searching in the ancestor symbol tables
+by default.  However, if the optional @code{up} parameter is set to
+@code{FALSE}, it will give up after searching the first table.
+
+@findex base_symtab, lookup_sym
+@findex base_symtab, lookup_var
+@findex global_symtab, lookup_proc
+@findex block_symtab, lookup_label
+Several methods are provided to lookup symbols.  Each different kind of
+symbol (variable, procedure, and label) has its own name space, so the
+@code{lookup_sym} method requires that you specify both the name and the
+kind of symbol for which to search.  This method may be used with all
+symbol tables.  For convenience, other methods are defined as wrappers
+around @code{lookup_sym}.  Each of these wrappers searches for a
+particular kind of symbol: @code{lookup_var} searches for variables,
+@code{lookup_proc} searches for procedures, and @code{lookup_label}
+searches for labels.  Because procedure symbols may only be defined in
+global symbol tables, the @code{lookup_proc} method is declared in the
+@code{global_symtab} class.  Similarly, the @code{lookup_label} method
+is declared in the @code{block_symtab} class, because labels may only be
+defined within procedures.  By default, all of these methods search the
+current symbol table and, if unsuccessful, proceed to search the
+ancestor symbol tables.  The optional @code{up} parameters may be set to
+@code{FALSE} to turn off this default behavior and only search the
+current symbol table.
+
+@findex base_symtab, lookup_var_def
+A symbol for a global variable is just a declaration of that variable
+and does not automatically have any storage allocated.  Variable
+definitions are required to allocate storage and to specify alignment
+requirements and any initial data for the variable.  Since the variable
+definitions are not directly connected to the variable symbols, the
+@code{lookup_var_def} method is provided to search a symbol table for
+the definition of a particular variable symbol.  This method does not
+search the parent symbol table.  In general the @code{definition} method
+in the @code{var_sym} class is a better way to locate a variable
+definition.
+
+@findex base_symtab, lookup_type_id
+@findex base_symtab, lookup_sym_id
+Symbols and types are assigned ID numbers (@pxref{Numbering Types and
+Symbols}) that uniquely identify them within a particular context.  The
+@code{lookup_type_id} method searches the types defined within a symbol
+table and its ancestors for a type with the specified ID number.  The
+@code{lookup_sym_id} does the same thing for symbols.
+
+@findex base_symtab, lookup_child
+Besides searching for one of the entries in a symbol table, you can also
+search for one of its children in the symbol table hierarchy.  The
+@code{lookup_child} method searches through the list of children for a
+symbol table with a given name.  This may not be very useful, but it is
+included for completeness.
+
+
+@node Creating New Entries, Adding and Removing Entries, Lookup Methods, Symbol Tables
+@section Creating New Entries
+
+To make it easier to add new entries, the symbol tables provide methods
+that combine the steps of creating new objects and then entering them in
+the tables.  Some of these methods automatically make sure that the new
+entries have unique names and that is particularly useful.
+
+@findex base_symtab, new_var
+@findex base_symtab, new_unique_var
+New variables can be added to tables anywhere in the symbol table
+hierarchy.  The @code{new_var} method creates a new variable with a
+given name and type and then enters the new variable symbol in the
+table.  The @code{new_unique_var} method is similar, but it also checks
+that the name of the new variable is unique.  If not, it appends a
+number to the specified name until it is unique.  With this method, the
+base name is optional; the default value is @samp{suif_tmp}.
+
+@findex global_symtab, new_proc
+Procedure symbols can be created in global and file symbol tables using
+the @code{new_proc} method.  The name of the procedure, its type, and
+the source language must be specified.  There is currently no method to
+automatically create a new procedure symbol with a unique name.
+
+@findex block_symtab, new_label
+@findex block_symtab, new_unique_label
+Because label symbols may only be declared within procedures, the
+@code{new_label} and @code{new_unique_label} methods are provided in the
+@code{block_symtab} class.  The only parameter of these methods is the
+name of the label.  The name is optional for @code{new_unique_label};
+its default value is @samp{L}.  Just as with variables, unique label
+names are created by adding a number to the end of the base names.
+
+@findex block_symtab, new_unique_child
+Within a procedure, new inner scopes may be created to be used with new
+@code{tree_block} nodes.  The @code{block_symtab} class provides the
+@code{new_unique_child} method to create a new symbol table, give it a
+unique name, and add it to the list of children.  The unique name is
+created by appending a number to the optional base name.  If the base
+name is not given, it defaults to @samp{block}.  This method is not
+needed at the global level, because the child symbol tables there
+correspond to procedures which should already have unique names.
+
+@findex base_symtab, define_var
+Finally, new variable definitions can be added to any symbol table using
+the @code{define_var} method.  The parameters are the variable symbol
+and the alignment for the storage to be defined.  It returns a pointer
+to the new variable definition object, so that you can attach initial
+data annotations to it.
+
+
+@node Adding and Removing Entries, Numbering Types and Symbols, Creating New Entries, Symbol Tables
+@section Adding and Removing Entries
+@cindex symbol tables, adding entries
+@cindex symbol tables, removing entries
+
+Entries in symbol tables should always be added and removed using the
+methods provided by the symbol tables.  Although it is possible to add
+and remove entries by directly manipulating the lists, that should never
+be done.  The methods for adding and removing entries hide the
+underlying representation and using them will make it much easier to
+update your code if that representation changes.  Even more importantly,
+most symbol table entries contain back pointers to the tables which hold
+them, and the adding and removing methods are responsible for
+maintaining those pointers and for performing a few other automatic
+checks and updates.
+
+@findex base_symtab, add_type
+@findex base_symtab, add_sym
+@findex base_symtab, add_child
+@findex base_symtab, remove_type
+@findex base_symtab, remove_sym
+@findex base_symtab, remove_child
+Types, symbols, and child symbol tables may be added using the
+@code{add_type}, @code{add_sym}, and @code{add_child} methods,
+respectively.  Each of these entries contains a pointer back to the
+parent symbol table, and these methods automatically set those back
+pointers.  They do not, however, perform any other sanity checks, such
+as checking for duplicate names.  Similarly, the @code{remove_type},
+@code{remove_sym}, and @code{remove_child} methods remove types,
+symbols, and child symbol table entries.  These methods clear the parent
+pointers but do not delete the entries that are removed.
+
+@findex base_symtab, add_def
+@findex base_symtab, remove_def
+Variable definitions are treated a bit differently from other kinds of
+symbol table entries.  They do not have parent pointers so the
+@code{add_def} and @code{remove_def} methods do not have to deal with
+that.  However, adding and removing variable definitions change some
+attributes of the corresponding variables, and those attributes must be
+automatically updated.  First, each variable has a flag to indicate
+whether a variable definition exists for it.  A variable cannot have
+more than one definition, so the @code{add_def} method will fail if this
+flag is already set.  Otherwise, it sets the flag when the new
+definition is added.  Second, variable symbols also have a flag to
+indicate whether they are actual definitions or just declarations of
+symbols with external linkage.  This @code{extern} flag must be set to
+@code{FALSE} when a variable definition is added for a global variable.
+When removing a variable definition, these flags must be reversed.
+
+@findex base_symtab, install_type
+Unlike symbol nodes which always define separate symbols, multiple type
+nodes can represent the same type.  The basic @code{add_type} method
+will add a new type even if an equivalent type was already defined in
+the same scope.  In most cases, what is actually needed is a method to
+first check if an equivalent type exists and if so to throw away the
+duplicate and return the existing type.  The @code{install_type} method
+provides this functionality.  It first checks if a type has already been
+entered in the symbol table or one of its ancestors using the
+@code{lookup_type} method.  If so, it deletes the new type and returns
+the existing one.  If a type is not found, it is entered into the symbol
+table and returned.  All of the components of a type are recursively
+installed before the type itself.  This makes it easy to create new
+types without worrying about duplicate entries in the symbol tables.
+
+
+@node Numbering Types and Symbols,  , Adding and Removing Entries, Symbol Tables
+@section Numbering Types and Symbols
+@cindex symbol ID numbers
+@cindex type ID numbers
+@cindex ID numbers, symbol
+@cindex ID numbers, type
+
+@findex sym_node, sym_id
+@findex type_node, type_id
+Every symbol and type is assigned an ID number that uniquely identifies
+it within a particular context.  These ID numbers should be used to
+refer to symbols and types in annotations that will be written to the
+output files and in other situations where pointers to the symbol and
+type nodes cannot be used.  The @code{sym_id} method retrieves the ID
+number for a symbol, and the @code{type_id} method gets the number for a
+type.
+
+@findex print_id_number
+For symbols and types within a procedure, the ID numbers are only unique
+within that procedure.  Similarly, the ID numbers for symbols and types
+in a file symbol table are only unique within that file.  Only in the
+global symbol table are the ID numbers truly unique.  This is
+implemented by dividing the ID numbers into three ranges.  Each range is
+reserved for a particular level in the symbol table hierarchy.  To make
+it easier to read an ID number, the @code{print_id_number} function
+prints it as a character to identify the range (@samp{g} for global,
+@samp{f} for file, @samp{p} for procedure) combined with the offset of
+the number within that range.
+
+@findex file_symtab, number_globals
+@findex proc_symtab, number_locals
+The symbol and type ID numbers cannot be assigned individually, but the
+symbol tables provide methods to set them.  The @code{number_globals}
+method is defined in the @code{global_symtab} class to number the
+entries in global and file symbol tables, and the @code{number_locals}
+method is defined in the @code{proc_symtab} class to number all of the
+entries in the procedure symbol table and its descendents.  These
+methods only assign ID numbers to symbols and types that do not already
+have numbers.  These methods are called automatically before writing
+things out to files, but they can also be called whenever you want to
+assign numbers to new symbols and types.
+
+@findex sym_node, clear_sym_id
+@findex type_node, clear_type_id
+The @code{clear_sym_id} symbol method and @code{clear_type_id} method
+are provided to reset the ID numbers to zero manually, but as far as
+the library itself is concerned, this is never necessary.  The library
+automatically changes ID numbers when necessary, such as when moving
+from one symbol table to another.

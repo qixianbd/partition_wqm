@@ -1,0 +1,12 @@
+digraph G{
+	label = "gen_signed_number"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_5\nmove	r11	r5	\nla	r19	nd#92	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_10\nli	r23	nd#97	\nmult	r23	r11	\nmflo	r24	\nli	r25	nd#101	\nsubu	r26	r24	r25	\nrem	r27	r9	r26	\nli	r28	nd#106	\nsubu	r5	r11	r28	\nsubu	r9	r27	r5	\njr	\n"];
+	Node3 -> {Node1 }
+}

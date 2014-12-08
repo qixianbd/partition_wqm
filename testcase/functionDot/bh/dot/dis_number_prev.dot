@@ -1,0 +1,12 @@
+digraph G{
+	label = "dis_number"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_20\nlw	r6	nd#122	\nmtc1	r52	r6	\ncvt.d.w	r54	r52	\nlw	r6	nd#126	\nmtc1	r56	r6	\ncvt.d.w	r58	r56	\ndiv.d	r60	r54	r58	\ncvt.w.d	r62	r60	\nmfc1	r7	r62	\nli	r8	nd#133	\naddu	r9	r7	r8	\nmtc1	r32	r9	\ncvt.d.w	r34	r32	\ncvt.w.d	r36	r34	\nmfc1	r7	r36	\nla	r19	nd#141	\nli	r6	nd#143	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_1\njr	\n"];
+	Node3 -> {Node1 }
+}

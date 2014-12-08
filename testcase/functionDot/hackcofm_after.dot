@@ -1,0 +1,44 @@
+digraph G{
+	label = "hackcofm"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7\nmove	r11	r5	\nmove	r27	r0	\naddu	r28	r11	r27	\nlh	r21	nd#1096	\nli	r5	nd#1099	\nseq	r6	r21	r5	\nbeqz	hackcofm.L1\n"];
+	Node2 -> {Node3 Node17 }
+	Node3 [label = "B3_2\nli.d	r40	nd#1104	\nmove	r7	r0	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_22\nhackcofm.L13:\nloopbegin	hackcofm.L18\nspawn	hackcofm.L19\nhackcofm.L18:\nla	r8	nd#1111	\nli	r9	nd#1113	\nmult	r7	r9	\nmflo	r10	\naddu	r19	r8	r10	\nli.d	r58	nd#1118	\ns.d	nd#1120	r58	\nli	r20	nd#1123	\naddu	r7	r7	r20	\nli	r21	nd#1126	\nsle	r22	r21	r7	\ncqip	hackcofm.L19\nhackcofm.L19:\npslice_entry	hackcofm.L19\nli	r20	nd#0	\naddu	r7	r7	r20	\nli	r21	nd#0	\nsle	r22	r21	r7	\npslice_exit	hackcofm.L19\nbeqz	hackcofm.L13\nloopend	hackcofm.L18\n"];
+	Node4 -> {Node5 Node4 }
+	Node5 [label = "B5_1\nmove	r13	r0	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_11\nhackcofm.L16:\nloopbegin	hackcofm.L20\nhackcofm.L20:\nli	r23	nd#1135	\naddu	r22	r11	r23	\nli	r24	nd#1138	\nmult	r13	r24	\nmflo	r25	\naddu	r26	r22	r25	\nlw	r12	nd#1143	\nla	r27	nd#1147	\nsne	r28	r12	r27	\nbeqz	hackcofm.L6\n"];
+	Node6 -> {Node7 Node13 }
+	Node7 [label = "B7_5\nla	r19	nd#1153	\nmove	r5	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_2\nadd.d	r40	r36	r40	\nmove	r5	r0	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_29\nhackcofm.L14:\nloopbegin	hackcofm.L21\nspawn	hackcofm.L22\nhackcofm.L21:\nla	r6	nd#1166	\nli	r7	nd#1168	\nmult	r5	r7	\nmflo	r8	\naddu	r9	r6	r8	\nli	r10	nd#1173	\naddu	r23	r12	r10	\nli	r19	nd#1176	\nmult	r5	r19	\nmflo	r20	\naddu	r21	r23	r20	\nl.d	r60	nd#1181	\nmul.d	r62	r60	r36	\ns.d	nd#1185	r62	\nli	r22	nd#1188	\naddu	r5	r5	r22	\nli	r23	nd#1191	\nsle	r24	r23	r5	\ncqip	hackcofm.L22\nhackcofm.L22:\npslice_entry	hackcofm.L22\nli	r22	nd#0	\naddu	r5	r5	r22	\nli	r23	nd#0	\nsle	r24	r23	r5	\npslice_exit	hackcofm.L22\nbeqz	hackcofm.L14\nloopend	hackcofm.L21\n"];
+	Node9 -> {Node10 Node9 }
+	Node10 [label = "B10_1\nmove	r25	r0	\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_34\nhackcofm.L15:\nloopbegin	hackcofm.L23\nspawn	hackcofm.L24\nhackcofm.L23:\nla	r26	nd#1201	\nli	r27	nd#1203	\nmult	r25	r27	\nmflo	r28	\naddu	r5	r26	r28	\nla	r6	nd#1208	\nli	r7	nd#1210	\nmult	r25	r7	\nmflo	r8	\naddu	r9	r6	r8	\nl.d	r32	nd#1215	\nla	r10	nd#1218	\nli	r19	nd#1220	\nmult	r25	r19	\nmflo	r20	\naddu	r21	r10	r20	\nl.d	r34	nd#1225	\nadd.d	r36	r32	r34	\ns.d	nd#1229	r36	\nli	r22	nd#1232	\naddu	r25	r25	r22	\nli	r23	nd#1235	\nsle	r24	r23	r25	\ncqip	hackcofm.L24\nhackcofm.L24:\npslice_entry	hackcofm.L24\nli	r22	nd#0	\naddu	r25	r25	r22	\nli	r23	nd#0	\nsle	r24	r23	r25	\npslice_exit	hackcofm.L24\nbeqz	hackcofm.L15\nloopend	hackcofm.L23\n"];
+	Node11 -> {Node12 Node11 }
+	Node12 [label = "B12_0\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_6\nhackcofm.L6:\nli	r25	nd#1242	\naddu	r13	r13	r25	\nli	r26	nd#1245	\nsle	r27	r26	r13	\nbeqz	hackcofm.L16\nloopend	hackcofm.L20\n"];
+	Node13 -> {Node14 Node6 }
+	Node14 [label = "B14_19\nli	r28	nd#1250	\naddu	r5	r11	r28	\ns.d	nd#1253	r40	\nli	r6	nd#1257	\naddu	r24	r11	r6	\nla	r7	nd#1260	\nl.d	r38	nd#1262	\ns.d	nd#1265	r38	\nli	r8	nd#1269	\naddu	r9	r11	r8	\nla	r10	nd#1272	\nl.d	r52	nd#1274	\ns.d	nd#1277	r52	\nli	r19	nd#1281	\naddu	r20	r11	r19	\nla	r21	nd#1284	\nl.d	r54	nd#1286	\ns.d	nd#1289	r54	\nmove	r22	r0	\n"];
+	Node14 -> {Node15 }
+	Node15 [label = "B15_33\nhackcofm.L17:\nloopbegin	hackcofm.L25\nspawn	hackcofm.L26\nhackcofm.L25:\nli	r23	nd#1297	\naddu	r26	r11	r23	\nli	r24	nd#1300	\nmult	r22	r24	\nmflo	r25	\naddu	r26	r26	r25	\nli	r27	nd#1305	\naddu	r25	r11	r27	\nli	r28	nd#1308	\nmult	r22	r28	\nmflo	r5	\naddu	r6	r25	r5	\nl.d	r56	nd#1313	\nli	r7	nd#1316	\naddu	r8	r11	r7	\nl.d	r58	nd#1319	\ndiv.d	r60	r56	r58	\ns.d	nd#1323	r60	\nli	r9	nd#1326	\naddu	r22	r22	r9	\nli	r10	nd#1329	\nsle	r19	r10	r22	\ncqip	hackcofm.L26\nhackcofm.L26:\npslice_entry	hackcofm.L26\nli	r9	nd#0	\naddu	r22	r22	r9	\nli	r10	nd#0	\nsle	r19	r10	r22	\npslice_exit	hackcofm.L26\nbeqz	hackcofm.L17\nloopend	hackcofm.L25\n"];
+	Node15 -> {Node16 Node15 }
+	Node16 [label = "B16_2\nmov.d	r36	r40	\njr	\n"];
+	Node16 -> {Node1 }
+	Node17 [label = "B17_5\nhackcofm.L1:\nli	r20	nd#1339	\naddu	r21	r11	r20	\nl.d	r40	nd#1342	\nmov.d	r36	r40	\njr	\n"];
+	Node17 -> {Node1 }
+	Node4 [shape = ellipse ,style=filled ,color=blue];
+	Node9 [shape = ellipse ,style=filled ,color=blue];
+	Node11 [shape = ellipse ,style=filled ,color=blue];
+	Node15 [shape = ellipse ,style=filled ,color=blue];
+}

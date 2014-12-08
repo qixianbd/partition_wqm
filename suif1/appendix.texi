@@ -1,0 +1,107 @@
+@c This file is part of the SUIF reference manual
+
+@set ishtml
+@ifinfo 
+@clear ishtml
+@end ifinfo
+
+
+@node Appendix, Function Index, Other, Top
+@unnumbered Appendix
+
+@ifinfo
+Please note that the diagrams are only available in the PostScript of
+HTML versions of this document.  This section won't mean much to you
+otherwise.
+@end ifinfo
+
+@menu
+* Inherit Diagram::
+* Overview Diagram::
+* Symbol Table Diagram::
+@end menu
+
+@node Inherit Diagram, Overview Diagram, , Appendix
+@section Class Inheritance of Major SUIF Structures
+
+All major SUIF data structures are derived from the @code{suif_object}
+base class. @xref{SUIF Objects}. The class @code{file_set_entry} is
+defined in @ref{File Set Entries}, the class @code{tree_node} and its
+derived classes are explained in @ref{Tree Nodes}, the class
+@code{sym_node} and its derived classes are described in @ref{Symbols},
+the class @code{type_node} and its derived classes are defined in
+@ref{Types}, the class @code{instruction} and its derived classes are
+defined in @ref{Instructions} and the class @code{var_def} is defined in
+@ref{Variable Symbols}.
+
+@sp 1
+
+@ifset ishtml
+@ifhtml
+<img src="suif_inherit.gif">
+@end ifhtml
+@end ifset
+
+@tex
+\centerline{
+\psfig{figure=suif_inherit.epsf,width=6in}
+} 
+@end tex
+
+@page
+
+@node Overview Diagram, Symbol Table Diagram, Inherit Diagram, Appendix
+@section Overview of the SUIF Hierarchy
+
+This diagram represents the overall hierarchical structure of the SUIF
+intermediate representation. At the top level, the global symbol
+information is kept. @xref{Global Symbol Table}. In the next level,
+information regarding each input and output file is kept.  @xref{File
+Representation}. The third level is the abstract syntax tree
+representation.  @xref{Trees}. The bottom level contains the expression
+trees.  @xref{Instructions}.
+
+@ifset ishtml
+@ifhtml
+<img src="suif_struct.gif">
+@end ifhtml
+@end ifset
+@tex
+\centerline{
+\psfig{figure=suif_struct.epsf,width=5in}
+} 
+@end tex
+
+@page
+
+@node Symbol Table Diagram, , Overview Diagram, Appendix
+@section The Symbol Table Representation
+
+The first diagram below illustrates the symbol table structure.  The second
+shows the hierarchy of symbol tables. @xref{Symbol Table Hierarchy}, for
+more details.
+
+@sp 1
+@ifset ishtml
+@ifhtml
+<img src="suif_symtab.gif">
+@end ifhtml
+@end ifset
+@tex
+\centerline{
+\psfig{figure=suif_symtab.epsf,width=4in}
+}
+@end tex
+
+@sp 1
+@ifset ishtml
+@ifhtml
+<img src="suif_struct_with_symtab.gif">
+@end ifhtml
+@end ifset
+@tex
+\centerline{
+\psfig{figure=suif_struct_with_symtab.epsf,width=2.5in}
+} 
+@end tex
+

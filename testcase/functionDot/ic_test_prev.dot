@@ -1,0 +1,58 @@
+digraph G{
+	label = "ic_test"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_30\nli	r9	nd#743	\nla	r27	nd#746	\nli	r28	nd#748	\naddu	r23	r5	r28	\nl.d	r52	nd#751	\ns.d	nd#754	r52	\nla	r7	nd#758	\nli	r8	nd#760	\naddu	r8	r5	r8	\nl.d	r54	nd#763	\ns.d	nd#766	r54	\nla	r8	nd#770	\nli	r10	nd#772	\naddu	r10	r5	r10	\nl.d	r56	nd#775	\ns.d	nd#778	r56	\nli	r19	nd#782	\naddu	r20	r6	r19	\nl.d	r58	nd#785	\nla	r21	nd#789	\nl.d	r60	nd#791	\nmove	r22	r0	\naddu	r22	r6	r22	\nl.d	r62	nd#796	\nsub.d	r32	r60	r62	\ndiv.d	r34	r32	r58	\nli.d	r36	nd#802	\nli	r24	nd#804	\nc.le.d	r36	r34	\nbc1t	ic_test.L10\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_1\nmove	r24	r0	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_1\nic_test.L10:\nbnez	ic_test.L1\n"];
+	Node4 -> {Node5 Node6 }
+	Node5 [label = "B5_1\nic_test.L16:\nj	ic_test.__done7\n"];
+	Node5 -> {Node8 }
+	Node6 [label = "B6_4\nic_test.L1:\nli.d	r38	nd#813	\nli	r24	nd#815	\nc.lt.d	r34	r38	\nbc1t	ic_test.L11\n"];
+	Node6 -> {Node7 Node8 }
+	Node7 [label = "B7_1\nmove	r24	r0	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_3\nic_test.L11:\nic_test.__done7:\nmove	r23	r0	\nseq	r24	r24	r23	\nbeqz	ic_test.L2\n"];
+	Node8 -> {Node9 Node10 }
+	Node9 [label = "B9_1\nmove	r9	r0	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_11\nic_test.L2:\nla	r25	nd#829	\nl.d	r52	nd#831	\nli	r26	nd#834	\naddu	r27	r6	r26	\nl.d	r54	nd#837	\nsub.d	r56	r52	r54	\ndiv.d	r34	r56	r58	\nli.d	r60	nd#843	\nli	r25	nd#845	\nc.le.d	r60	r34	\nbc1t	ic_test.L12\n"];
+	Node10 -> {Node11 Node12 }
+	Node11 [label = "B11_1\nmove	r25	r0	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_1\nic_test.L12:\nbnez	ic_test.L3\n"];
+	Node12 -> {Node13 Node14 }
+	Node13 [label = "B13_1\nic_test.L17:\nj	ic_test.__done8\n"];
+	Node13 -> {Node16 }
+	Node14 [label = "B14_4\nic_test.L3:\nli.d	r60	nd#854	\nli	r25	nd#856	\nc.lt.d	r34	r60	\nbc1t	ic_test.L13\n"];
+	Node14 -> {Node15 Node16 }
+	Node15 [label = "B15_1\nmove	r25	r0	\n"];
+	Node15 -> {Node16 }
+	Node16 [label = "B16_3\nic_test.L13:\nic_test.__done8:\nmove	r28	r0	\nseq	r5	r25	r28	\nbeqz	ic_test.L4\n"];
+	Node16 -> {Node17 Node18 }
+	Node17 [label = "B17_1\nmove	r9	r0	\n"];
+	Node17 -> {Node18 }
+	Node18 [label = "B18_11\nic_test.L4:\nla	r7	nd#870	\nl.d	r62	nd#872	\nli	r7	nd#875	\naddu	r8	r6	r7	\nl.d	r32	nd#878	\nsub.d	r34	r62	r32	\ndiv.d	r34	r34	r58	\nli.d	r36	nd#884	\nli	r26	nd#886	\nc.le.d	r36	r34	\nbc1t	ic_test.L14\n"];
+	Node18 -> {Node19 Node20 }
+	Node19 [label = "B19_1\nmove	r26	r0	\n"];
+	Node19 -> {Node20 }
+	Node20 [label = "B20_1\nic_test.L14:\nbnez	ic_test.L5\n"];
+	Node20 -> {Node21 Node22 }
+	Node21 [label = "B21_1\nic_test.L18:\nj	ic_test.__done9\n"];
+	Node21 -> {Node24 }
+	Node22 [label = "B22_4\nic_test.L5:\nli.d	r38	nd#895	\nli	r26	nd#897	\nc.lt.d	r34	r38	\nbc1t	ic_test.L15\n"];
+	Node22 -> {Node23 Node24 }
+	Node23 [label = "B23_1\nmove	r26	r0	\n"];
+	Node23 -> {Node24 }
+	Node24 [label = "B24_3\nic_test.L15:\nic_test.__done9:\nmove	r10	r0	\nseq	r10	r26	r10	\nbeqz	ic_test.L6\n"];
+	Node24 -> {Node25 Node26 }
+	Node25 [label = "B25_1\nmove	r9	r0	\n"];
+	Node25 -> {Node26 }
+	Node26 [label = "B26_1\nic_test.L6:\njr	\n"];
+	Node26 -> {Node1 }
+}

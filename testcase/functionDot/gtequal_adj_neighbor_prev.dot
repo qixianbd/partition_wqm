@@ -1,0 +1,40 @@
+digraph G{
+	label = "gtequal_adj_neighbor"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_10\nmove	r11	r6	\nli	r23	nd#360	\naddu	r24	r5	r23	\nlw	r13	nd#363	\nli	r25	nd#367	\naddu	r26	r5	r25	\nlbu	r12	nd#370	\nla	r27	nd#374	\nsne	r20	r13	r27	\nbnez	gtequal_adj_neighbor.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_1\ngtequal_adj_neighbor.L9:\nj	gtequal_adj_neighbor.__done5\n"];
+	Node3 -> {Node6 }
+	Node4 [label = "B4_6\ngtequal_adj_neighbor.L1:\nla	r19	nd#381	\nmove	r5	r11	\nmove	r6	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_2\nmove	r28	r0	\nsne	r20	r9	r28	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_1\ngtequal_adj_neighbor.__done5:\nbeqz	gtequal_adj_neighbor.L2\n"];
+	Node6 -> {Node7 Node9 }
+	Node7 [label = "B7_6\nla	r19	nd#393	\nmove	r5	r13	\nmove	r6	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_2\nmove	r13	r9	\nj	gtequal_adj_neighbor.__done6\n"];
+	Node8 -> {Node10 }
+	Node9 [label = "B9_0\ngtequal_adj_neighbor.L2:\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_3\ngtequal_adj_neighbor.__done6:\nla	r5	nd#406	\nsne	r21	r13	r5	\nbnez	gtequal_adj_neighbor.L3\n"];
+	Node10 -> {Node11 Node12 }
+	Node11 [label = "B11_1\ngtequal_adj_neighbor.L10:\nj	gtequal_adj_neighbor.__done7\n"];
+	Node11 -> {Node13 }
+	Node12 [label = "B12_5\ngtequal_adj_neighbor.L3:\nmove	r6	r0	\naddu	r7	r13	r6	\nlbu	r22	nd#415	\nli	r8	nd#418	\nseq	r21	r22	r8	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_1\ngtequal_adj_neighbor.__done7:\nbeqz	gtequal_adj_neighbor.L4\n"];
+	Node13 -> {Node14 Node17 }
+	Node14 [label = "B14_7\nla	r14	nd#424	\nla	r19	nd#426	\nmove	r5	r11	\nmove	r6	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node14 -> {Node15 }
+	Node15 [label = "B15_6\nmove	r5	r13	\nmove	r6	r9	\nmove	r4	r2	\nfst	r2	\nmove	r19	r14	\njalr	\n"];
+	Node15 -> {Node16 }
+	Node16 [label = "B16_1\njr	\n"];
+	Node16 -> {Node1 }
+	Node17 [label = "B17_2\ngtequal_adj_neighbor.L4:\nmove	r9	r13	\njr	\n"];
+	Node17 -> {Node1 }
+}

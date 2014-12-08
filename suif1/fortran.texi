@@ -1,0 +1,86 @@
+@c This file is part of the SUIF reference manual
+
+@node Fortran, Generics, Cloning, Top
+@chapter Features for Compiling Fortran
+@cindex Fortran form
+
+SUIF is roughly based on C semantics and does not directly support some
+Fortran features.  In particular, call-by-reference parameters occur
+frequently in Fortran programs and must be implemented in terms of
+other SUIF features.  This introduces extra complexity that makes it
+harder to analyze and optimize the procedures.  Fortunately this
+complexity can be hidden somewhat by converting the procedures to the
+SUIF Fortran form.  The SUIF library provides functions to translate a
+procedure to this Fortran form after it is read from a file and to
+translate it back to the original SUIF form before it is written out.
+Common blocks and equivalences are generally handled using
+sub-variables, so the library's Fortran form does not need to do
+anything special to deal with them.  Other more obscure Fortran
+features are also not handled in the Fortran form because they are
+less common and hard to deal with however they are represented.
+
+@menu
+* Call-By-Ref Parameters::      Passing parameters by reference.
+@end menu
+
+
+@node Call-By-Ref Parameters,  ,  , Fortran
+@section Call-By-Reference Parameters
+@cindex call-by-reference parameters
+
+Procedure parameters in Fortran are passed by reference.  SUIF uses
+call-by-value parameters and implements call-by-reference parameters by
+passing pointers to the actual arguments.  When the formal parameters
+are used, the pointers must be dereferenced.  However, one of the
+primary advantages of compiling Fortran programs is that there are no
+pointers in the source code.  If not for the call-by-reference parameter
+pointers, most compiler passes that only deal with Fortran can be
+simplified by not having to deal with pointers.  Thus the SUIF Fortran
+form automatically converts the code to make it appear that the
+parameters are passed by reference.  The parameters are changed to
+call-by-reference types instead of pointers and the pointer dereferences
+are temporarily removed.
+
+@findex make_ref_params
+@findex undo_ref_params
+The @code{make_ref_params} function is used to convert call-by-reference
+parameters in a procedure to the Fortran form.  It must be called before
+converting the procedure body to expression trees.  This is done
+automatically by the @code{read_proc} method for a @code{proc_sym} if
+the @code{use_fortran_form} flag is set.  Before writing a procedure to
+an output file, the call-by-reference parameters must be converted back
+to pointers using the @code{undo_ref_params} function.  Since it is
+illegal to write out a procedure in the Fortran form, the
+@code{write_proc} method for the @code{proc_sym} always calls
+@code{undo_ref_params}; you do not need to call it directly.  Both
+@code{make_ref_params} and @code{undo_ref_params} are defined in the
+file @file{callbyref.cc}.
+
+The Fortran front-end must identify call-by-reference formal parameters
+by putting @code{call_by_ref} annotations (@pxref{Call-By-Ref Annotes})
+on the pointer types used by those parameters.  Before actually changing
+the type of a call-by-reference parameter and removing its dereferences,
+@code{make_ref_params} checks that the pointer parameter is neither
+addressed nor assigned within the procedure.  If this check fails, the
+pointer is not a valid call-by-reference parameter, so
+@code{make_ref_params} prints a warning message and does not convert
+that parameter.  Otherwise, it goes ahead and changes the type of the
+parameter from a pointer to a call-by-reference type (@pxref{Modifier
+Types}).  Any dereferences of that pointer within the procedure are
+removed, and other references to the pointer are changed to @code{ldc}
+(load constant) instructions that take the address of the parameter.
+The end result of all this is that it appears that the parameters are
+passed by reference.  Note that the call sites are not changed; the
+actual arguments for call-by-reference parameters are still passed as
+pointers.
+
+The @code{undo_ref_params} function does as its name suggests and undoes
+the transformations applied by @code{make_ref_params}.  The only
+potential complication is that while in the Fortran form the user may
+have used the call-by-reference parameters in ways that cannot be
+expressed outside of the Fortran form.  Specifically, the
+call-by-reference parameters cannot be used as index variables of
+@code{for} loops (@pxref{For Nodes}), and they cannot be used as bounds
+in array types (@pxref{Array Types}).  Both of those uses require direct
+references to variable symbols, and there is no place to insert the
+pointer dereferences required outside of Fortran form.

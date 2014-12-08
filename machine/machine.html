@@ -1,0 +1,2478 @@
+<!-- this file was generated automatically by noweave --- better not edit it-->
+<html><head><title>The SUIF Machine Library</title></head><body>
+
+<p>
+<!-- Give the l2h (LaTeX to HTML) filter some hints-->
+
+
+
+
+
+<!-- Adjust dimensions before setting \pagestyle: it looks at-->
+<!-- some of them-->
+
+
+
+
+
+
+
+
+
+<p>
+<!-- Replace some noweb.sty definitions to improve page breaks-->
+
+<!-- Was =\@highpenalty (>9999 disallows-->
+<!-- ... _any_ break in code)-->
+<!-- Use \nwcodepenalty ...--><!-- ... instead of \@highpenalty-->
+    <!-- Use \goodbreak ...-->
+               <!-- ... instead of \filbreak-->
+<p>
+<h1><a name=toc1>The SUIF Machine Library</a></h1>        <!-- (Leave \title{} at left margin ...-->
+<!--  ... to aid HTML extraction.)-->
+<address><a name="NWD1">Michael D. Smith </a><br>smith@eecs.harvard.edu <br>Division of Engineering and Applied Sciences <br>Harvard University </address>
+<b><em>Compatible with SUIF Release 1.1.2 <br>Revised March 29, 1998</em></b>
+<p>
+
+<p>
+
+<!--title goes here-->
+<!-- Start a new chunk to cause noweb to put source filename in heading-->
+
+
+
+<p>
+<tableofcontents>
+<ul compact>
+<li><a href="#toc2">Introduction</a></li>
+<li><a href="#toc3">Header file for the machine library</a></li>
+<li><a href="#toc4">Enum definitions</a></li>
+<li><a href="#toc5">Machine instructions</a></li>
+  <ul compact>
+  <li><a href="#toc6">Effective address (EA) operands</a></li>
+  <li><a href="#toc7">Non-control-transfer instructions</a></li>
+  <li><a href="#toc8">Control-transfer instructions</a></li>
+  <li><a href="#toc9">Label instructions</a></li>
+  <li><a href="#toc10">Pseudo-op instructions</a></li>
+  </ul>
+<li><a href="#toc11">Library initialization</a></li>
+<li><a href="#toc12">Annotations</a></li>
+  <ul compact>
+  <li><a href="#toc13">Annotations attached to any instruction's</a></li>
+  <li><a href="#toc14">Annotations attached to particular instruction's</a></li>
+  <li><a href="#toc15">Annotations attached to file_set_entry's</a></li>
+  <li><a href="#toc16">Annotations attached to tree_proc's</a></li>
+  <li><a href="#toc17">Annotations attached to sym_node's</a></li>
+  </ul>
+<li><a href="#toc18">Helper functions</a></li>
+  <ul compact>
+  <li><a href="#toc19">I/O helpers (and the virtual-register manager)</a></li>
+  <li><a href="#toc20">Print helpers</a></li>
+  <li><a href="#toc21">Operand helpers</a></li>
+  <li><a href="#toc22">machineUtil.h</a></li>
+  <li><a href="#toc23">annoteHelper.h</a></li>
+  <li><a href="#toc24">eaHelper.h</a></li>
+  </ul>
+<li><a href="#toc25">Access to machine-specific data</a></li>
+  <ul compact>
+  <li><a href="#toc26">k_target_arch annotation</a></li>
+  <li><a href="#toc27">archinfo class</a></li>
+  </ul>
+<li><a href="#toc28">Registers and the reginfo class</a></li>
+<li><a href="#toc29">Example of architecture-specific library files</a></li>
+  <ul compact>
+  <li><a href="#toc30">alphaInstr.h</a></li>
+  <li><a href="#toc31">alphaOps.h</a></li>
+  </ul>
+<li><a href="#toc32">Acknowledgments</a></li>
+</ul>
+</tableofcontents>
+<p><hr>
+<h2><a name=toc2>Introduction</a></h2>
+<p>
+The SUIF compiler provides an excellent set of flexible libraries for
+parallel and machine-independent optimizations.  This document
+describes the SUIF <em>machine</em> library, a library which extends the
+base SUIF library with abstractions necessary for machine-specific
+optimizations.  At the core of this library is the <code>machine_instr</code>
+class, derived from the base SUIF <code>in_gen</code> class, that allows you to
+manipulate machine instructions within SUIF.  The library provides
+numerous abstractions for a machine instruction so that you can easily
+write compiler passes that perform machine-specific optimizations over
+a wide range of machine architectures.  We have designed the machine
+library so that it is relatively straightforward to add support for
+new instructions or instruction set architectures.
+<p>
+The machine library consists of files in the <code>machine</code> subdirectory
+of the <em>machsuif</em> distribution package.  The makefile in
+<code>machine</code> creates and installs the machine library.  Further
+information about the <em>machsuif</em> package can be found in the <em>machsuif/doc</em> directory.  It is assumed that the reader is familiar
+with the SUIF system and both the SUIF and <em>machsuif</em> overview
+documents.
+<p>
+This documentation was created using the noweb system 
+by Norman Ramsey.  This literate programming tool lets you combine
+documentation and code in the same source file.  It is our convention
+to use noweb to document only the most important header files---the
+files that describe the library interface.  We use simple C comments
+to document the interesting portions of the library implementation
+files, the parts that should be ``black boxes'' to the users of the
+machine library.
+<p>
+We organize the code for the SUIF machine library into two distinct
+pieces: code that is target-architecture independent and code that is
+target-architecture dependent.  Except for <em>machineUtil.cc</em>, the
+code in the files <em>machine*.{h,cc}</em>,
+<em>annoteHelper.{h,cc}</em>, <em>eaHelper.{h,cc}</em>,
+and <em>archInfo.{h,cc}</em> is architecture
+independent.  The file <em>machineUtil.h</em> lists all of the helper
+routines that we use to encapsulate machine-specific information for
+the target-architecture-independent passes.  Definitions of these
+routines in the file <em>machineUtil.cc</em> dispatch to 
+machine-specific actions.
+You can think of this as a manual implementation of the virtual
+method dispatch that would occur if we simply derived a new set
+of instruction classes for each target architecture.
+Sections&nbsp;<a href="#secMachineHeader">[-&gt;]</a> through <a href="#secMachineUtil.h">[-&gt;]</a>
+describe the classes and helper functions in <em>machine*.h</em>, while
+Sections&nbsp;<a href="#secAnnoteHelper.h">[-&gt;]</a> through&nbsp;<a href="#secRegs">[-&gt;]</a> cover the code
+in <em>annoteHelper.h</em>, <em>eaHelper.h</em>, and <em>archInfo.h</em>.
+<p>
+Architecture-specific code is contained in files with names of the
+form <em><i>&lt;</i>archname<i>&gt;</i>.data</em>, <em><i>&lt;</i>archname<i>&gt;</i>Ops.{h,cc}</em>, and
+<em><i>&lt;</i>archname<i>&gt;</i>Instr.{h,cc}</em>.  We put machine-specific opcode
+information
+in the <em>*Ops.*</em> files and any architecture-specific routines in
+the <em>*Instr.*</em> files.  We place all of the rest of the
+architecture and machine-specific data required during
+compilation in the <em>src/machsuif/impl</em> directory.  Please see the
+<em><a name="NWD2">machsuif</a></em> overview document and the <em>README.*</em> files in the
+<em>impl</em> directory for more information.
+Sections&nbsp;<a href="#secArchInfo.h">[-&gt;]</a> and&nbsp;<a href="#secRegs">[-&gt;]</a> describe how you can
+build and access the machine-specific data contained in the <em>impl</em>
+directory during compilation.
+Finally, Section&nbsp;<a href="#secHelpArchSpecific">[-&gt;]</a> presents the
+use of the architecture-specific routines in the
+<em><i>&lt;</i>archname<i>&gt;</i>Instr.{h,cc}</em> files.
+<p>
+<a name="NWD3">All of the code is protected by the following copyright notice.</a>
+<p>
+<pre><a name="NWmacC-SUIE-1" href="#NWD3"><dfn>&lt;SUIF copyright&gt;=</dfn></a> <b>(<a href="#NWD4">U-&gt;</a> <a href="#NWD6">U-&gt;</a> <a href="#NWD7">U-&gt;</a> <a href="#NWDB">U-&gt;</a> <a href="#NWDQ">U-&gt;</a> <a href="#NWDW">U-&gt;</a> <a href="#NWDY">U-&gt;</a> <a href="#NWDa">U-&gt;</a> <a href="#NWDh">U-&gt;</a> <a href="#NWDk">U-&gt;</a>)</b>
+/*  Copyright (c) 1994 Stanford University
+
+    All rights reserved.
+
+    Copyright (c) 1995,1996 The President and Fellows of Harvard University
+
+    All rights reserved.
+
+    This software is provided under the terms described in
+    the &quot;suif_copyright.h&quot; include file. */
+
+#include &lt;suif_copyright.h&gt;
+</pre><p>
+
+<h2><a name=toc3>Header file for the machine library</a></h2>
+<a name="secMachineHeader"><b>[*]</b></a>
+<p>
+<a name="NWD4">For the most part, the file </a><code>machine.h</code> is a typical SUIF library
+header file.  It contains <code>#include</code> references so that the library can
+be compiled or simply included in another pass's compilation.  The
+include files are indented to show the dependences between the header
+files within the machine library.  It also determines the appropriate
+definition for <code>EXPORTED_BY_MACHINE</code> so that we can compile on
+both Unix and Win32 platforms.
+<p>
+<pre><a name="NWmacC-mac9-1" href="#NWD4"><dfn>&lt;machine.h&gt;=</dfn></a>
+/* file &quot;machine.h&quot; */
+
+<a name="NWmacC-mac9-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+/*  Header for SUIF library of machine-specific definitions and routines */
+
+#ifndef MACHINE_H
+#define MACHINE_H
+
+// Mark exported symbols as DLL imports for Win32. (jsimmons)
+#if defined(_WIN32) &amp;&amp; !defined(__CYGWIN32__) &amp;&amp; !defined(MACHINELIB)
+#define EXPORTED_BY_MACHINE _declspec(dllimport) extern
+#else
+#define EXPORTED_BY_MACHINE extern
+#endif
+
+/* 
+ *  Use a macro to include files so that they can be treated differently
+ *  when compiling the library than when compiling an application.
+ */
+
+#ifdef MACHINELIB
+#define MACHINEINCLFILE(F) #F
+#else
+#define MACHINEINCLFILE(F) &lt;machine/ ## F ## &gt;
+#endif
+
+/*
+ *  The files are listed below in groups.  Each group generally depends
+ *  on the groups included before it.  Within each group, indentation is
+ *  used to show the dependences between files.
+ */
+
+/* this should always be defined first */
+#include &lt;suif1.h&gt;
+
+/* annotation, target-architecture, and effective-address helper routines */
+#include MACHINEINCLFILE(annoteHelper.h)
+#include MACHINEINCLFILE(archInfo.h)
+#include MACHINEINCLFILE(eaHelper.h)
+
+/* machine instruction base classes */
+#include MACHINEINCLFILE(machineDefs.h)
+#include   MACHINEINCLFILE(machineInstr.h)
+
+#ifdef M_ALPHA
+#include   MACHINEINCLFILE(alphaOps.h)
+#include     MACHINEINCLFILE(alphaInstr.h)
+#endif
+
+#ifdef M_MIPS
+#include   MACHINEINCLFILE(mipsOps.h)
+#include     MACHINEINCLFILE(mipsInstr.h)
+#endif
+
+#ifdef M_PPC
+#include   MACHINEINCLFILE(ppcOps.h)
+#include     MACHINEINCLFILE(ppcInstr.h)
+#endif
+
+#ifdef M_X86
+#include   MACHINEINCLFILE(x86Ops.h)
+#include     MACHINEINCLFILE(x86Instr.h)
+#endif
+
+/* code gen/query helper -- depends upon archInfo.h and machineDefs.h */
+#include MACHINEINCLFILE(machineUtil.h)
+
+#endif /* MACHINE_H */
+</pre><p>
+
+To create a machine library with support for a particular target
+architecture, you must set the appropriate <code>MACHSUIF_TARGET_*</code>
+environment variable.  The machine library makefile checks these
+<a name="NWD5">environment variables, and it will not include the library routines</a>
+for a particular architecture if the environment variable is not set.
+Notice that the top-level <em>machsuif</em> makefile also tests 
+these environment variables to determine what architecture-specific
+passes need to be built.  For example, if you want to be able to
+produce Digital Alpha code using the machine library, you would set
+the environment variable <code>MACHSUIF_TARGET_ALPHA</code>.  A single copy of the
+machine library will support multiple architectures if you set
+multiple <code>MACHSUIF_TARGET_*</code> environment variables.
+<p><a name="NWD6">The following header file just creates a convenient place to put</a>
+information that is global to the Machine library files, but private
+to the outside world.  It is this file that is included in every
+Machine library source file.
+<p>
+<pre><a name="NWmacL-macI-1" href="#NWD6"><dfn>&lt;machine_internal.h&gt;=</dfn></a>
+/* file &quot;machine_internal.h&quot; */
+
+<a name="NWmacL-macI-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef MACHINE_INTERNAL_H
+#define MACHINE_INTERNAL_H
+
+#ifndef MACHINELIB
+#error &quot;for the Machine SUIF library only&quot;
+#endif
+
+#include &quot;machine.h&quot;
+
+/* This file is for information that is global to different parts
+ * of the Machine SUIF library, but private to the library.  It
+ * should be the first header included by each source file in
+ * the Machine SUIF library.
+ *
+ * There is no such information currently.
+ */
+
+#endif /* MACHINE_INTERNAL_H */
+</pre><p>
+<h2><a name=toc4><a name="NWD7">Enum definitions</a></a></h2>
+<a name="secMachineEnum"><b>[*]</b></a>
+<p>
+In the <em>machineDefs.h</em> header file, we have defined a number of
+constants to make it easier to create a compiler pass that is
+independent of the target architecture.
+<p>
+<pre><a name="NWmacG-macD-1" href="#NWD7"><dfn>&lt;machineDefs.h&gt;=</dfn></a>
+/* file &quot;machineDefs.h&quot; */
+
+<a name="NWmacG-macD-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef MACHINE_DEFS_H
+#define MACHINE_DEFS_H
+
+<a name="NWmacG-macD-1-u2" href="#NWD8"><i>&lt;machine constants&gt;</i></a>
+
+<a name="NWmacG-macD-1-u3" href="#NWD9"><i>&lt;machine opcode base definitions&gt;</i></a>
+
+<a name="NWmacG-macD-1-u4" href="#NWDA"><i>&lt;machine instruction formats&gt;</i></a>
+
+#endif
+</pre><p>
+
+<a name="NWD8">The size of a data object is measured</a>
+in bits.  Please note that we define a WORD-sized data object to be
+32-bits in size, independent of the definition of a WORD in the target
+architecture.
+<p>
+<pre><a name="NWmacG-macH-1" href="#NWD8"><dfn>&lt;machine constants&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+/**** Global definitions and declarations for machine constants ****/
+const int SIZE_OF_BYTE = 8;             /* everything defined in bits */
+const int SIZE_OF_HALFWORD = 16;
+const int SIZE_OF_WORD = 32;
+const int SIZE_OF_SINGLE = 32;
+const int SIZE_OF_DOUBLE = 64;
+const int SIZE_OF_QUAD = 128;
+
+const int SHIFT_BITS_TO_BYTES = 3;
+const int SHIFT_BYTES_TO_WORDS = 2;
+const int DWORD_ALIGNMENT_MASK = 15;  /* off 16-byte boundary? */
+const int WORD_ALIGNMENT_MASK = 7;    /* off 8-byte boundary? */
+const int BYTE_MASK = 3;              /* off 4-byte boundary? */
+
+const int BYTES_IN_WORD = SIZE_OF_WORD &gt;&gt; SHIFT_BITS_TO_BYTES;
+const int BYTES_IN_DOUBLE = SIZE_OF_DOUBLE &gt;&gt; SHIFT_BITS_TO_BYTES;
+const int BYTES_IN_QUAD = SIZE_OF_QUAD &gt;&gt; SHIFT_BITS_TO_BYTES;
+</pre><p>
+
+To define the opcodes for a particular instruction set architecture,
+we do not modify the <code>if_ops</code> enumeration in <em>opcodes.h</em>
+in <em>basesuif</em>.
+Instead, we have defined constants that represent
+the bases of the machine opcode enumerations.  The opcode enumeration
+for each particular machine architecture is defined as an integer
+enumeration to allow for future expansion.  For programming clarity,
+proper type names for the opcode and format enumeration types are
+<code><a name="NWD9">typedef</a></code>-ed to <code>int</code>.
+<p>
+We reserve the integers between 0 and 999 for SUIF opcodes.  It is
+recommended that you leave at least 1000 opcode numbers between opcode
+starting bases.  This will allow for experiments in such areas as
+non-excepting architectures where the entire opcode space is
+duplicated.  The actual base value for each target architecture is
+defined in that architecture's <em>*Ops.h</em> file.
+<p>
+<pre><a name="NWmacG-macV-1" href="#NWD9"><dfn>&lt;machine opcode base definitions&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+/**** Opcode definitions ****/
+typedef int mi_ops;
+typedef int mi_op_exts;
+
+const int io_null = -1;         /* null opcode extension to SUIF op space */
+
+/* Definitions for the SUIF instruction set architecture. */
+const int OP_BASE_SUIF = 0;     /* start of if_ops enumeration */
+</pre><p>
+
+The machine instruction format enumeration is listed below.  Each
+opcode refers to an instruction of a certain format.  For example, the
+<a name="NWDA">MIPS </a><code>mo_add</code> has format <code>mif_rr</code>.  The function
+<code>which_mformat(mi_ops)</code> provides this mapping.  In the current
+implementation of the machine library, there is a unique
+machine instruction format for each opcode.  If you want
+to add a new instruction that can be instantiated in one of several
+machine instruction formats, you should create a unique <code>mi_ops</code>
+identifier for each instance.  All of these unique identifiers can use
+the same ASCII string value.
+<p>
+<pre><a name="NWmacG-macR-1" href="#NWDA"><dfn>&lt;machine instruction formats&gt;=</dfn></a> <b>(<a href="#NWD7">&lt;-U</a>)</b>
+/**** Format tags ****/
+typedef int mi_formats;
+extern int which_mformat(mi_ops o);
+
+enum /* mi_formats */ { /* machine instruction formats */
+    mif_xx,             /* pseudo-op and other free formats */
+    mif_lab,            /* labels */
+    mif_bj,             /* branch/jump to label or through register */
+    mif_rr,             /* general format */
+    mif_LAST_FMT
+};
+</pre><p>
+<h2><a name=toc5>Machine instructions</a></h2>
+<a name="secMachInstr"><b>[*]</b></a>
+<p>
+As in the SUIF <code>instruction</code> class, all machine instructions share
+some basic features.  This section describes the fields in the base
+<code><a name="NWDB">machine_instr</a></code> class defined in the file <em>machineInstr.h</em>.
+Again as in the SUIF <code>instruction</code> class, the <code>machine_instr</code>
+class is an abstract class from which classes for specific instruction
+formats are derived.  The derived classes are organized hierarchically
+according to whether the instruction modifies the PC and/or writes to
+memory.  After Section&nbsp;<a href="#secEAopnds">[-&gt;]</a> describes our approach for
+handling effective address calculations, Sections&nbsp;<a href="#secMiRR">[-&gt;]</a> through
+<a href="#secMiXX">[-&gt;]</a> provide the details for the derived classes.  
+<p>
+<pre><a name="NWmacH.2-macE-1" href="#NWDB"><dfn>&lt;machineInstr.h&gt;=</dfn></a>
+/* file &quot;machineInstr.h&quot; */
+
+<a name="NWmacH.2-macE-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef MACHINE_INSTR_H
+#define MACHINE_INSTR_H
+
+<a name="NWmacH.2-macE-1-u2" href="#NWDJ"><i>&lt;machine string constants&gt;</i></a>
+
+<a name="NWmacH.2-macE-1-u3" href="#NWDK"><i>&lt;machine annotation definitions&gt;</i></a>
+
+/*
+ *  Helper functions related to the generic machine instruction class.
+ */
+<a name="NWmacH.2-macE-1-u4" href="#NWDI"><i>&lt;machine library initialization&gt;</i></a>
+<a name="NWmacH.2-macE-1-u5" href="#NWDL"><i>&lt;machine file I/O&gt;</i></a>
+<a name="NWmacH.2-macE-1-u6" href="#NWDM"><i>&lt;machine print helpers&gt;</i></a>
+<a name="NWmacH.2-macE-1-u7" href="#NWDN"><i>&lt;machine operand helpers&gt;</i></a>
+
+/*
+ *  Machine instruction classes.
+ */
+<a name="NWmacH.2-macE-1-u8" href="#NWDC"><i>&lt;class machine_instr&gt;</i></a>
+<a name="NWmacH.2-macE-1-u9" href="#NWDD"><i>&lt;list class for machine_instr&gt;</i></a>
+
+<a name="NWmacH.2-macE-1-u10" href="#NWDG"><i>&lt;class mi_lab&gt;</i></a>
+<a name="NWmacH.2-macE-1-u11" href="#NWDE"><i>&lt;class mi_rr&gt;</i></a>
+<a name="NWmacH.2-macE-1-u12" href="#NWDF"><i>&lt;class mi_bj&gt;</i></a>
+<a name="NWmacH.2-macE-1-u13" href="#NWDH"><i>&lt;class mi_xx&gt;</i></a>
+
+#endif
+</pre><p>
+
+We derive a <code>machine_instr</code> from an <code>in_gen</code>.  The
+<code>machine_instr</code> class is an abstract class and cannot be directly
+instantiated.  We use the <code>name</code> field in the <code>in_gen</code> class to
+store the architecture string for this particular machine instruction.
+(See Section&nbsp;<a href="#secArchInfo.h">[-&gt;]</a> for a more detailed discussion of the
+target-architecture-specific information used in the machine library.)
+<a name="NWDC">Though we implement our own clone and print methods, the methods for</a>
+<code>machine_instr</code> look very much like the methods for any other SUIF
+instruction.  This is not by chance; <code>machine_instr</code> and its
+derived classes contain only methods that are useful to routines
+that are independent of the target machine architecture.  We
+designed the machine instruction classes to handle both RISC-like
+and CISC-like architectures, though the constructors given assume
+a more RISC-like architecture.
+<p>
+<pre><a name="NWmacH.2-claJ-1" href="#NWDC"><dfn>&lt;class machine_instr&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+class machine_instr: public in_gen {
+    int m_op;                           /* architecture-specific opcode */
+    /* opcode extensions are included as annotations */
+
+  protected:
+    /* The base SUIF instruction class defaults to: io_nop, type_void,
+     * inum = 0, par = NULL, and dst = operand(). */
+    machine_instr():in_gen(k_null_string, type_void, operand(), 0)
+        { m_op = io_null; set_result_type(type_void); }
+    machine_instr(char *a, int op):in_gen(a, type_void, operand(), 0)
+        { m_op = op; set_result_type(type_void); }
+
+    void clone_base(machine_instr *i, replacements *r, boolean no_copy); 
+
+  public:
+    ~machine_instr() {}
+
+    /* normal assembly instruction information */
+    char *architecture()                { return name(); }
+    virtual inst_format format()        { return inf_none; }
+
+    /* opcode stuff including ugly hack to override opcode return type */
+    if_ops opcode()                     { return (if_ops)m_op; }
+    char *op_string();
+    void set_opcode(if_ops o);
+    void set_opcode(int o)              { set_opcode((if_ops)o); }
+
+    /* comment field operations */
+    boolean has_comment() { return (peek_annote(k_comment) != NULL); }
+    void append_comment(immed_list *);
+    void delete_comment() { get_annote(k_comment); }
+
+    /* clone helper methods */
+    virtual instruction *clone_helper(replacements *r, 
+                                        boolean no_copy = FALSE)=0; 
+    virtual void find_exposed_refs(base_symtab *dst_scope, replacements *r)=0; 
+
+    /* print methods */
+    virtual void print(FILE *o_fd=stdout);
+    void print_comment(FILE *o_fd, char *comment_char);
+};
+
+</pre><p>
+
+The <code>machine_instr</code> class has an <code>opcode()</code> method that overrides
+the <code>instruction</code> class <code>opcode()</code> method.  The machine library
+stores machine opcodes separately from the SUIF opcodes so that the
+SUIF I/O stream routines and other routines that do not know about
+machine instructions simply see them as <code>io_gen</code>'s.  Currently, we
+perform an ugly cast to handle the return type problem on the
+<code>opcode()</code> and <code>set_opcode(int)</code> methods.  We expect this
+``extensible enumeration'' problem to be solved in later releases of
+SUIF.
+<p>
+In addition to SUIF's usual concept of opcodes, the machine library
+also allows for opcode extensions.  For example, we use
+opcode extensions to capture the VAX/IEEE rounding mode qualifiers on
+Alpha floating-point instructions.
+Any opcode (or instruction) may
+have an extension.  Opcode extensions are represented by integer
+values and are architecture specific.  They consume the integers
+following the integers consumed by the instruction set architecture's
+opcodes.  Opcode extensions are associated with an instruction through
+the use of the <code>k_instr_op_exts</code> annotation.  An instruction can
+have more than one opcode extension, and the order of the annotation
+list containing the opcode extensions is unimportant or architecture
+specific.
+<p>
+The <code>machine_instr</code> class includes methods to
+simplify the placement of an assembly-language comment on a machine
+instruction.  A comment is stored internally as a <code>k_comment</code>
+annotation.
+<p>
+Please note that the print routines for the machine instruction
+classes default to a SUIF-style ASCII output.  Print routines are
+considered to be machine-specific routines and are kept separate from
+the base classes.  Section&nbsp;<a href="#secHelpArchSpecific">[-&gt;]</a> illustrates how these
+generic print routines are massaged to yield Alpha-specific
+<a name="NWDD">assembly-language output.</a>
+<p>
+The machine library declares the <code>milist</code> class for working with
+lists of pointers to machine instructions.  Like the <code>instruction_list</code>
+class, this class exists only for convenience.  The machine library and the
+SUIF system store machine instructions in <code>tree_instr</code> nodes since
+they are simply <code>instruction</code> pointers.  We have also supplied a
+helper function for printing lists of machine instructions.
+<p>
+<pre><a name="NWmacH.2-lisS-1" href="#NWDD"><dfn>&lt;list class for machine_instr&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+DECLARE_DLIST_CLASS(milist, machine_instr *);
+extern void Print_milist(FILE *, milist *);
+</pre><p>
+
+
+<h3><a name=toc6>Effective address (EA) operands</a></h3>
+<a name="secEAopnds"><b>[*]</b></a>
+<p>
+As described in our ``basesuif-changes'' document, an operand of
+a <code>machine_instr</code> may have any of the kinds in <code>operand_kinds</code>,
+but a machine operand that
+is an <code>OPER_INSTR</code> has a special meaning.  The SUIF system uses
+operands that point to other instructions as single-use, single-def
+compiler temporaries.  Since the machine library extensions add
+registers as a first-class operand kind, we can define a set of
+compiler temporary registers using the register operand kind.  The
+SUIF system also uses instruction-pointer operands to construct
+expression trees.  Since machine-specific optimizations such as
+global instruction scheduling fix an instruction ordering, the usual
+representation for a list of instructions in the back-end of a
+compiler is a flat list.  Thus, instruction-pointer operands may not
+seem very useful.  On the contrary, we have found them to be quite
+useful as placeholders for operands that are immediate values
+or that live in memory.
+<p>
+In the machine library, instruction-pointer operands represent either
+an effective address (EA) calculation or a <em>simple</em> immediate
+value.  EA calculations are <code>io_ldc</code> instructions that always have a
+pointer
+type as the destination type.  <em>Simple</em> immediate values then are
+any immediate value whose type is <b>not</b> a pointer type.  The
+proper sequence of checks to perform to differentiate a simple
+immediate operand from an EA calculation in the machine library is as
+follows: if the operand in question is an <code>OPER_INSTR</code> kind, then
+use the <em>machsuif</em> helper function <code>Is_ea_operand(operand)</code> to
+differentiate operands representing EA calculations from simple
+immediate operands.  You may not need the extra check (i.e. the
+<code>is_immed()</code> operand method is sufficient) in some contexts.  For
+example, the second operand of a base+displacement form of an
+EA calculation is a simple immediate.
+<p>
+Memory operands are accessed through the generation of an EA, and the
+generation of an EA can be quite complicated in some instruction set
+architectures.  For example, the x86 instruction set architecture can
+specify the address of a memory operand through a single base
+register, or through a base register plus a signed 16-bit immediate,
+or through a base register plus a scaled index register plus a signed
+immediate, etc.  Let us assume that we have an x86 add operation that
+has two source operands and a single destination operand.  Either of
+the source operands can be an operand that lives in memory.  If we
+were to make each of the components of the EA calculation a SUIF
+<code>operand</code> in the machine instruction, we would not be able to tell
+easily where one x86 add operand ended and the next started.
+Alternatively, we would have to define a special add opcode for every
+combination of EA modes and operands.
+<p>
+The machine library uses SUIF instruction-pointer <code>operand</code>'s to
+compartmentalize the arbitrary complexity of EA calculations.  In
+other words, the operand that causes the helper function
+<code>Is_ea_operand(operand)</code> to return <code>TRUE</code> is a memory operand.
+The operand is in fact an expression tree of SUIF instructions that
+define the EA calculation for this memory operand.  The instructions
+within this expression tree rooted at the memory operand are true SUIF
+instructions.  For example, the representation of the EA for a memory
+operand at the top of the stack is represented by a SUIF <code>io_add</code>
+operation whose first operand is a register representing the stack
+pointer and whose second operand is an immediate with a value of zero
+(in actuality, another instruction-pointer pointing to a SUIF
+<code>in_ldc</code> instruction).  The EA representation for an operand
+located at label ``foo'' in memory is represented by a SUIF
+<code>io_ldc</code> operation whose immediate value is the <code>sym_addr</code>
+``foo''.  Recall that the result type of the <code>in_ldc</code> instruction
+differentiates <code>in_ldc</code>'s that represent EA calculations (result
+type must be a pointer type) from those that represent immediate
+values (result type cannot be a pointer type).
+Section&nbsp;<a href="#secEaHelper.h">[-&gt;]</a> describes a set of helper routines that we
+provide in Machine SUIF to simplify the process of creating, querying
+about, and accessing parts of EA calculations.
+<p>
+Representing memory operands with SUIF instructions implies that
+machine instruction files are actually a collection of SUIF and
+machine instructions.  These files are read as expression trees
+however, so that only machine instructions are directly connected to
+<code>tree_instr</code> nodes (assuming a fully translated machine file).
+Please see <code><a href="#NWDL"><i>&lt;machine file I/O&gt;</i></a></code> for more information on reading
+and writing SUIF machine instruction files.
+<p>
+The machine library assumes that memory operands
+contain only the EA calculation for that memory operand and no other
+side effects.  If the addressing mode is post-increment, that
+information is not encoded in the expression tree. <b>[</b>Note that
+a pre-increment operation would be included in the expression tree,
+but the information that the result of the pre-increment modifies the
+user-visible state (i.e. is written back) is not.<b>]</b>   We currently
+encode information like post-increment in an opcode extension.
+Similarly, one should not use instruction-pointer operands to express
+the operations in a complex operation.  That information should be
+specified entirely by the opcode.
+<p>
+<blockquote>
+Should we use opcode extensions to indicate a post-increment operation
+on an index register in an EA calculation? It seems that it would be
+better if the post-increment indicator was on the EA operand.
+</blockquote>
+<p>
+
+<h3><a name=toc7>Non-control-transfer instructions</a></h3>
+<a name="secMiRR"><b>[*]</b></a>
+<p>
+<a name="NWDE">Like the SUIF </a><code>in_rrr</code> instruction class, the vast majority of
+machine instructions are represented by the <code>mi_rr</code> class.  This
+class includes all ALU, load-constant, and memory operations.  Because
+of our extensions to the SUIF <code>operand</code> class, we do not need a
+separate class to handle load constant operations.  An operation is
+<b>not</b> part of this class if it is a control transfer instruction,
+i.e. it explicitly changes the value of the program counter.
+<p>
+<pre><a name="NWmacH.2-claB-1" href="#NWDE"><dfn>&lt;class mi_rr&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+/* Class for almost all operations.  Called 'rr' for historical reasons. */
+class mi_rr: public machine_instr {
+
+  public:
+    mi_rr();
+    /* constructor for instructions that do NOT write memory */
+    mi_rr(mi_ops o,
+          operand d = operand(),        /* destination */
+          operand s1 = operand(),       /* source 1 */
+          operand s2 = operand());      /* source 2 */
+    /* constructor for instructions that DO write memory */
+    mi_rr(mi_ops o,
+          instruction *ea,              /* store effective address */
+          operand s1 = operand(),       /* source 1 */
+          operand s2 = operand());      /* source 2 */
+
+    virtual inst_format format()        { return (inst_format)mif_rr; }
+
+    /* by convention, we keep the store EA, if it exists, in srcs[0] */
+    operand store_addr_op(unsigned n);
+    void set_store_addr_op(unsigned n, operand r);
+    void remove_store_addr_op(unsigned n);
+
+    virtual instruction *clone_helper(replacements *r, boolean no_copy=FALSE);
+    virtual void find_exposed_refs(base_symtab *dst_scope, replacements *r); 
+
+    virtual void print(FILE *o_fd=stdout);
+};
+
+</pre><p>
+
+We define two constructors for the class <code>mi_rr</code>: one for
+instructions that do and one for instructions that do not write
+memory.  A <code>mi_rr</code> operation may have any number of source and
+destination operands, though the machine library currently defines
+constructors only for the typical two-source/one-destination
+operation.  You must incrementally build an instruction with a larger
+number of sources and/or destinations by using the methods
+<code>set_num_dsts(unsigned)</code>, <code>set_dst(unsigned, operand)</code>,
+<code>set_num_srcs(unsigned)</code>, and <code>set_src_op(unsigned, operand)</code>.
+<p>
+Like the source operands, a destination operand may be a memory
+(rather than a register) operand.  Since the operands of the EA
+calculation for a destination memory operand are effectively source
+operands of the operation, we place a store's EA calculation in the
+source operand list.  Although it might seem intuitive to have store
+EA operands on the destination side of an instruction that writes to
+memory, machsuif puts them on the source side because they describe
+some of the instruction's inputs (such as base registers).  Thus an
+analyzer never looks for instruction sources in a destination operand.
+<p>
+We use the <code>k_is_store_ea</code> annotation to
+distinguish EA calculations for loads from those for stores.  The
+three methods <code>store_addr_op(int)</code>,
+<code>set_store_addr_op(int,operand)</code>, and <code>remove_store_addr_op(int)</code>
+handle the bookkeeping
+for the <code>k_is_store_ea</code> annotation.  The
+<code>remove_store_addr_op(int)</code> method will work even if you remove the
+operand (i.e. set it to <code>NULL</code>) before calling this method.  By
+convention, we use <code>src_op(0)</code> to hold the store EA in our code.
+This is only a convention; helper functions like
+<code>Write_memory(instruction *)</code> described in
+Section&nbsp;<a href="#secIOhelpers">[-&gt;]</a> work correctly in the general case.  In
+summary, a destination operand is either a register, a symbol, or
+null, but never an EA calculation.
+<p>
+
+<h3><a name=toc8><a name="NWDF">Control-transfer instructions</a></a></h3>
+<p>
+The <code>mi_bj</code> class is a superset of the functionality of the
+<code>mi_rr</code> class.  The additional functionality being that operations
+in the <code>mi_bj</code> class modify the program counter and those in the
+<code>mi_rr</code> class do not.  This classification includes conditional and
+unconditional branches, calls and returns, etc.  This class handles
+both jumps to symbolic targets and jumps through register sources.
+<p>
+<pre><a name="NWmacH.2-claB.2-1" href="#NWDF"><dfn>&lt;class mi_bj&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+/* Branch/jump class.  Instructions in this class may also perform
+ * alu operations and/or read/write memory.  */
+class mi_bj: public mi_rr {
+    sym_node    *targ;          /* may be NULL */
+
+  public:
+    mi_bj();
+    mi_bj(mi_ops o,
+          sym_node *t,                  /* target symbol */
+          operand d = operand(),        /* destination */
+          operand s1 = operand(),       /* src1 or tgt-reg */
+          operand s2 = operand());      /* source 2 */
+    mi_bj(mi_ops o,
+          instruction *ea,              /* store ea */
+          sym_node *t,                  /* target symbol */
+          operand d = operand(),        /* destination */
+          operand s1 = operand(),       /* src1 or tgt-reg */
+          operand s2 = operand());      /* source 2 */
+
+    inst_format format()                { return (inst_format)mif_bj; }
+
+    sym_node *target()                  { return targ; }
+    void set_target(sym_node *t)        { targ = t; }
+    boolean is_indirect()               { return (targ == NULL); }
+
+    instruction *clone_helper(replacements *r, boolean no_copy = FALSE);
+    void find_exposed_refs(base_symtab *dst_scope, replacements *r); 
+
+    void print(FILE *o_fd=stdout);
+};
+
+</pre><p>
+
+If the control transfer operation specifies a symbolic target, the
+<code>target()</code> and <code>set_target(sym_node *)</code> methods are used to access
+and define the target symbol.  Unlike the SUIF <code>in_bj</code> class, the
+symbolic target of a <code>mi_bj</code> is a <code>sym_addr</code> since this target can
+be a procedure symbol (e.g. in a call operation).
+<p>
+If the control transfer operation modifies the contents of the program
+counter with the contents of a general-purpose register, <code>target</code> is
+set to <code>NULL</code>.  The location in the source operand array for the
+register that updates the program counter can be unique to each
+architecture, though we usually use <code>src_op(0)</code>.
+<p>
+Our code generators attach a <code>k_instr_mbr_tgts</code> annotation on
+each <code>mi_bj</code> instruction that represents a SUIF <code>in_mbr</code>
+instruction.  This annotation maintains the array of target symbols
+from the <code>in_mbr</code> operation.  The <code>k_instr_mbr_tgts</code> annotation
+is a flat annotation where the first list entry is the number of
+labels in the multi-way branch and the rest of the list entries are
+the labels.  Our code generators also attach a <code>k_instr_ret</code>
+annotation on each <code>mi_bj</code> instruction that represents a SUIF
+<code>io_ret</code> operation.  The <code>k_instr_ret</code> is a flat annotation with
+at most one list entry: a ``<code>type_node *</code>'' representing the return
+value type if any.  This annotation is necessary since some
+instruction set architectures do not have an opcode that
+differentiates procedure return instructions from other
+register-indirect jump instructions.
+<p>
+
+<h3><a name=toc9>Label instructions</a></h3>
+<p>
+The <code>mi_lab</code> class is equivalent to the SUIF <code>in_lab</code> class.
+This re-implementation of the label class is necessary so that we can
+associate an architecture identifier with a label pseudo-op.  The
+printing methods use the architecture identifier to determine the
+appropriate syntax for the printing of labels.
+<p>
+The label class contains only text labels.  Assembly-language data
+<a name="NWDG">label statements are never stored internally.  These are generated</a>
+only when printing the ASCII assembly language program.  Until that
+point, the information about data labels is contained in the SUIF
+symbol table.  To support the printing of data labels, we have
+included a short-cut routine in the helper functions for printing out
+data labels in the same syntax as a text label (see
+<code>Print_data_label()</code> in Section&nbsp;<a href="#secPrintHelpers">[-&gt;]</a>,
+<code><a href="#NWDM"><i>&lt;machine print helpers&gt;</i></a></code>).
+<p>
+<pre><a name="NWmacH.2-claC-1" href="#NWDG"><dfn>&lt;class mi_lab&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+/* Label instructions. */
+class mi_lab: public machine_instr {
+    label_sym   *lab;
+
+  public:
+    mi_lab():machine_instr(k_null_string,io_lab) { lab = NULL; }
+    mi_lab(mi_ops o, label_sym *s);
+    mi_lab(mi_ops o, in_lab *i);
+
+    inst_format format()                { return (inst_format)mif_lab; }
+
+    label_sym *label()                  { return lab; }
+    void set_label(label_sym *l)        { lab = l; }
+
+    unsigned num_dsts()                 { return 0; }
+    operand dst_op(unsigned n=0)        { return operand(); }
+    void set_num_dsts(unsigned)         { return; }     /* dummy method */
+    void set_dst(operand)               { no_dst_error(); }
+    void set_dst(unsigned, operand)     { no_dst_error(); }
+
+    instruction *clone_helper(replacements *r, boolean no_copy = FALSE);
+    void find_exposed_refs(base_symtab *dst_scope, replacements *r); 
+
+    void print(FILE *o_fd=stdout);
+};
+
+</pre><p>
+
+
+<h3><a name=toc10>Pseudo-op instructions</a></h3>
+<a name="secMiXX"><b>[*]</b></a>
+<p>
+The <code>mi_xx</code> class is the catch-all class for all other
+<a name="NWDH">architecture-specific pseudo-op or assembler directive statements.</a>
+No machine-level
+operation is performed by these instructions.  The operands of a
+<code>mi_xx</code> operation are kept on an <code>immed_list</code>, like the values of
+a flat annotation.  The library provides <code>append_operand(immed)</code> and
+<code>pop_operand()</code> list methods to manipulate the immediate list.  The
+destination operand is unused and trying to set it will cause an
+error.
+<p>
+<pre><a name="NWmacH.2-claB.3-1" href="#NWDH"><dfn>&lt;class mi_xx&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+/* Pseudo-op class. */
+class mi_xx: public machine_instr {
+    immed_list  il;                     /* list of pseudo-op operands */
+
+  public:
+    mi_xx():machine_instr(k_null_string, io_null) {}
+    mi_xx(mi_ops o);
+    mi_xx(mi_ops o, immed i);
+
+    inst_format format()                { return (inst_format)mif_xx; }
+
+    unsigned num_dsts()                 { return 0; }
+    operand dst_op(unsigned n=0)        { return operand(); }
+    void set_num_dsts(unsigned)         { return; }     /* dummy method */
+    void set_dst(operand)               { no_dst_error(); }
+    void set_dst(unsigned, operand)     { no_dst_error(); }
+
+    /* pseudo-op instruction operations */
+    boolean has_operands()              { return !il.is_empty(); }
+    void append_operand(immed i)        { il.append(i); }
+    immed pop_operand()                 { return il.pop(); }
+
+    instruction *clone_helper(replacements *r, boolean no_copy = FALSE);
+    void find_exposed_refs(base_symtab *dst_scope, replacements *r); 
+
+    void print(FILE *o_fd=stdout);
+};
+</pre><p>
+
+
+<h2><a name=toc11>Library initialization</a></h2>
+<p>
+If you use a standard SUIF makefile, a SUIF program needs only to link
+<a name="NWDI">with the machine library to take</a>
+advantage of the machine library functionality.  In this scenario, the
+machine library code is registered automatically with the SUIF library
+and its initialization functions are called automatically by
+<code>init_suif()</code>.  The routine <code>exit_machine()</code> is called
+during <code>exit_suif()</code>.  Please note that, though these routines
+are declared in <em>machineInstr.h</em>, their implementations are kept
+in <em>machineUtil.h</em> since they include architecture-specific code.
+<p>
+<pre><a name="NWmacH.2-macU-1" href="#NWDI"><dfn>&lt;machine library initialization&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+extern void init_machine(int &amp;argc, char *argv[]);
+extern void exit_machine(void);
+</pre><p>
+
+<a name="NWDJ">We also added one new SUIF string constant, </a><code>k_null_string</code>, whose
+value is initialized automatically by the machine library.
+<p>
+<pre><a name="NWmacH.2-macO-1" href="#NWDJ"><dfn>&lt;machine string constants&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+EXPORTED_BY_MACHINE char *k_null_string;
+</pre><p>
+
+
+<h2><a name=toc12><a name="NWDK">Annotations</a></a></h2>
+<p>
+We define several new annotations to aid in file I/O and the
+communication of information between <em>machsuif</em> passes.  All of
+these are flat annotations.  We begin with an explanation
+of the annotations used by all machine instructions and move toward
+those annotations defined for only specific instructions or particular
+purposes.
+<p>
+<pre><a name="NWmacH.2-macU.2-1" href="#NWDK"><dfn>&lt;machine annotation definitions&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+/*
+ *  Flat annotations used by machsuif passes.
+ */
+EXPORTED_BY_MACHINE char *k_comment;
+EXPORTED_BY_MACHINE char *k_instr_op_exts;
+EXPORTED_BY_MACHINE char *k_hint;
+EXPORTED_BY_MACHINE char *k_reloc;
+
+/* ... following are used during file I/O (attached to instructions) */
+EXPORTED_BY_MACHINE char *k_machine_instr;
+EXPORTED_BY_MACHINE char *k_instr_xx_sources;
+EXPORTED_BY_MACHINE char *k_instr_bj_target;
+
+/* ... following keep extra high-level info with instruction */
+EXPORTED_BY_MACHINE char *k_instr_ret;
+EXPORTED_BY_MACHINE char *k_incomplete_proc_exit;
+EXPORTED_BY_MACHINE char *k_instr_mbr_tgts;
+EXPORTED_BY_MACHINE char *k_mbr_index_def;
+EXPORTED_BY_MACHINE char *k_regs_defd;
+EXPORTED_BY_MACHINE char *k_regs_used;
+EXPORTED_BY_MACHINE char *k_is_store_ea;
+
+/* ... following are markers in text list (attached to *o_null instrs) */
+EXPORTED_BY_MACHINE char *k_proc_entry;         /* marks entry point to proc */
+
+/* ... following are attached to file_set_entry's */
+EXPORTED_BY_MACHINE char *k_target_arch;        /* arch and machine info */
+EXPORTED_BY_MACHINE char *k_next_free_reloc_num;
+
+/* ... following are attached to tree_proc's */
+EXPORTED_BY_MACHINE char *k_vreg_manager;       /* should be in proc_symtab */
+EXPORTED_BY_MACHINE char *k_stack_frame_info;/* used by *gen, ra*, and *fin */
+
+/* ... following are attached to sym_node's */
+EXPORTED_BY_MACHINE char *k_vsym_info;  /* extra info for this var_sym */
+
+/* ... following identify instructions added by *fin */
+EXPORTED_BY_MACHINE char *k_header_trailer; /* header/trailer code/pseudo-op */
+</pre><p>
+
+
+<h3><a name=toc13>Annotations attached to any <code>instruction</code>'s</a></h3>
+<p>
+If a machine instruction has a comment in the output assembly language
+file, this comment string is stored in a <code>k_comment</code> annotation. The
+<code>machine_instr</code> class methods <code>has_comment()</code>,
+<code>append_comment(immed_list *)</code>, and <code>delete_comment()</code> manipulate
+this annotation.  If the instruction uses opcode extensions, the
+<code>k_instr_op_exts</code> annotation holds this extension information.  The
+annotation is an unordered list of integers representing the opcode
+extensions associated with the instruction.  If the instruction uses
+hint information (currently only supported under Alpha), the <code>k_hint</code>
+annotation holds this information.
+<p>
+If the instruction requires relocation processing, the <code>k_reloc</code>
+annotation holds this information.  The contents and ordering of this
+annotation's fields are specific to the target machine.  Typically,
+the first field corresponds to the relocation type, and the second
+field indicates the relocation sequence number (used to match
+relocation pairs if necessary.  If the annotation is attached to an
+instruction, the last field corresponds to the number of the source
+operand to be relocated.  Remeber that we cannot annotate operands.
+<p>
+
+<h3><a name=toc14>Annotations attached to particular <code>instruction</code>'s</a></h3>
+<p>
+We use the next set of annotations to store machine-specific
+information during file I/O.  Recall that <em>machsuif</em> instructions
+are read and written as SUIF <code>io_gen</code> instructions, and thus there
+is no place for <em>machsuif</em>-specific information such as the
+machine opcode.  The following annotations appear on <code>io_gen</code>
+instructions only.  The <code>k_machine_instr</code> annotation records first
+the architecture string and then the machine opcode information.  The
+machine opcode information consists of the integer representation of
+that opcode followed by its ASCII equivalent.  The ASCII equivalent is
+redundant information that simply makes it easier to read the
+printsuif output of a <em>machsuif</em> binary file.  A <code>mi_bj</code> instruction
+records its target symbol in the <code>k_instr_bj_target</code> annotation.  A
+<code>mi_xx</code> instruction records its <code>immed</code> source list in a
+<code>k_instr_xx_sources</code> annotation.  No other special annotations are
+necessary for file I/O as SUIF <code>io_gen</code> instructions can carry all
+of the rest of the <em>machsuif</em> information.
+<p>
+We define several annotations to maintain high-level information
+associated with control-transfer instructions.  Attaching a <code>k_instr_ret</code>
+annotation to a control-transfer instruction indicates that this
+instruction is a procedure return instruction.  The annotation lists
+the type of the return value.  The <code>k_incomplete_proc_exit</code>
+annotation is attached to return operations to indicate that the
+procedure exit code, e.g. saved register restores, have not been
+generated yet.  This annotation is removed by the finishing passes.
+The <code>k_instr_mbr_tgts</code>
+annotation lists the <code>label_sym</code> pointers of a multiway branch
+instruction.  The <code>immed_list</code> for this annotation first
+contains an integer, the number of targets, and then the label
+list in order.  The <code>k_mbr_index_def</code> annotation marks the
+index generation instruction for the next multiway branch in
+the instruction stream.  This annotation enables an instrumentation
+pass to quickly and easily find the jump table associated with the
+multiway branch instruction.
+<p>
+By design, all <em>machsuif</em> instructions are explicit about their
+register definitions and uses.  This makes it straightforward to
+analyze the dependences between instructions, independent of their
+actual machine-specific encoding.  Unfortunately, there is somewhat of
+an exception to this rule (heck, what good rule doesn't have some sort
+of exception).  We'd like to know what argument registers are used and
+what result registers are written by a called procedure.  Notice that
+the call instruction itself does not actually read any parameter
+registers nor does it actually write any result registers, and
+therefore it doesn't make sense to put this information explicitly in
+the source and destination operand arrays.  However, this information
+is useful during register allocation, for example.  To solve this
+problem, we have defined two annotations: <code>k_regs_used</code> and
+<code>k_regs_defd</code>.  Both are attached only to calls---<i>these annotations
+are not to be used to circumvent the rule that all <em>machsuif</em>
+instructions explicitly list their source and destination operands</i>.
+The <code>immed_list</code> of the first annotation records the argument
+registers (if any) used in the call operation; the <code>immed_list</code> of
+the second annotation records the result registers (if any) written
+during the call operation.  The register values are our abstract
+register names, not the machine-specific numbers.
+<p>
+<blockquote>
+Is <code>agen</code> the only code generator to include the <code>k_regs_*</code>
+annotations at this time?
+</blockquote>
+<p>
+The annotation <code>k_is_store_ea</code> is placed on SUIF instructions that
+write memory.  The annotation differentiates EA calculations for loads
+from those for stores, since store EA calculations are placed in the
+source operand list.  The <code>immed_list</code> of this annotation contains
+the indices of those source operands that contain an EA calculation
+that results in a write to memory.
+<p>
+To support a code generation environment that is split across many
+separate <em>machsuif</em> passes, we have defined several markers that
+are placed in the instruction list to remember specific points
+of interest in that list.  All of the following annotations
+are attached to <code>*o_null</code> instructions.
+<p>
+The annotation <code>k_proc_entry</code> marks the entry point into the
+procedure.  Normally, SUIF implicitly assumes that the first
+instruction in the instruction list is the procedure entry point.  Our
+procedure layout optimizations invalidate this assumption.  The
+<code>k_proc_entry</code> annotation has an empty <code>immed_list</code>.  It is
+created by the <em>*gen</em> passes, maintained by all intermediate <em>machsuif</em> passes, and then consumed by <em>printmachine</em> (which
+translates this instruction into the appropriate procedure-entry
+pseudo-ops).
+<p>
+
+<h3><a name=toc15>Annotations attached to <code>file_set_entry</code>'s</a></h3>
+<a name="secAnnoteTargetArch"><b>[*]</b></a>
+<p>
+The annotation <code>k_target_arch</code> records the machine-specific target
+information for this particular back-end compilation.  We explain the
+full details of this annotation and the associated machine library
+classes in Sections&nbsp;<a href="#secArchInfo.h">[-&gt;]</a> and&nbsp;<a href="#secRegs">[-&gt;]</a>.  We attach
+this annotation to the <code>file_set_entry</code> with the assumption that all
+of the procedures and instructions in a single <code>file_set_entry</code> have
+the same target architecture.
+<p>
+The annotation <code>k_next_free_reloc_num</code> has a single value in its
+immediate list corresponding to the next free relocation number
+for this file.  If this annotation does not exist, the file does
+not contain any relocations. 
+<p>
+
+<h3><a name=toc16>Annotations attached to <code>tree_proc</code>'s</a></h3>
+<p>
+The annotation <code>k_vreg_manager</code> records the information needed by
+the virtual register manager.  This information should be kept in the
+<code>proc_symtab</code> with the other numbering managers for this procedure.
+It will eventually move there when <em>basesuif</em> includes basic
+support for <em>machsuif</em>.  Currently, the only information recorded
+in this annotation is a single integer.  The value of this integer is
+the next unused virtual register number.  Currently, this annotation
+is read by <code>Read_machine_proc()</code> and written by
+<code>Write_machine_proc()</code>, which are defined in <code><a href="#NWDL"><i>&lt;machine file I/O&gt;</i></a></code>.
+<p>
+The annotation <code>k_stack_frame_info</code> records the stack frame information
+needed to create the stack frame and its associated instructions.  We
+require this annotation because the generation of the stack frame is
+spread across several <em>machsuif</em> passes.  The <code>*gen</code> code generator
+passes create the initial version of this annotation. <b>[</b>Actually,
+<em>swighnflew</em> generates a partial <code>k_stack_frame_info</code> annote to
+mark procedures that use varargs.  Code generators should pop off this
+annote before creating their own.<b>]</b>   The <code>ra*</code>
+register allocation passes modify this annotation to include, for
+example, information about which callee-save registers were used.  Other
+passes, such as an instruction scheduling pass that reallocates
+registers, may also modify this annotation.  The <code>*fin</code> finishing
+passes read the information on this annotation and create the
+actual stack frame instructions in the procedure preludes and postludes.
+Currently, the <code>*fin</code> passes delete the annote after reading its
+information.
+<p>
+The <code>k_stack_frame_info</code> annotation is a list of the following fields:
+<p>
+<table><!-- alignment is l@{\hspace{.3in}}c@{\hspace{.3in}}l--><!-- 3 columns--><tr><td align=left valign=top><code>immed</code> #0 </td><td align=center><code>int</code> </td><td align=left valign=top><em>is_leaf</em>        </td></tr>
+<tr><td align=left valign=top><code>immed</code> #1 </td><td align=center><code>int</code> </td><td align=left valign=top><em>is_varargs</em>     </td></tr>
+<tr><td align=left valign=top><code>immed</code> #2 </td><td align=center><code>int</code> </td><td align=left valign=top><em>framesize</em>       </td></tr>
+<tr><td align=left valign=top><code>immed</code> #3 </td><td align=center><code>int</code> </td><td align=left valign=top><em>frameoffset</em>     </td></tr>
+<tr><td align=left valign=top><code>immed</code> #4 </td><td align=center><code>int</code> </td><td align=left valign=top><em>max_arg_area</em>  </td></tr>
+<tr><td align=left valign=top><code>immed</code> #5 </td><td align=center><code>int</code> </td><td align=left valign=top><em>1st_saved_reg</em> </td></tr>
+<tr><td align=left valign=top><code>immed</code> #6 </td><td align=center><code>int</code> </td><td align=left valign=top><em>2nd_saved_reg</em> </td></tr>
+<tr><td align=left valign=top>... </td><td align=center></td><td align=left valign=top></td></tr>
+</table><br>
+The boolean <em>is_leaf</em> is <code>TRUE</code> if this procedure does not
+contain any call instructions.  If this boolean is <code>TRUE</code>, the
+<code>immed</code>'s numbered greater than 3 may not appear.  The boolean <em>is_varargs</em> is <code>TRUE</code> if this procedure is a VARARGS procedure.  The
+field <em>framesize</em> records the total size of the stack frame in
+bytes, if known; <code>0</code> otherwise.  The field <em>frameoffset</em>
+records the frame offset, also in bytes.  It's interpretation is
+architecture dependent, though it is often negative.  The value of
+this field is garbage if <em>framesize</em> is <code>0</code>.  The field
+<em>max_arg_area</em> records the maximum size of the call argument area
+in bytes for procedures that are not leaves.  Finally, the remaining
+fields list the saved registers used in this procedure.  Typically,
+they are listed in the order required by the stack frame rules, though
+this is not necessary.  The register values are our abstract register
+names, not the machine-specific numbers.
+<p>
+
+<h3><a name=toc17>Annotations attached to <code>sym_node</code>'s</a></h3>
+<a name="secVsyminfo"><b>[*]</b></a>
+<p>
+We place the annotation <code>k_vsym_info</code> on <code>sym_node</code>'s that are
+automatic variables.  This annotation records several pieces of
+information that are not currently recorded in the <code>sym_node</code>
+structure.  For example, we use this annotation to record the offset
+from the stack pointer of this variable's stack home.  As described in
+Section&nbsp;<a href="#secAnnoteHelper.h">[-&gt;]</a>, the file <em>annoteHelper.h</em> defines
+several helper routines that manipulate and access the information in
+this annotation.  This file also provides helper routines to access
+the other related information kept in the <code>sym_node</code> structure.
+For more details, please see Section&nbsp;<a href="#secAnnoteHelper.h">[-&gt;]</a>,
+<code><a href="#NWDW"><i>&lt;annoteHelper.h&gt;</i></a></code>.
+<p>
+The following defines the three fields of the <code>k_vsym_info</code> annotation:
+<p>
+<table><!-- alignment is l@{\hspace{.3in}}c@{\hspace{.3in}}l--><!-- 3 columns--><tr><td align=left valign=top><code>immed</code> #0 </td><td align=center><code>int</code> </td><td align=left valign=top><em>sp_offset</em>   </td></tr>
+<tr><td align=left valign=top><code>immed</code> #1 </td><td align=center><code>int</code> </td><td align=left valign=top><em>usage_count</em> </td></tr>
+<tr><td align=left valign=top><code>immed</code> #2 </td><td align=center><code>int</code> </td><td align=left valign=top><em>param_reg</em>   </td></tr>
+</table><br>
+The field <em>sp_offset</em> records the offset in bytes from the stack
+pointer to the stack home of this <code>sym_node</code>.  The field <em>usage_count</em> is a scratch-pad field.  We sometimes use it during
+register allocation to record the static number of references to this
+<code>sym_node</code> during the procedure.  The final field, <em>param_reg</em>,
+exists only if the <code>sym_node</code> is a parameter that is passed in a
+parameter register.  The value of this field indicates which parameter
+register is used.  Again, the register values are our abstract
+register names, not the machine-specific numbers.  The <code>k_vsym_info</code>
+annotation has only two fields if the <code>sym_node</code> is not a parameter
+variable passed in a register.
+<p>
+<blockquote>
+This organization of this information is not very pretty.  This whole
+issue needs to be revisited.
+</blockquote>
+<p>
+
+<h2><a name=toc18>Helper functions</a></h2>
+<a name="secMachLibHelperFcns"><b>[*]</b></a>
+<p>
+The machine library defines several kinds of helper functions to make
+it easier to write <em>machsuif</em> passes, especially passes that
+perform machine-specific optimizations in a machine-independent
+manner.  This section describes each set of helper functions in turn.
+<p>
+Please note that these functions are distributed across four different
+machine files: <em>machineInstr.h</em>, <em>machineUtil.h</em>, <em>annoteHelper.h</em>, and <em>archInfo.h</em>.  Basically, <em>machineUtil.h</em>
+contains all of the helper routines that check a <em>machsuif</em>
+instruction in a machine-specific way or return a machine-specific
+opcode to perform a generic action.  The files <em>annoteHelper.h</em>
+and <em>archInfo.h</em> contain helper routines for the machine library
+annotations, while <em>machineInstr.h</em> is the catch-all for the rest
+of the low-level helper routines.
+<p>
+
+<h3><a name=toc19>I/O helpers (and the virtual-register manager)</a></h3>
+<a name="secIOhelpers"><b><a name="NWDL">[*]</a></b></a>
+<p>
+Because we have extended the basic SUIF instruction class but have
+not changed the underlying SUIF I/O methods, we have created wrappers
+for the SUIF <code>proc_sym::read_proc()</code> and <code>proc_sym::write_proc()</code>
+methods.  Our wrappers are declared below.  Both routines are ``robust''
+in that they can read and write <code>tree_proc</code> bodies
+that do not contain any machine instructions.
+<p>
+<pre><a name="NWmacH.2-OG-1" href="#NWDL"><dfn>&lt;machine file I/O&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+
+class mproc_symtab {
+  private:
+    proc_symtab *st;    /* where we'd like this info */
+    int next_vrnum;     /* next unused virtual register number */
+
+  public:
+    mproc_symtab(proc_symtab *t)        { st = t; next_vrnum = -1; }
+    ~mproc_symtab()                     {}
+
+    proc_symtab *pst()                  { return st; }
+
+    int vreg_num()                      { return next_vrnum; }
+    int next_vreg_num()                 { return next_vrnum--; }
+    void set_vreg_num(int n)            { assert(n &lt; 0); next_vrnum = n; }
+
+    void renumber_vregs();      /* renumbers vr's uses in tree_proc body */
+};
+ 
+extern mproc_symtab *Read_machine_proc(proc_sym *, boolean /* exp_trees */,
+                                       boolean /* use_fortran_form */);
+extern void Write_machine_proc(proc_sym *, file_set_entry *);
+</pre><p>
+
+The <code>Read_machine_proc()</code> routine reads a list of <code>in_gen</code>
+instructions and reconstructs the appropriate machine instructions
+from the machine library annotations on the <code>in_gen</code> instructions.
+This routine returns a <code>mproc_symtab</code> pointer which is our hack to
+make a sensible place to put the virtual register manager without
+actually hacking any more of <em>basesuif</em>.  We make the returned
+pointer into a global variable, <code>cur_psymtab</code>, that can be accessed
+anywhere in our passes.  This allows us to get at the virtual register
+manager easily.
+<p>
+The virtual register manager is simply a few methods in the
+<code>mproc_symtab</code> class.  Notice that this class just wraps the real
+<code>proc_symtab</code>; <code>mproc_symtab</code> is <b>not</b> derived from
+<code>proc_symtab</code>.  We have included the <code>mproc_symtab::pst()</code> method
+for accessing the methods in the real <code>proc_symtab</code> class.
+However, it is our convention to have a global variable
+<code>proc_sym *cur_psym</code>, and we always generate a pointer to the
+procedure symbol table off this variable.  This convention will
+(hopefully) make it easier to transition our code when the virtual
+register manager moves into <em>basesuif</em>.
+<p>
+To hide the details of virtual-register-number generation, we use
+a macro called <code>NEW_VREG</code>.  For all passes but those that translate
+low-suif into <em>machsuif</em>, we define this macro to be
+<p>
+<code>#define NEW_VREG cur_psymtab-&gt;next_vreg_num()</code>
+<p>
+so that we invoke the virtual register manager to give us a new
+virtual register number.  This macro relies on the fact that we
+declared our <code>mproc_symtab</code> variable returned by
+<code>Read_machine_proc()</code> using the name <code>cur_psymtab</code>.  Note that
+you put this <code>#define</code> into your pass's code; it is <b>not</b>
+part of the library.
+<p>
+On the other hand, if the pass in question is a <em>*gen</em> pass,
+then we define the macro to be
+<p>
+<code>#define NEW_VREG (-(int)cur_psym-&gt;block()-&gt;proc_syms-&gt;next_instr_num())</code>
+<p>
+so that we invoke the instruction number manager in <em>basesuif</em>.
+We use the instruction numbering system to generate virtual register
+numbers in <em>*gen</em> passes because instruction-pointer operands are
+turned into virtual registers by negating the instruction number of
+the defining instruction.  Why do we do this?  Because we don't have
+to do any extra work to maintain the mapping between this virtual
+register's definition and its use.  Notice that you <b>cannot</b> use the
+virtual register manager in a <em>*gen</em> pass because the numbering
+spaces could potentially overlap.  Since we build our <em>*gen</em>
+passes so that they can add low-suif code during the generation
+process, we cannot guarantee that the number spaces would never
+overlap even with some weird initialization of the virtual register
+numbers based on the <code>next_instr_num</code>.  If you want to remove this
+lazy approach from the system, remember that the <code>k_vreg_manager</code>
+annotation does not exist before the <em>*gen</em> passes.
+<p>
+Also, please remember that the machine library's virtual register numbers
+are negative.  Unlike the SUIF instruction number manager, we allow
+you to set the next unused virtual register number.  This
+functionality allows one to build passes, like a procedure inliner,
+that reallocate virtual register numbers.  Again, please remember that
+virtual register numbers are unique only within a procedure.
+<p>
+The <code>Write_machine_proc()</code> routine creates a list of SUIF <code>in_gen</code>
+instructions with machine library annotations from a list of machine
+instructions.  Normally, you would call
+<code>mproc_symtab::renumber_vregs()</code> before <code>Write_machine_proc()</code>.
+The routine <code>renumber_vregs()</code> compacts the virtual register
+numbering space.  You can call this routine at any time.  You can
+delete your <code>mproc_symtab</code> variable after <code>Write_machine_proc()</code>
+has completed.  <code>Write_machine_proc()</code> calculates the
+<code>next_vreg_num</code> value for the <code>k_vreg_manager</code> annotation without
+use of the virtual register manager, so you don't have to allocate a
+<code>mproc_symtab</code> pointer variable if your pass doesn't create new
+virtual register operands.
+<p>
+
+<h3><a name=toc20><a name="NWDM">Print helpers</a></a></h3>
+<a name="secPrintHelpers"><b>[*]</b></a>
+<p>
+The following routines exist simply to make it easier to print
+a SUIF object in a machine-specific manner.  They all require
+a file pointer as the first argument.
+<p>
+<pre><a name="NWmacH.2-macL.2-1" href="#NWDM"><dfn>&lt;machine print helpers&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b>
+
+extern void Print_data_label(FILE *, sym_node *, char);
+extern void Print_raw_immed(FILE *, immed);
+extern void Print_symbol(FILE *, sym_node *);
+
+EXPORTED_BY_MACHINE boolean skip_printing_of_unwanted_annotes;
+DECLARE_LIST_CLASS(nonprinting_annotes_list, char *);
+EXPORTED_BY_MACHINE nonprinting_annotes_list *nonprinting_annotes;
+</pre><p>
+
+The routine <code>Print_data_label()</code> prints a <code>sym_node</code> name with the
+appropriate trailing character, specified by the third parameter, so
+that the string is interpreted as a data label in the output assembly
+language file.
+<p>
+The routine <code>Print_raw_immed()</code> prints an <code>immed</code> in the ``rawest''
+manner possible.  For example, we don't want any double quotes around
+strings or other such SUIF-specific printing rules being applied.
+Also, the offset fields of symbols are printed in bytes, not bits.
+<p>
+The routine <code>Print_symbol()</code> is a slight modification to the
+<code>sym_node::print()</code> method.  Here, we don't want the leading
+``.'' printed by the default SUIF print routine.  This is typically
+an undesirable feature in an assembly language label.
+<p>
+These routines are used by the machine-specific print helper routines
+invoked by the <code>mi_*::print()</code> methods.  See
+Section&nbsp;<a href="#secHelpArchSpecific">[-&gt;]</a> for examples.
+<p>
+The global variable <code>skip_printing_of_unwanted_annotes</code> provides a
+convenient mechanism to disable the printing of certain annotations.
+We use this mechanism in <em>printmachine</em> to remove clutter from the
+resulting assembly listing files.  This variable is set to <code>FALSE</code>
+by the machine library (i.e., enable printing of all annotations).
+The list <code>nonprinting_annotes</code> contains the annotations that
+should not be printed when <code>skip_printing_of_unwanted_annotes</code>
+is <code>TRUE</code>.
+<p>
+
+<h3><a name=toc21>Operand helpers</a></h3>
+<a name="secOpndHelpers"><b>[*]</b></a>
+<p>
+In the machine library, instruction-pointer operands represent either
+an effective address (EA) calculation or a <em>simple</em> immediate
+value.  Section&nbsp;<a href="#secEAopnds">[&lt;-]</a> provides a detailed discussion of 
+EA calculation operands and the <code>Is_ea_operand(operand)</code> helper
+<a name="NWDN">routine. </a><b>[</b>Earlier prototype versions of the machine library
+contained an
+immediate operand kind.  The <code>OPERAND_IMMED</code> kind of operand has
+been removed.  Instead, the machine library now represents immediate
+operands in the same way as the rest of SUIF.  Immediate operands are
+stored in SUIF <code>in_ldc</code> instructions, and then this <code>in_ldc</code>
+instruction is attached to an immediate instruction as the immediate
+operand.<b>]</b> 
+<p>
+<pre><a name="NWmacH.2-macN-1" href="#NWDN"><dfn>&lt;machine operand helpers&gt;=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b> <b>[D<a href="#NWDO">-&gt;</a>]</b>
+extern boolean Is_ea_operand(operand);
+extern operand Immed_operand(immed &amp;, type_node *);
+</pre><p>
+
+Along with the immediate operand kind in the earlier versions of the
+machine library, there also existed a constructor for immediate
+operands.  To replace this constructor, we have created a helper
+routine called <code>Immed_operand(immed &amp;, type_node *)</code>.  This
+routine takes an <code>immed</code> and a <code>type_node</code> pointer as input
+<a name="NWDO">parameters and returns an instruction pointer to an </a><code>in_ldc</code>
+instruction with the specified immediate value.
+<p>
+Please note that <code>Immed_operand(immed &amp;, type_node *)</code> is meant to
+be used to create <b>simple</b> immediates, not effective address
+calculations.  One should never call <code>Immed_operand()</code> with
+a <code>type_node</code> that is a <code>ptr_type</code>.
+<p>
+An additional helper for operands is:
+<p><pre><a name="NWmacH.2-macN-2" href="#NWDN"><dfn>&lt;machine operand helpers&gt;+=</dfn></a> <b>(<a href="#NWDB">U-&gt;</a>)</b> <b>[<a href="#NWDN">&lt;-</a>D]</b>
+extern void
+Map_operand(instruction *in, operand (*fun)(operand, boolean, void *), void *x);
+</pre><p>
+<a name="NWDP">This utility maps function </a><code>fun</code> over the operands of instruction <code>in</code>,
+passing three arguments: the operand, a flag that is true for source
+operands and false for destinations, and the pointer <code>x</code>.  Each leaf
+operand to which <code>fun</code> is applied is replaced by the result of the call.
+Non-leaf operands (EA's and immediates) are expected to be returned
+unchanged.
+<p><h3><a name=toc22><a name="NWDQ">machineUtil.h</a></a></h3>
+<a name="secMachineUtil.h"><b>[*]</b></a>
+<p>
+This file contains helper functions that allow one to write
+machine-independent code for machine-specific optimizations.
+<p>
+<pre><a name="NWmacG.2-macD.2-1" href="#NWDQ"><dfn>&lt;machineUtil.h&gt;=</dfn></a>
+/* file &quot;machineUtil.h&quot; */
+
+<a name="NWmacG.2-macD.2-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef MACHINE_UTIL_H
+#define MACHINE_UTIL_H
+
+<a name="NWmacG.2-macD.2-1-u2" href="#NWDR"><i>&lt;architecture and format distinguishers&gt;</i></a>
+
+<a name="NWmacG.2-macD.2-1-u3" href="#NWDS"><i>&lt;instruction kind distinguishers&gt;</i></a>
+
+<a name="NWmacG.2-macD.2-1-u4" href="#NWDT"><i>&lt;uniform access methods&gt;</i></a>
+
+<a name="NWmacG.2-macD.2-1-u5" href="#NWDU"><i>&lt;architecture-specific opcode generators&gt;</i></a>
+
+<a name="NWmacG.2-macD.2-1-u6" href="#NWDV"><i>&lt;other print helpers&gt;</i></a>
+
+#endif
+</pre><p>
+
+<a name="NWDR">There are five kinds of routines in this file.  The first kind takes</a>
+a SUIF opcode and returns the architecture or instruction format for
+this opcode.  Please note that both these routines work with the
+SUIF opcodes in addition to the Machine SUIF opcodes.
+<p>
+<pre><a name="NWmacG.2-arcc-1" href="#NWDR"><dfn>&lt;architecture and format distinguishers&gt;=</dfn></a> <b>(<a href="#NWDQ">&lt;-U</a>)</b>
+extern char *which_architecture(mi_ops o);
+extern int which_mformat(mi_ops o);
+</pre><p>
+
+<a name="NWDS">The next kind of routine takes a SUIF </a><code>instruction</code> pointer as the
+only parameter and then tells you something about the instruction
+(e.g. that it's an unconditional jump instruction).  These routines are
+useful if your analysis or optimization pass is looking for a
+particular kind of instruction, but it does not care about the actual
+opcode.
+<p>
+<pre><a name="NWmacG.2-insV-1" href="#NWDS"><dfn>&lt;instruction kind distinguishers&gt;=</dfn></a> <b>(<a href="#NWDQ">&lt;-U</a>)</b>
+extern boolean Is_null(instruction *);
+extern boolean Is_label(instruction *);
+extern boolean Is_ldc(instruction *);
+extern boolean Is_move(instruction *);
+extern boolean Is_cmove(instruction *);         // conditional move
+extern boolean Is_line(instruction *);          // line number marker
+
+extern boolean Is_cti(instruction *);           // One of below is true
+extern boolean Is_ubr(instruction *);           // unconditional jump/branch
+extern boolean Is_cbr(instruction *);           // conditional (2 targets)
+extern boolean Is_mbr(instruction *);           // multiway (n targets)
+extern boolean Is_call(instruction *);          // includes coroutines calls
+extern boolean Is_return(instruction *);
+
+extern boolean Reads_memory(instruction *);
+extern boolean Writes_memory(instruction *);
+</pre><p>
+
+Hopefully, most of the routines are self-explanatory from their
+names; only a few deserve some explanation.  The routine <code>Is_null()</code>
+returns <code>TRUE</code> if the opcode of the instruction is the null opcode.
+This is not the same as a NOP.  Null opcodes are used as placeholders
+for annotations or assembly-language comments.  The routine <code>Is_line()</code>
+returns <code>TRUE</code> if the instruction is a directive indicating the
+source line number at this point in the program.
+<p>
+The branching methods also deserve some explanation.  The routine
+<code>Is_cti()</code> returns <code>TRUE</code> if the instruction is a control-transfer
+instruction.  This also means that at least one of the next five
+helper routines are <code>TRUE</code>.  The abbreviations are defined as follows:
+UBR stands for unconditional branch (single target); CBR stands for
+conditional branch (two targets, one implicit); and MBR stands for
+multi-way branch (<code>N</code> targets where <code>N</code> may be unknown).  Please
+note that an instruction is a CBR whenever it has two targets, one of
+which is implicit (the fall-through target typically).  This is
+independent of whether the branch evaluation is constant or
+conditional.
+<p>
+<a name="NWDT">The third kind of routine provides us with a uniform way</a>
+to access particular parts of instructions that require different
+methods depending upon whether the <code>instruction</code> is a simple SUIF
+<code>instruction</code> or a <em>machsuif</em> <code>machine_instr</code>.  For example,
+code that creates a control-flow graph doesn't care about the actual
+opcode of an <code>instruction</code>, it just wants the target <code>sym_node</code> if
+the <code>instruction</code> is an unconditional jump.
+<p>
+<pre><a name="NWmacG.2-uniM-1" href="#NWDT"><dfn>&lt;uniform access methods&gt;=</dfn></a> <b>(<a href="#NWDQ">&lt;-U</a>)</b>
+extern label_sym *Get_label(instruction *);     /* of label instr */
+extern sym_node *Get_target(instruction *);     /* of branch/jump instr */
+extern proc_sym *Get_proc(instruction *);       /* of call instr */
+</pre><p>
+
+<a name="NWDU">The fourth kind of routine is one that takes a pointer to an</a>
+architectural description of the target machine and possibly a
+<code>type_node</code> pointer, and returns a machine-specific opcode
+that fulfills the requested action.  For example, the helper
+routine <code>Ubr_op(archInfo *)</code> returns the opcode corresponding
+to an unconditional branch in the indicated architecture.
+<p>
+<pre><a name="NWmacG.2-arcd-1" href="#NWDU"><dfn>&lt;architecture-specific opcode generators&gt;=</dfn></a> <b>(<a href="#NWDQ">&lt;-U</a>)</b>
+extern mi_ops Ubr_op(archinfo *);
+extern mi_ops Label_op(archinfo *);
+extern mi_ops Null_op(archinfo *);
+extern mi_ops Load_op(archinfo *, type_node *);
+extern mi_ops Store_op(archinfo *, type_node *);
+extern mi_ops Move_op(archinfo *, type_node *);
+extern mi_ops Invert_cbr_op(archinfo *, mi_ops);
+</pre><p>
+
+The final set of routines help with printing.  In particular, they
+are used by <code>printmachine</code> to create an ASCII assembly file.
+Again, most of these are straightforward, though a few deserve a
+few extra words of documentation.
+The <code>Print_global_directives</code> routine allows you to insert
+assembler directives at the top of your output assembly-language
+file that are valid during the entire file.  For example, we use
+this feature to disable code reordering by the assembler.
+The <code>Print_file_op</code> routine takes a file number and a file string name.
+<a name="NWDV">The </a><code>Print_var_def</code> routine requires,  for some architectures, an
+integer that indicates the maximum size of a data item that is placed
+in the global pointer area.  If the architecture does not require this
+parameter, the <code>int</code> value is ignored.
+The <code>Print_proc_begin</code> routine takes a file number that is then used
+for the initial line directive.  This information aids in debugging.
+Again, some architectures do not need this information, and in those
+cases, this <code>int</code> value is ignored.
+<p>
+<pre><a name="NWmacG.2-othJ-1" href="#NWDV"><dfn>&lt;other print helpers&gt;=</dfn></a> <b>(<a href="#NWDQ">&lt;-U</a>)</b>
+extern void Print_global_directives(archinfo *, file_set_entry *, FILE *);
+extern void Print_extern_op(archinfo *, var_sym *, FILE *);
+extern void Print_file_op(archinfo *, int, char *, FILE *);
+extern void Print_var_def(archinfo *, var_sym *, int, FILE *);
+extern void Print_proc_def(archinfo *, proc_sym *, FILE *);
+extern void Print_proc_begin(archinfo *, proc_sym *,  FILE *);
+extern void Print_proc_entry(archinfo *, proc_sym *, int, FILE *);
+extern void Print_proc_end(archinfo *, proc_sym *, FILE *);
+</pre><p>
+<h3><a name=toc23><a name="NWDW">annoteHelper.h</a></a></h3>
+<a name="secAnnoteHelper.h"><b>[*]</b></a>
+<p>
+This file contains the helper routines created for the machine library
+annotations.  Currently, we have stand-alone helper routines for only
+one annotation: <code>k_vsym_info</code>.
+<p>
+<pre><a name="NWannH-annE-1" href="#NWDW"><dfn>&lt;annoteHelper.h&gt;=</dfn></a>
+/* file &quot;annoteHelper.h&quot; */
+
+<a name="NWannH-annE-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef ANNOTEHELPER_H
+#define ANNOTEHELPER_H
+
+/*              vsym_in_reg(var_sym *);         #* use SUIF is_reg() method */
+extern void     vsym_clear_hreg(var_sym *);     /* hard register methods */
+extern void     vsym_set_hreg(var_sym *, int);
+extern int      vsym_get_hreg(var_sym *);
+extern void     vsym_set_sp_offset(var_sym *, int);
+extern int      vsym_get_sp_offset(var_sym *);
+extern void     vsym_update_usage(var_sym *);   /* usage count methods */
+extern int      vsym_used(var_sym *);           /* returns usage count */
+extern void     vsym_set_preg(var_sym *, int);  /* parameter reg methods */
+extern boolean  vsym_passed_in_preg(var_sym *);
+extern int      vsym_get_preg(var_sym *);
+extern sym_addr vsym_get_auto_sym(base_symtab *, int, int);
+
+#endif /* ANNOTEHELPER_H */
+</pre><p>
+
+As explained in Section&nbsp;<a href="#secVsyminfo">[&lt;-]</a>, the <code>k_vsym_info</code>
+annotation records several pieces of information related to automatic
+variables.  These helper routines supply mechanisms to set, access,
+and query this information.  In addition, we supply routines that set,
+clear, access, and query the SUIF register information attached to
+<code>sym_node</code>'s.  Please remember that we interpret a <code>TRUE</code> result
+from the <code>sym_node::is_reg()</code> method to mean that the <code>sym_node</code>
+is stored in a register, not that the <code>sym_node</code> is a register.  By
+creating these hard register helper routines that manipulate the SUIF
+structures, we can have a uniform interface for <code>var_sym</code>
+information.
+<p>
+Currently, the parameter register methods are used to pass parameter
+register information between the <code>*gen</code> and <code>ra*</code> passes.  The
+stack pointer methods are used inside the <code>*fin</code> passes.  The usage
+methods are used by our stupid register allocator, <code>ra0</code>, which is
+no longer distributed.  We do not consistently set the <code>is_reg()</code>
+flag when we allocate a <code>var_sym</code> to a register.  Notice that this
+current mechanism for mapping a <code>var_sym</code> to a register is not
+powerful enough for register allocators that implement live-range
+splitting.
+<p>
+This documentation is out of date!
+The <code>vsym_get_auto_sym</code> scans the local symbol list from the
+indicated symbol table and returns the symbol that lives at the stack
+pointer offset specified in the argument.  This routine returns
+<code>NULL</code> if the offset does not correspond to an auto variable
+in the specified symbol table.  It requires the current size of
+<a name="NWDX">the stack frame; passed as the second parameter.</a>
+<p>
+<blockquote>
+As stated in Section&nbsp;<a href="#secVsyminfo">[&lt;-]</a>, this organization of this
+information is not very pretty, and this whole issue needs to be
+revisited.
+</blockquote>
+<p>
+
+<h3><a name=toc24>eaHelper.h</a></h3>
+<a name="secEaHelper.h"><b><a name="NWDY">[*]</a></b></a>
+<p>
+This file contains the helper routines that aid in the creation and
+manipulation of effective-address (EA) calculations in Machine SUIF.
+Recall that we encode EA calculations as instruction-pointer operands
+that encapsulate expression trees.  These trees contain SUIF
+operations.  Please refer back to Section&nbsp;<a href="#secEAopnds">[&lt;-]</a> for a
+more-complete discussion.
+<p>
+<pre><a name="NWeaHD-eaHA-1" href="#NWDY"><dfn>&lt;eaHelper.h&gt;=</dfn></a>
+/* file &quot;eaHelper.h&quot; */
+
+<a name="NWeaHD-eaHA-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef EAHELPER_H
+#define EAHELPER_H
+
+/* Routines that help to create EA operands */
+extern instruction *New_ea_base_p_disp(operand b, long d);
+extern instruction *New_ea_base_p_disp(operand b, immed di);
+
+extern instruction *New_ea_symaddr(sym_node *s, unsigned d = 0);
+extern instruction *New_ea_symaddr(immed si);
+
+extern instruction *New_ea_indexed_symaddr(operand i, sym_node *s, long d);
+
+extern instruction *New_ea_base_p_indexS_p_disp(operand b, operand i,
+                                                unsigned s, long d);
+
+/* Routines that answer common queries about an EA expression tree */
+extern boolean Is_ea_base_p_disp(instruction *);
+extern boolean Is_ea_symaddr(instruction *);
+extern boolean Is_ea_indexed_symaddr(instruction *);
+extern boolean Is_ea_indexS_p_disp(instruction *);
+extern boolean Is_ea_base_p_index_p_disp(instruction *);
+extern boolean Is_ea_base_p_indexS_p_disp(instruction *);
+
+/* Routines that help access parts of an EA calculation */
+extern sym_node *Get_ea_symaddr_sym(instruction *);
+extern int Get_ea_symaddr_off(instruction *);
+
+// Unfinished code not yet needed.
+// typedef void (*ea_map_f)(instruction *ea, void *x);
+// extern void Map_ea(instruction *ea, ea_map_f f, void *x);
+
+#endif /* EAHELPER_H */
+</pre><p>
+
+In general, we have named our EA calculations after the names used
+in x86 basic programming model.  The <code>New_ea_*</code> routines return
+pointers to SUIF expression trees corresponding to different
+types of EA modes.  The letter ``p'' in a routine name stands for
+``plus''.  These routines are not meant to be an exhaustive list
+of helper routines; they are simply the ones that we have found
+useful to this point.  Feel free to add more.
+<p>
+Here is a list of our supported effective-addressing modes:
+<p>
+<ul>
+
+<li><code>base_p_disp</code> -- base plus displacement.  The base
+is either a <code>var_sym</code> operand or a register operand.  The
+displacement is a signed integer value with a unit of bytes.
+<p>
+<li><code>symaddr</code> -- address of a simple relocatable symbol
+plus a optional displacement.  You simply specify the symbol
+that you want to address.  Due to the underlying representation,
+the displacement is an unsigned integer.  The displacement is
+specified in bytes, though internally it is stored as a displacement
+in bits.
+<p>
+<li><code>indexed_symaddr</code> -- indexed, relocatable address.
+The index operand must be a register operand, the <code>sym_node</code>
+is the symbol whose address you want taken, and the displacement
+is a signed value in units of bytes.  The address is generated
+by adding the contents of the index register to the relocatable
+symbol's address, plus the optional signed byte displacment.
+<p>
+<li><code>base_p_indexS_p_disp</code> -- base register plus (index register
+times an unsigned scale factor) plus a signed literal displacement.
+The scale factor and the displacement are specified in bytes.  This
+is our most general form.  If you wish to create an ``(index times scale)
+plus displacement'' form or a ``base plus index plus displacement''
+form, you should use this form with a NULL base operand or a constant
+one in the appropriate argument locations.  Since these forms are used
+infrequently, we are not concerned with the wasteful encoding.
+<p>
+</ul>
+
+The routine <code>Get_ea_symaddr_off(instruction *)</code> returns the optional
+<a name="NWDZ">byte displacment on a </a><code>symaddr</code> effective address.
+<p>
+Most of the query kind helper routines are (hopefully) obvious.  The
+two routines <code>Is_ea_indexS_p_disp</code> and <code>Is_ea_base_p_index_p_disp</code>
+do not have their own unique constructors.  They use the
+<code>New_ea_base_p_indexS_p_disp</code> constructor with the appropriate NULL
+operand or constant one input parameters.  The underlying expression
+tree is more complicated than necessary for these forms, and these
+routines help to pinpoint the fluff.
+<p><h2><a name=toc25>Access to machine-specific data</a></h2>
+<a name="secArchInfo.h"><b>[*]</b></a>
+<p>
+To perform machine-specific optimizations, we must have some
+information concerning the target machine.  The current version of
+<em>machsuif</em> maintains pointers to machine-specific information.
+This pointer information is recorded in a <code>k_target_arch</code> annotation
+which is attached to each <code>file_set_entry</code>.  Using this pointer
+information, we build separate classes to manage the different kinds
+of architecture and machine-specific information.  The rest of this
+section reviews how we access machine-specific data.  The next
+section describes a particular class that encapsulates a piece of
+machine-specific data.
+<p>
+<h3><a name=toc26><code>k_target_arch</code> annotation</a></h3>
+<p>
+The <code>k_target_arch</code> annotation is created during code generation by
+the <code>*gen</code> <em>machsuif</em> passes, since these passes are machine
+specific.  Please see the <em>machsuif</em> overview document for additional
+information on how the values for this annotation are set.
+<p>
+The <code>k_target_arch</code> annotation is a structured annotation
+with the following fields:
+<p>
+<table><!-- alignment is l@{\hspace{.3in}}c@{\hspace{.3in}}l--><!-- 3 columns--><tr><td align=left valign=top><code>immed</code> #0 </td><td align=center><code>char*</code> </td><td align=left valign=top><em>architecture_family_name</em>   </td></tr>
+<tr><td align=left valign=top><code>immed</code> #1 </td><td align=center><code>char*</code> </td><td align=left valign=top><em>arch_version_number</em>        </td></tr>
+<tr><td align=left valign=top><code>immed</code> #2 </td><td align=center><code>char*</code> </td><td align=left valign=top><em>vendor_and_OS_designation</em> </td></tr>
+<tr><td align=left valign=top><code>immed</code> #3 </td><td align=center><code>char*</code> </td><td align=left valign=top><em>machine_implementation</em>      </td></tr>
+</table><br>
+The <em>architecture_family_name</em> is a string and is the same as
+the string stored in the <code>architecture()</code> method of each instruction
+in a procedure <code>tree_node_list</code>.  It quickly distinguishes, for
+example, between MIPS and Alpha instructions, but it does not
+distinguish between a MIPS-I and a MIPS-IV architecture.
+Distinguishing versions within an architecture family is handled by
+the <em>arch_version_number</em> value.  Please note that this value
+is encoded as a string.  By convention, we start version numbers with
+a number.  For example, the MIPS-I architecture would be recorded
+as version <code>1</code> while MIPS-IV would be recorded as <code>4</code>.  Following
+this convention, we can use <code>strcmp()</code> to perform ordering tests,
+e.g. the code <code>strcmp(&quot;1.3a&quot;, version()) &lt;= 0</code> will verify that a
+feature implemented in version <code>1.3a</code> will work in the current
+target.
+<p>
+The third value in this annotation contains the vendor and operating
+system information for the target machine.  This item completes the
+<i>&lt;architecture&gt;-&lt;vendor&gt;-&lt;os&gt;</i>
+string kept in the SUIF <code>MACHINE</code> environment variable.
+<p>
+The final value in this annotation is a string describing the target
+hardware implementation.  We use the value of this string, along with
+the architectural family and version strings, to construct a basename
+for the files containing the architecture and machine-specific
+information to be used during compilation.  The <em>machsuif</em>
+overview document provides more information on the structure and
+location of these machine-specific data files.
+<p>
+<h3><a name=toc27><code>archinfo</code> class</a></h3>
+<p>
+<a name="NWDa">We have built a common interface to manage the architecture- and</a>
+machine-specific data used during compilation.  The key to this common
+interface is the <code><a href="#NWDb"><i>&lt;class archinfo&gt;</i></a></code> described below.  From this class,
+we can build other classes that manage particular pieces of
+machine-specific information.  The <code><a href="#NWDe"><i>&lt;class reginfo&gt;</i></a></code> is one example of
+these associated classes.  The <em>machsuif</em> scheduling library
+provides other examples of hardware-resource-management classes that
+rely on the <code><a href="#NWDb"><i>&lt;class archinfo&gt;</i></a></code>.
+<p>
+<pre><a name="NWarcD-arcA-1" href="#NWDa"><dfn>&lt;archInfo.h&gt;=</dfn></a>
+/* file &quot;archInfo.h */
+
+<a name="NWarcD-arcA-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef ARCHINFO_H
+#define ARCHINFO_H
+
+<a name="NWarcD-arcA-1-u2" href="#NWDb"><i>&lt;class archinfo&gt;</i></a>
+
+<a name="NWarcD-arcA-1-u3" href="#NWDd"><i>&lt;reginfo enums&gt;</i></a>
+
+<a name="NWarcD-arcA-1-u4" href="#NWDe"><i>&lt;class reginfo&gt;</i></a>
+
+<a name="NWarcD-arcA-1-u5" href="#NWDf"><i>&lt;register defines&gt;</i></a>
+
+#endif /* ARCHINFO_H */
+</pre><p>
+
+<a name="NWDb">The </a><code>archinfo</code> class is defined as follows:
+<p>
+<pre><a name="NWarcD-claE-1" href="#NWDb"><dfn>&lt;class archinfo&gt;=</dfn></a> <b>(<a href="#NWDa">&lt;-U</a>)</b>
+class archinfo {
+  private:
+    char *fam;          /* architectural family name */
+    char *ver;          /* architectural revision/version number */
+    char *vos;          /* vendor and os designation for target */
+    char *impl;         /* chip name and variant */
+
+    if_ops first;       /* range of valid opcodes for this arch. */
+    if_ops last;        /* range is [first_op, last_op) */
+
+  protected:
+    void init_from_annote(file_set_entry *fse);
+
+  public:
+    archinfo(file_set_entry *fse)       { init_from_annote(fse); }
+    archinfo(proc_sym *p)               { init_from_annote(p-&gt;file()); }
+    ~archinfo()                         {}
+
+    char *family()              { return fam; }
+    char *version()             { return ver; }
+    char *vendor_os()           { return vos; }
+    char *implementation()      { return impl; }
+
+    if_ops first_op()           { return first; }
+    if_ops last_op()            { return last; }
+    char *op_string(if_ops);
+
+    FILE *fopen_mdfile(char *ext, char *mode=&quot;r&quot;); 
+
+    void print(FILE *fd = stdout);
+};
+
+EXPORTED_BY_MACHINE archinfo *target_arch;      /* pointers to target data */
+</pre><p>
+
+Most of the methods in this class are obvious.  The only interesting
+method is <code>archinfo::fopen_mdfile(char *, char *)</code>.  This method
+takes a filename extension and some access mode information, and then
+searches the <em>impl</em> directory for the specified machine-specific
+data file.  It returns a handle to the file containing the
+machine-specific data.  This handle is passed to a class capable of
+<a name="NWDc">reading and managing access to the data.  The </a><code><a href="#NWDe"><i>&lt;class reginfo&gt;</i></a></code>
+in the next section is an example of such a class.
+<p>
+The machine library provides access to the target architecture and
+implementation data through the global variable <code>target_arch</code>.
+When building a <em>machsuif</em> pass, you would typically define 
+this variable within your <code>file_set</code> iterator loop.  The following
+code illustrates this concept.
+<p>
+<pre><a name="NWarcD-exao-1" href="#NWDc"><dfn>&lt;example code that reads some machine-specific data&gt;=</dfn></a>
+    /* Process each input file */
+    file_set_entry *fse;
+    fileset-&gt;reset_iter();
+    while ((fse = fileset-&gt;next_file())) {
+        ifile = fse-&gt;name();
+
+        /* get machine-specific data needed by this optimization */
+        target_arch = new archinfo(fse);
+        target_regs = new reginfo(target_arch-&gt;fopen_mdfile(&quot;reg&quot;));
+
+        /* perform optimization */
+        Process_file(fse);
+
+        delete target_regs;
+        delete target_arch;
+    }
+</pre><p>
+
+The example code indicates that this optimization pass requires
+information about the registers in the target architecture.  This
+information is read from the appropriate file in the <em>impl</em>
+directory.  The register information is kept in files with the
+file extension ``.reg'' as explained in the next section.  A pass
+might require multiple <code>target_*</code> managers for each type of
+machine-specific data that it requires.  Notice that you only need to
+read the data you require.
+<p>
+
+<h2><a name=toc28>Registers and the <code>reginfo</code> class</a></h2>
+<a name="secRegs"><b>[*]</b></a>
+<p>
+One piece of architecture information that is commonly needed is the
+specifics of the register set of the target machine.  The
+<code><a href="#NWDe"><i>&lt;class reginfo&gt;</i></a></code> manages this information.
+<p>
+We use abstract register names (actually an integer) when referring to
+hard registers in the machine library.  The actual string value
+expected by the assembler for a specific architectural register is
+available from the <code>name(int)</code> method in the <code><a href="#NWDe"><i>&lt;class reginfo&gt;</i></a></code>.
+With abstract register names, routines that do not
+care, for example, about the specific number for the stack pointer
+register in the current target architecture can still reference the
+stack pointer using the abstract name <code>REG_sp</code>.  The
+architecture-specific print routines automatically translate these
+abstract register names into the appropriate target-specific
+register number.
+<p>
+We organize an architecture's hard registers into a two-level
+hierarchy.  The first level of this hierarchy splits an architecture's
+registers into register <em>banks</em>.  Currently, the machine library
+<a name="NWDd">defines four register banks, as shown below.  The second level of this</a>
+hierarchy splits the hard registers into one of several register <em>conventions</em>.  Within a register convention, an architecture will have
+zero or more hard registers.  In a <em>machsuif/impl/*.reg</em> file, you
+assign each hard register within a register bank and convention a unique id
+(i.e. a number from 0 to one less than the number of registers in that
+bank's convention).  Given this assignment, we can now refer to a hard
+register abstractly by specifying its bank, convention, and index
+number.
+<p>
+<pre><a name="NWarcD-regD-1" href="#NWDd"><dfn>&lt;reginfo enums&gt;=</dfn></a> <b>(<a href="#NWDa">&lt;-U</a>)</b>
+enum {  /* register banks */
+    GPR = 0,            /* general-purpose (e.g. integer) registers */
+    FPR,                /* floating-point registers */
+    SEG,                /* segment registers */
+    CTL,                /* control (e.g. PC, condition code) registers */
+    LAST_REG_BANK       /* must be the last entry in the enum */
+}; 
+
+extern char *reg_bank_string(int);
+
+enum {  /* register conventions */
+    CONST0 = 0,         /* constantly zero */
+    RA,                 /* return address register */
+    SP,                 /* stack pointer */
+    GP,                 /* global pointer */
+    FP,                 /* frame pointer */
+    ARG,                /* argument registers */
+    RET,                /* function return registers */
+    SAV,                /* callee saved registers */
+    TMP,                /* caller saved registers */
+    ASM_TMP,            /* assembler temporary registers (caller saved) */
+    GEN,                /* generic -- catch all for other registers in bank */
+    LAST_REG_CONV       /* must be the last entry in the enum */
+}; 
+
+extern char *reg_conv_string(int);
+</pre><p>
+
+We also provide two routines, <code>reg_bank_string(int)</code> and
+<code>reg_conv_string(int)</code>, to help with the human-readable
+printing of the <code>reginfo enum</code>'s.
+<p>
+We place every architecture's hard register into this hierarchy in
+exactly one place, even though a hard register can belong
+theoretically to multiple conventions within a single register bank.
+For example, parameter registers are often considered to be temporary
+(caller-saved) registers too.  This is not a problem as long as <em>each hard register appears only once in the hierarchy</em>.  The small,
+ugly aspect of this situation is that the abstract reference may not
+always be the best name for a particular context.  To continue the
+example, it would be nice to refer to a parameter register with a
+temporary register reference when the register allocator assigns it as
+a temporary register, but you cannot.
+<p>
+We define a register bank to be any set of registers that have the
+same access cost with respect to a particular instruction.  This means
+that architectures with multiple GPR banks (e.g. clustered VLIW register
+files) should contain multiple ``GPR'' register banks (e.g. GPR1, GPR2,
+etc.).  Our current system does not provide a register allocator capable
+of bank assignment and inter-bank register allocation for these types
+of architectures.
+<p>
+As the file <em>impl/alpha.reg</em> illustrates, an architecture defines only
+those banks and conventions that it uses.  You can easily change the
+number of registers in a bank, the number of banks in an architecture,
+or the conventions used by a bank by simply changing the appropriate
+data file for that architecture.  The only time that you need to
+modify the machine library and recompile the <em>machsuif</em> system is
+when you add new values to the register banks and conventions
+<code>enum</code>'s.  Remember to fix the <em>archData.l</em> and <em>archData.y</em>
+files too.
+<p>
+To deal with architectures that gang registers together to handle
+operations on larger datatypes (e.g. the use of two FP registers in
+the MIPS-I architecture to hold double-precision FP numbers) and
+architectures that grew in the size of their datapath as they grew
+older (e.g. the x86 architecture permits the addressing of two
+separate 8-bit chunks of the A register), the machine library
+maintains information about the <em>natural width</em> and the <em>addressable grain size</em> of the registers in each register bank.  This
+information is specified in the <em>*.reg</em> file.  In the
+simplest case, a register is always accessed in its natural width.
+For example, the Alpha architecture has 64-bit registers (the natural
+width), and you modify all 64 bits whenever you write one of these
+registers.  Thus, the grain size of the GPR and FPR banks in the Alpha
+architecture is 64 bits.  In the latest x86 architecture, the A
+register can be accessed as an 8-bit, 16-bit, or 32-bit quantity.  The
+natural size of this register is 32 bits, but its grain size is 8
+bits (not all 8-bit grains are addressable in the architecture though
+an abstract name exists for each grain).
+<p>
+To see how the machine library uses this information, we consider a
+simple example from the MIPS-I architecture.  In this architecture, the
+FPR bank has a natural width of 32 bits and a grain size of 32 bits.
+When a DP FP value is written to an even FP register, the size of the
+operand data is 64 bits (indicated by the operand <code>type</code>
+information).  The machine library uses the grain size information to
+realize that a write of this operand data requires two FPR registers.
+By convention, the library uses the specified abstract register and
+the next sequential grains in the machine description file until the
+total grain size is equal to the operand data size.  The implication
+here is that the MIPS-I <em>machsuif</em> instruction that writes a DP FP
+value specifies only a single abstract register name as the
+destination.  The machine library (including the register allocation
+and dependence analysis passes) realizes that multiple registers are
+written.  Another implication is that your passes had better maintain
+the correct operand type information if you expect the machine library
+to work correctly.
+<p>
+As an aside, virtual registers have no predefined width.  They are as
+wide as they need to be in order to hold the operand data.  When
+assigning hard registers to virtual registers, even if the value in
+a virtual register requires multiple hard registers, we place only
+the name for the starting hard register grain in the destination
+operand corresponding to the virtual register.  The type information
+conveys the extra information indicating the other occupied grains.
+You create multiple destination operands only when an instruction
+produces multiple distinct results.
+<p>
+Looking at things for the other direction, consider the x86
+architecture.  We define that the A, B, C, and D registers each
+comprise four 8-bit grains for a total natural width of 32 bits.  How
+many of these grains are used depends upon the size of the operand.
+An 8-bit operand that wants to write only AL, for example, would write
+only the first 8-bit grain.  An 8-bit operand that wants to write AH
+would write the grain following the one for AL.  A 16-bit operand that
+wants to write only AX would write the first two 8-bit grains for hard
+register A (i.e. it would write AL and AH); the operand uses the same
+abstract register name used by the write to AL.  A 32-bit operand
+would write all four grains.  Notice that if we wanted to write an
+8-bit value into EAX, we would specify the operand size as 32-bits.
+<p>
+<blockquote>
+Make sure that the passes know about the size of a memory container, i.e.
+make sure that the correct code is generated when we want to write only
+<a name="NWDe">the lower 8 bits of EAX into an 8-bit wide memory location.</a>
+</blockquote>
+<p>
+To manage this register information, the machine library defines
+the <code><a href="#NWDe"><i>&lt;class reginfo&gt;</i></a></code>.  You define the information in this class
+in your <em>impl/*.reg</em> file.  You access this information through
+the <code>target_regs</code> variable with help from the <code>target_arch</code> variable.
+Please see the <code><a href="#NWDc"><i>&lt;example code that reads some machine-specific data&gt;</i></a></code>.
+<p>
+<pre><a name="NWarcD-claD-1" href="#NWDe"><dfn>&lt;class reginfo&gt;=</dfn></a> <b>(<a href="#NWDa">&lt;-U</a>)</b>
+struct reg_desc {
+    int bank;           /* register bank */
+    int conv;           /* primary convention */
+    int encoding;       /* hardware encoding */
+    char *name;         /* assembler name */
+}; 
+
+class reginfo {
+    friend int yyparse(void); 
+    friend void yy_rpair(int, char *);
+
+  private:
+    int n;              /* number of grains contained in all register banks */
+    int *num_in_b;      /* size n_banks */
+    int *num_in_bc;     /* size n_banks * n_conventions */
+    int *start_of_b;    /* size n_banks */
+    int *start_of_bc;   /* size n_banks * n_conventions */
+    int *width_of_b;    /* size n_banks */
+    int *gsize_of_b;    /* size n_banks */
+    reg_desc *desc;     /* size n */
+    int *m2a_map;       /* machine encoding to abstract number map; size n */
+
+  public:       
+    int total_grains() const { return n; }
+    int num_in(int b) const { 
+        assert(b &lt; LAST_REG_BANK); 
+        return num_in_b[b]; 
+    }
+    int num_in(int b, int c) const {
+        assert(b &lt; LAST_REG_BANK &amp;&amp; c &lt; LAST_REG_CONV); 
+        return num_in_bc[b * LAST_REG_CONV + c]; 
+    }
+    int start_of(int b) const {
+        assert(b &lt; LAST_REG_BANK); 
+        return start_of_b[b];
+    }
+    int start_of(int b, int c) const {
+        assert(b &lt; LAST_REG_BANK &amp;&amp; c &lt; LAST_REG_CONV); 
+        return start_of_bc[b * LAST_REG_CONV + c]; 
+    }
+    int width_of(int b) const {
+        assert(num_in(b) &gt; 0);
+        return width_of_b[b];
+    }
+    int grain_size_of(int b) const {
+        assert(num_in(b) &gt; 0);
+        return gsize_of_b[b];
+    }
+    int lookup(int b, int c, int i) const {
+        assert(i &lt; num_in(b, c)); 
+        return start_of(b, c) + i; 
+    }
+
+    reg_desc describe(int ar) const {
+        assert(ar &lt; n);
+        return desc[ar];
+    }
+    char *name(int ar) const { return describe(ar).name; }
+
+    /* mapping functions between abstract reg numbers and machine encodings */
+    int a2m(int ar);
+    int m2a(int b, int mr);
+
+    void print(FILE *fd = stdout);
+
+    reginfo(FILE *fd); 
+    ~reginfo(); 
+};
+
+EXPORTED_BY_MACHINE reginfo *target_regs;    /* target register information */
+</pre><p>
+
+The <code>total_grains()</code> method returns the total number of register
+grains in the machine.  This number is the same as the number of
+registers in the machine ONLY IF the grain size equals the natural
+width in each register bank.  There is a simple calculation that you
+can perform to determine the total number of architecturally-visible
+hard registers in the machine (we never need it so we don't have a
+method for it).  The methods <code>num_in(int b)</code> and
+<code>num_in(int b, int c)</code> return the number of grains in a register bank
+<code>b</code> and in a
+register bank <code>b</code>'s convention <code>c</code>, respectively.  If a <code>num_in</code>
+method returns <code>0</code>, then the bank and/or its convention queried do
+not exist.  The <code>start_of</code> methods return the number of the first
+abstract register in the queried bank and queried bank's convention
+respectively.  The <code>width_of(int b)</code> method returns the natural
+width of the bank <code>b</code> in bits.  The <code>grain_size_of(int b)</code> method
+returns the grain size of the bank <code>b</code> in bits.  All registers within
+a bank have the same natural width and grain size.
+<p>
+The <code>lookup(int b, int c, int i)</code> method returns the abstract
+register number for the hard register assigned to index <code>i</code> of bank
+<code>b</code> in convention <code>c</code>.  The index starts at 0 and goes to
+<code>num_in(b,c) - 1</code>.  Since the registers in each bank's convention
+are numbered sequentially in the space of abstract register numbers,
+one can build a <code>bit_set</code> for a bank <code>b</code> and convention <code>c</code>
+knowing the value returned by <code>lookup(b,c,0)</code> and <code>num_in(b,c)</code>.
+<p>
+The method <code>describe(int ar)</code> provides the reverse mapping from an
+abstract register number <code>ar</code> to its bank, convention, machine
+encoding, and assembler string.  The data is returned in a
+<code>reg_desc</code> structure.  To get the index, you subtract the abstract
+register number of the zeroth element of <code>ar</code>'s bank and convention
+from <code>ar</code>.  The machine encoding is the value used in a machine
+instruction to specify this register.  We need this information, for
+example, when setting the saved register bit masks in Alpha.  Notice
+that the encoding is unique only within a bank.  We provide the method
+<code>name(int ar)</code> as a short cut to get to the assembler name for the
+abstract register number <code>ar</code>.
+<p>
+The methods <code>a2m(int)</code> and <code>m2a(int,int)</code> perform the mappings
+between an abstract register name and the machine encoding.  As stated
+above, in order to obtain the abstract register name from a machine
+<a name="NWDf">encoding, you must also specify the register bank for this hard</a>
+register.
+<p>
+We use the <code>print</code> method for debugging purposes only.
+<p>
+Finally, it is inconvenient to type <code>target_regs-&gt;lookup(b,c,i)</code>
+every time that you want to refer to a register.  Hence, we created
+some macro's to make our lives easier.
+<p>
+<pre><a name="NWarcD-regG-1" href="#NWDf"><dfn>&lt;register defines&gt;=</dfn></a> <b>(<a href="#NWDa">&lt;-U</a>)</b>
+#define REG(b, c, i) (target_regs-&gt;lookup(b, c, i))
+#define REG_const0      (REG(GPR, CONST0, 0))
+#define REG_ra          (REG(GPR, RA, 0))
+#define REG_sp          (REG(GPR, SP, 0))
+#define REG_gp          (REG(GPR, GP, 0))
+#define REG_fp          (REG(GPR, FP, 0))
+</pre><p>
+
+<blockquote>
+<a name="NWDg">Currently we have an implicit mapping between an operand type and</a>
+its home register bank.  We may want to make this mapping explicit
+in the machine description file someday.
+</blockquote>
+<p>
+<h2><a name=toc29>Example of architecture-specific library files</a></h2>
+<a name="secHelpArchSpecific"><b>[*]</b></a>
+<p>
+In this section, we present the header files for one target
+architecture, Digital Alpha.  Each architecture has two header files
+and two data files in the <em>machsuif/machine</em> directory.  For the
+Alpha architecture, the file <em>alphaInstr.h</em> contains the
+Alpha-specific annotations and helper routines that are invoked by the
+machine library functions.  The file <em>alphaOps.h</em> simply contains
+the opcode and opcode-extension enumerations along with a few extra
+helper routines directly related to the determination of the machine
+instruction format for each opcode and to the printing of opcodes and
+opcode extensions.  The <em>alpha.data</em> file contains the actual
+complete listing of Alpha assembly opcodes and pseudo-ops.  This data
+file is read by the <em>alphaOps.{h,cc}</em> files using a lcc-like,
+table-driven macro.  This table collects all the data related to each
+opcode and ensures that we maintain alignment between the opcode
+enumeration value and its specific attributes.
+<p>
+The <em>alpha*.*</em> files in the <em>machsuif/impl</em> directory are
+machine description files.  Please refer to the <em>machsuif</em>
+overview document and the <em>README.*</em> files in the <em>impl</em>
+directory for information on the format of these machine
+description files.
+<p>
+<h3><a name=toc30>alphaInstr.h</a></h3>
+<p>
+<a name="NWDh">We start with a presentation of </a><em>alphaInstr.h</em>.  It declares
+the architecture family string, <code>k_alpha</code>, and the
+library initialization routine, <code>init_alpha()</code>.
+The initialization routine is invoked by <code>init_machine()</code>, which is
+invoked by <code>init_suif()</code>.  The file also declares the 
+Alpha-specific helper functions needed to implement the generic
+library helper functions described in Section&nbsp;<a href="#secMachLibHelperFcns">[&lt;-]</a>.
+<p>
+<pre><a name="NWalpF-alpC-1" href="#NWDh"><dfn>&lt;alphaInstr.h&gt;=</dfn></a>
+/* file &quot;alphaInstr.h&quot; */
+
+<a name="NWalpF-alpC-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef ALPHA_INSTR_H
+#define ALPHA_INSTR_H
+
+class immed_list;
+class type_node;
+class instruction;
+class machine_instr;
+class mi_lab;
+class mi_bj;
+class mi_rr;
+class mi_xx;
+
+EXPORTED_BY_MACHINE char *k_alpha;
+
+<a name="NWalpF-alpC-1-u2" href="#NWDi"><i>&lt;alpha-specific annotations&gt;</i></a>
+
+extern void init_alpha();
+
+<a name="NWalpF-alpC-1-u3" href="#NWDj"><i>&lt;alpha_is_* helper functions&gt;</i></a>
+<a name="NWalpF-alpC-1-u4" href="#NWalpF-alpR.2-1"><i>&lt;alpha_*_op helper functions&gt;</i></a>
+<a name="NWalpF-alpC-1-u5" href="#NWalpF-alpU-1"><i>&lt;alpha_*_print helper functions&gt;</i></a>
+<a name="NWalpF-alpC-1-u6" href="#NWalpF-alpU.2-1"><i>&lt;alpha_print_* helper functions&gt;</i></a>
+
+#endif
+</pre><p>
+
+<a name="NWDi">We define one Alpha-specific annotation that extends the SUIF set of</a>
+intial data annotations.  The <code>k_gprel_init</code> annotation indicates
+that a variable should be initialized with the (possibly truncated)
+signed displacement between the global pointer value and the address
+of a symbol <code>V</code> specified in the <code>immed_list</code>.  The first entry in
+the <code>immed_list</code> is an integer <code>N</code> representing the size of the
+displacement in bits.  Currently, this value must be 32.  The second
+entry in the <code>immed_list</code> is the symbol <code>V</code>.
+<p>
+<pre><a name="NWalpF-alpQ-1" href="#NWDi"><dfn>&lt;alpha-specific annotations&gt;=</dfn></a> <b>(<a href="#NWDh">&lt;-U</a>)</b>
+EXPORTED_BY_MACHINE char *k_gprel_init;
+</pre><p>
+
+<a name="NWDj">The following three sets of helper routines are needed by the machine</a>
+library helper routines.  One should never need to invoke them
+directly.
+<p>
+<pre><a name="NWalpF-alpR-1" href="#NWDj"><dfn>&lt;alpha_is_* helper functions&gt;=</dfn></a> <b>(<a href="#NWDh">&lt;-U</a>)</b>
+extern boolean alpha_is_ldc(instruction *);
+extern boolean alpha_is_move(instruction *);
+extern boolean alpha_is_cmove(instruction *);
+extern boolean alpha_is_line(instruction *);
+extern boolean alpha_is_ubr(instruction *);
+extern boolean alpha_is_cbr(instruction *);
+extern boolean alpha_is_call(instruction *);
+extern boolean alpha_is_return(instruction *);
+extern boolean alpha_reads_memory(instruction *);
+
+</pre><p>
+
+<pre><a name="NWalpF-alpR.2-1" href="#NWalpF-alpR.2-1"><dfn>&lt;alpha_*_op helper functions&gt;=</dfn></a> <b>(<a href="#NWDh">&lt;-U</a>)</b>
+extern mi_ops alpha_load_op(type_node *);
+extern mi_ops alpha_store_op(type_node *);
+extern mi_ops alpha_move_op(type_node *);
+
+</pre><p>
+
+<pre><a name="NWalpF-alpU-1" href="#NWalpF-alpU-1"><dfn>&lt;alpha_*_print helper functions&gt;=</dfn></a> <b>(<a href="#NWDh">&lt;-U</a>)</b>
+extern void alpha_lab_print(mi_lab *, FILE *);
+extern void alpha_bj_print(mi_bj *, FILE *);
+extern void alpha_rr_print(mi_rr *, FILE *);
+extern void alpha_xx_print(mi_xx *, immed_list *, FILE *);
+</pre><p>
+
+<pre><a name="NWalpF-alpU.2-1" href="#NWalpF-alpU.2-1"><dfn>&lt;alpha_print_* helper functions&gt;=</dfn></a> <b>(<a href="#NWDh">&lt;-U</a>)</b>
+extern void alpha_print_global_directives(file_set_entry *, FILE *);
+extern void alpha_print_extern_op(var_sym *, FILE *);
+extern void alpha_print_file_op(int, char *, FILE *);
+extern void alpha_print_var_def(var_sym *, int, FILE *);
+extern void alpha_print_proc_def(proc_sym *, FILE *);
+extern void alpha_print_proc_begin(proc_sym *, FILE *);
+extern void alpha_print_proc_entry(proc_sym *, int, FILE *);
+extern void alpha_print_proc_end(proc_sym *, FILE *);
+extern void alpha_print_operand(operand *, FILE *);
+</pre><p>
+<h3><a name=toc31>alphaOps.h</a></h3>
+<p>
+The file <em>alphaOps.h</em> contains the enumerations for the complete
+<a name="NWDk">listing of the ALPHA assembly opcodes, pseudo-ops, opcode extensions,</a>
+and the code generator/scheduler pseudo-ops.  To modify the contents
+of the opcode enumeration, you should modify <em>alpha.data</em>.  Currently,
+the opcode extensions are enumerated directly in this file.
+<p>
+We have defined several special values to bracket the entire set of
+Alpha opcodes and opcode extensions.  You must make sure that any new
+values reside between these special values.
+<p>
+<pre><a name="NWalpD-alpA-1" href="#NWDk"><dfn>&lt;alphaOps.h&gt;=</dfn></a>
+/* file &quot;alphaOps.h&quot; */
+
+<a name="NWalpD-alpA-1-u1" href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>
+
+#ifndef ALPHA_OPS_H
+#define ALPHA_OPS_H
+
+const int OP_BASE_ALPHA = 2000; /* start of ai_ops enumeration */
+
+enum /* mi_ops */ {
+    ao_FIRST_OP = OP_BASE_ALPHA,        /* start of ALPHA enumeration */
+
+    #undef xx
+    #define xx(opcode, string, format) opcode,
+    #include &quot;alpha.data&quot;
+
+    ao_LAST_OP
+} ;
+
+enum /* mi_op_exts */ {
+    aoe_FIRST_OP_EXT = ao_LAST_OP,
+
+    /** VAX/IEEE rounding mode qualifiers */
+    aoe_round_normal,           /* normal rounding mode controlled by FPCR */
+    aoe_round_chopped,          /* chopped, i.e. truncate */
+    aoe_round_p_inf,            /* round toward plus infinity */
+    aoe_round_m_inf,            /* round toward minus infinity */
+
+    /** VAX/IEEE trap modes */
+    aoe_trap_none,              /* imprecise, underflow disabled, (and, for
+                                 * IEEE, inexact disabled) */
+    aoe_trap_u,                 /* imprecise, underflow enabled, (and, for
+                                 * IEEE, inexact disabled) */
+    aoe_trap_s,                 /* software and underflow disabled (not valid
+                                 * option for IEEE FP) */
+    aoe_trap_su,                /* software, underflow enabled, (and, for
+                                 * IEEE, inexact disabled) */
+    aoe_trap_sui,               /* software, underflow enabled, and inexact
+                                 * enabled (not valid option for VAX) */
+
+    /** VAX/IEEE convert-to-integer trap modes */
+    aoe_itrap_none,             /* imprecise, int overflow disabled, (and,
+                                 * for IEEE, inexact disabled) */
+    aoe_itrap_v,                /* imprecise, int overflow enabled, (and,
+                                 * for IEEE, inexact disabled) */
+    aoe_itrap_s,                /* software, int overflow disabled, (not
+                                 * valid option for IEEE) */
+    aoe_itrap_sv,               /* software, int overflow enabled, (and,
+                                 * for IEEE, inexact disabled) */
+    aoe_itrap_svi,              /* software, int overflow ensabled, and inexact
+                                 * enabled (not valid option for VAX) */
+
+    aoe_LAST_OP_EXT
+} ;
+
+extern char *alpha_op_string(mi_ops o);
+extern mi_formats alpha_which_mformat(mi_ops o);
+extern char *alpha_op_ext_string(mi_op_exts e);
+
+<a name="NWalpD-alpA-1-u2" href="#NWDl"><i>&lt;opcode helper tables&gt;</i></a>
+
+#endif /* ALPHA_OPS_H */
+</pre><p>
+
+As we saw in <em>alphaInstr.h</em>, the helper functions in this file are
+also used only by the machine library class methods and helper
+routines.  The <code>alpha_op_string(mi_ops)</code> function returns the string
+name of an Alpha opcode value. The <code>alpha_which_mformat(mi_ops)</code>
+<a name="NWDl">function returns the machine instruction format used by each Alpha</a>
+opcode.  The <code>alpha_op_ext_string(mi_op_exts)</code> function returns the
+string name of the Alpha opcode extension value.
+<p>
+We have also created the table <code>alpha_invert_table</code> to help with the
+mapping of a conditional branch opcode to its inversion.  Only a
+single entry is required for any opcode pair.  This table is used by
+the helper routine <code>Invert_cbr_op</code>.
+<p>
+<pre><a name="NWalpD-opcK-1" href="#NWDl"><dfn>&lt;opcode helper tables&gt;=</dfn></a> <b>(<a href="#NWDk">&lt;-U</a>)</b>
+extern int alpha_invert_table[];
+</pre><p>
+
+<h2><a name=toc32>Acknowledgments</a></h2>
+<p>
+This library benefited from the time and patience of many people in
+the HUBE research group at Harvard and the SUIF research group at
+Stanford.  In particular, I would like to acknowledge the help of
+Chris Wilson, Cliff Young, and Glenn Holloway.
+<p>
+<a name="NWDm">This work is supported in part by an DARPA/NSF infrastructure grant</a>
+(NDA904-97-C-0225) and a NSF Young Investigator award (CCR-9457779).
+We also gratefully acknowledge the generous support of this research
+by Advanced Micro Devices, Digital Equipment, Hewlett-Packard,
+International Business Machines, Intel, and Microsoft.
+<p>
+<!-- Make \end{document} a chunk by itself to allow cross-reference info-->
+<!-- to be dumped in before it (noweave -delay).-->
+
+
+
+
+<ul>
+<li><a href="#NWDh"><i>&lt;alphaInstr.h&gt;</i></a>: <a href="#NWDh">D1</a>
+<li><a href="#NWDj"><i>&lt;alpha_is_* helper functions&gt;</i></a>: <a href="#NWDh">U1</a>, <a href="#NWDj">D2</a>
+<li><a href="#NWalpF-alpR.2-1"><i>&lt;alpha_*_op helper functions&gt;</i></a>: <a href="#NWDh">U1</a>, <a href="#NWalpF-alpR.2-1">D2</a>
+<li><a href="#NWDk"><i>&lt;alphaOps.h&gt;</i></a>: <a href="#NWDk">D1</a>
+<li><a href="#NWalpF-alpU-1"><i>&lt;alpha_*_print helper functions&gt;</i></a>: <a href="#NWDh">U1</a>, <a href="#NWalpF-alpU-1">D2</a>
+<li><a href="#NWalpF-alpU.2-1"><i>&lt;alpha_print_* helper functions&gt;</i></a>: <a href="#NWDh">U1</a>, <a href="#NWalpF-alpU.2-1">D2</a>
+<li><a href="#NWDi"><i>&lt;alpha-specific annotations&gt;</i></a>: <a href="#NWDh">U1</a>, <a href="#NWDi">D2</a>
+<li><a href="#NWDW"><i>&lt;annoteHelper.h&gt;</i></a>: <a href="#NWDW">D1</a>
+<li><a href="#NWDa"><i>&lt;archInfo.h&gt;</i></a>: <a href="#NWDa">D1</a>
+<li><a href="#NWDR"><i>&lt;architecture and format distinguishers&gt;</i></a>: <a href="#NWDQ">U1</a>, <a href="#NWDR">D2</a>
+<li><a href="#NWDU"><i>&lt;architecture-specific opcode generators&gt;</i></a>: <a href="#NWDQ">U1</a>, <a href="#NWDU">D2</a>
+<li><a href="#NWDb"><i>&lt;class archinfo&gt;</i></a>: <a href="#NWDa">U1</a>, <a href="#NWDb">D2</a>
+<li><a href="#NWDC"><i>&lt;class machine_instr&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDC">D2</a>
+<li><a href="#NWDF"><i>&lt;class mi_bj&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDF">D2</a>
+<li><a href="#NWDG"><i>&lt;class mi_lab&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDG">D2</a>
+<li><a href="#NWDE"><i>&lt;class mi_rr&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDE">D2</a>
+<li><a href="#NWDH"><i>&lt;class mi_xx&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDH">D2</a>
+<li><a href="#NWDe"><i>&lt;class reginfo&gt;</i></a>: <a href="#NWDa">U1</a>, <a href="#NWDe">D2</a>
+<li><a href="#NWDY"><i>&lt;eaHelper.h&gt;</i></a>: <a href="#NWDY">D1</a>
+<li><a href="#NWDc"><i>&lt;example code that reads some machine-specific data&gt;</i></a>: <a href="#NWDc">D1</a>
+<li><a href="#NWDS"><i>&lt;instruction kind distinguishers&gt;</i></a>: <a href="#NWDQ">U1</a>, <a href="#NWDS">D2</a>
+<li><a href="#NWDD"><i>&lt;list class for machine_instr&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDD">D2</a>
+<li><a href="#NWDK"><i>&lt;machine annotation definitions&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDK">D2</a>
+<li><a href="#NWD8"><i>&lt;machine constants&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWD8">D2</a>
+<li><a href="#NWDL"><i>&lt;machine file I/O&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDL">D2</a>
+<li><a href="#NWDA"><i>&lt;machine instruction formats&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWDA">D2</a>
+<li><a href="#NWDI"><i>&lt;machine library initialization&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDI">D2</a>
+<li><a href="#NWD9"><i>&lt;machine opcode base definitions&gt;</i></a>: <a href="#NWD7">U1</a>, <a href="#NWD9">D2</a>
+<li><a href="#NWDN"><i>&lt;machine operand helpers&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDN">D2</a>, <a href="#NWDO">D3</a>
+<li><a href="#NWDM"><i>&lt;machine print helpers&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDM">D2</a>
+<li><a href="#NWDJ"><i>&lt;machine string constants&gt;</i></a>: <a href="#NWDB">U1</a>, <a href="#NWDJ">D2</a>
+<li><a href="#NWD7"><i>&lt;machineDefs.h&gt;</i></a>: <a href="#NWD7">D1</a>
+<li><a href="#NWD4"><i>&lt;machine.h&gt;</i></a>: <a href="#NWD4">D1</a>
+<li><a href="#NWDB"><i>&lt;machineInstr.h&gt;</i></a>: <a href="#NWDB">D1</a>
+<li><a href="#NWD6"><i>&lt;machine_internal.h&gt;</i></a>: <a href="#NWD6">D1</a>
+<li><a href="#NWDQ"><i>&lt;machineUtil.h&gt;</i></a>: <a href="#NWDQ">D1</a>
+<li><a href="#NWDl"><i>&lt;opcode helper tables&gt;</i></a>: <a href="#NWDk">U1</a>, <a href="#NWDl">D2</a>
+<li><a href="#NWDV"><i>&lt;other print helpers&gt;</i></a>: <a href="#NWDQ">U1</a>, <a href="#NWDV">D2</a>
+<li><a href="#NWDd"><i>&lt;reginfo enums&gt;</i></a>: <a href="#NWDa">U1</a>, <a href="#NWDd">D2</a>
+<li><a href="#NWDf"><i>&lt;register defines&gt;</i></a>: <a href="#NWDa">U1</a>, <a href="#NWDf">D2</a>
+<li><a href="#NWD3"><i>&lt;SUIF copyright&gt;</i></a>: <a href="#NWD3">D1</a>, <a href="#NWD4">U2</a>, <a href="#NWD6">U3</a>, <a href="#NWD7">U4</a>, <a href="#NWDB">U5</a>, <a href="#NWDQ">U6</a>, <a href="#NWDW">U7</a>, <a href="#NWDY">U8</a>, <a href="#NWDa">U9</a>, <a href="#NWDh">U10</a>, <a href="#NWDk">U11</a>
+<li><a href="#NWDT"><i>&lt;uniform access methods&gt;</i></a>: <a href="#NWDQ">U1</a>, <a href="#NWDT">D2</a>
+</ul>
+</body></html>
+

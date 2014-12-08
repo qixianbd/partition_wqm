@@ -1,0 +1,12 @@
+digraph G{
+	label = "drand48"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_4	\n# .loc	\nla	r19	nd#63	\nmove	r4	r2	\nfst	r2	\njalr	r1	r19	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_5mtc1	r52	r9	\ncvt.d.w	r54	r52	\nli.d	r56	nd#70	\ndiv.d	r36	r54	r56	\n# .loc	\njr	r1	\n"];
+	Node3 -> {Node1 }
+}

@@ -1,0 +1,29 @@
+The following header file just creates a convenient place to put
+information that is global to the Machine library files, but private
+to the outside world.  It is this file that is included in every
+Machine library source file.
+
+<<machine\_internal.h>>=
+/* file "machine_internal.h" */
+
+<<SUIF copyright>>
+
+#ifndef MACHINE_INTERNAL_H
+#define MACHINE_INTERNAL_H
+
+#ifndef MACHINELIB
+#error "for the Machine SUIF library only"
+#endif
+
+#include "machine.h"
+
+/* This file is for information that is global to different parts
+ * of the Machine SUIF library, but private to the library.  It
+ * should be the first header included by each source file in
+ * the Machine SUIF library.
+ *
+ * There is no such information currently.
+ */
+
+#endif /* MACHINE_INTERNAL_H */
+@

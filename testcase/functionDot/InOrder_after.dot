@@ -1,0 +1,18 @@
+digraph G{
+	label = "InOrder"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_4\nmove	r11	r5	\nla	r23	nd#207	\nsne	r24	r11	r23	\nbeqz	InOrder.L1\n"];
+	Node2 -> {Node3 Node6 }
+	Node3 [label = "B3_10\nli	r25	nd#213	\naddu	r26	r11	r25	\nlw	r5	nd#216	\nli	r27	nd#220	\naddu	r28	r11	r27	\nlw	r12	nd#223	\nla	r19	nd#227	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_9\nla	r19	nd#233	\nla	r5	nd#235	\nmove	r6	r0	\naddu	r6	r11	r6	\nlw	r6	nd#239	\nmove	r7	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_5\nla	r19	nd#247	\nmove	r5	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_1\nInOrder.L1:\njr	\n"];
+	Node6 -> {Node1 }
+}

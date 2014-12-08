@@ -1,0 +1,101 @@
+\section{Enum definitions}
+\label{secMachineEnum}
+
+In the {\em machineDefs.h} header file, we have defined a number of
+constants to make it easier to create a compiler pass that is
+independent of the target architecture.
+
+<<machineDefs.h>>=
+/* file "machineDefs.h" */
+
+<<SUIF copyright>>
+
+#ifndef MACHINE_DEFS_H
+#define MACHINE_DEFS_H
+
+<<machine constants>>
+
+<<machine opcode base definitions>>
+
+<<machine instruction formats>>
+
+#endif
+@
+
+The size of a data object is measured
+in bits.  Please note that we define a WORD-sized data object to be
+32-bits in size, independent of the definition of a WORD in the target
+architecture.
+
+<<machine constants>>=
+/**** Global definitions and declarations for machine constants ****/
+const int SIZE_OF_BYTE = 8;		/* everything defined in bits */
+const int SIZE_OF_HALFWORD = 16;
+const int SIZE_OF_WORD = 32;
+const int SIZE_OF_SINGLE = 32;
+const int SIZE_OF_DOUBLE = 64;
+const int SIZE_OF_QUAD = 128;
+
+const int SHIFT_BITS_TO_BYTES = 3;
+const int SHIFT_BYTES_TO_WORDS = 2;
+const int DWORD_ALIGNMENT_MASK = 15;  /* off 16-byte boundary? */
+const int WORD_ALIGNMENT_MASK = 7;    /* off 8-byte boundary? */
+const int BYTE_MASK = 3;              /* off 4-byte boundary? */
+
+const int BYTES_IN_WORD = SIZE_OF_WORD >> SHIFT_BITS_TO_BYTES;
+const int BYTES_IN_DOUBLE = SIZE_OF_DOUBLE >> SHIFT_BITS_TO_BYTES;
+const int BYTES_IN_QUAD = SIZE_OF_QUAD >> SHIFT_BITS_TO_BYTES;
+@
+
+To define the opcodes for a particular instruction set architecture,
+we do not modify the [[if_ops]] enumeration in {\em opcodes.h}
+in {\em basesuif}.
+Instead, we have defined constants that represent
+the bases of the machine opcode enumerations.  The opcode enumeration
+for each particular machine architecture is defined as an integer
+enumeration to allow for future expansion.  For programming clarity,
+proper type names for the opcode and format enumeration types are
+[[typedef]]-ed to [[int]].
+
+We reserve the integers between 0 and 999 for SUIF opcodes.  It is
+recommended that you leave at least 1000 opcode numbers between opcode
+starting bases.  This will allow for experiments in such areas as
+non-excepting architectures where the entire opcode space is
+duplicated.  The actual base value for each target architecture is
+defined in that architecture's {\em *Ops.h} file.
+
+<<machine opcode base definitions>>=
+/**** Opcode definitions ****/
+typedef int mi_ops;
+typedef int mi_op_exts;
+
+const int io_null = -1;		/* null opcode extension to SUIF op space */
+
+/* Definitions for the SUIF instruction set architecture. */
+const int OP_BASE_SUIF = 0;	/* start of if_ops enumeration */
+@
+
+The machine instruction format enumeration is listed below.  Each
+opcode refers to an instruction of a certain format.  For example, the
+MIPS [[mo_add]] has format [[mif_rr]].  The function
+[[which_mformat(mi_ops)]] provides this mapping.  In the current
+implementation of the machine library, there is a unique
+machine instruction format for each opcode.  If you want
+to add a new instruction that can be instantiated in one of several
+machine instruction formats, you should create a unique [[mi_ops]]
+identifier for each instance.  All of these unique identifiers can use
+the same ASCII string value.
+
+<<machine instruction formats>>=
+/**** Format tags ****/
+typedef int mi_formats;
+extern int which_mformat(mi_ops o);
+
+enum /* mi_formats */ {	/* machine instruction formats */
+    mif_xx,		/* pseudo-op and other free formats */
+    mif_lab,		/* labels */
+    mif_bj,		/* branch/jump to label or through register */
+    mif_rr,		/* general format */
+    mif_LAST_FMT
+};
+@

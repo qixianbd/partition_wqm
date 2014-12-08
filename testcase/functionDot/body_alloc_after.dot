@@ -1,0 +1,18 @@
+digraph G{
+	label = "body_alloc"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_14\nl.d	r42	nd#540	\nl.d	r44	nd#542	\nl.d	r46	nd#544	\nl.d	r48	nd#546	\nl.d	r50	nd#548	\nmove	r11	r5	\nmtc1	r34	r7	\nmtc1	r35	r8	\nmov.d	r40	r34	\nspawn	body_alloc.L3\nla	r6	nd#555	\nlw	r7	nd#558	\nsne	r8	r7	r6	\nbeqz	body_alloc.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_7\nlw	r9	nd#563	\nli	r10	nd#566	\nlw	r19	nd#568	\naddu	r19	r19	r10	\nlw	r20	nd#571	\nsw	nd#574	r20	\nj	body_alloc.__done2\n"];
+	Node3 -> {Node5 }
+	Node4 [label = "B4_5\nbody_alloc.L1:\nla	r19	nd#579	\nli	r5	nd#581	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_46\nbody_alloc.__done2:\ncqip	body_alloc.L3\nbody_alloc.L3:\npslice_entry	body_alloc.L3\nlw	r9	nd#0	\npslice_exit	body_alloc.L3\nmove	r21	r0	\naddu	r22	r9	r21	\nli	r23	nd#590	\nsh	nd#592	r23	\nli	r24	nd#596	\naddu	r25	r9	r24	\nsw	nd#599	r11	\nli	r26	nd#603	\naddu	r5	r9	r26	\ns.d	nd#606	r40	\nli	r27	nd#610	\naddu	r28	r9	r27	\ns.d	nd#613	r50	\nli	r5	nd#617	\naddu	r6	r9	r5	\ns.d	nd#620	r48	\nli	r7	nd#624	\naddu	r28	r9	r7	\ns.d	nd#627	r46	\nli	r8	nd#631	\naddu	r10	r9	r8	\ns.d	nd#634	r44	\nli	r10	nd#638	\naddu	r19	r9	r10	\ns.d	nd#641	r42	\nli	r20	nd#645	\naddu	r27	r9	r20	\nl.d	r54	nd#648	\ns.d	nd#650	r54	\nli	r21	nd#654	\naddu	r22	r9	r21	\nl.d	r52	nd#657	\ns.d	nd#659	r52	\nli	r23	nd#663	\naddu	r24	r9	r23	\nl.d	r38	nd#666	\ns.d	nd#668	r38	\nli	r25	nd#672	\naddu	r26	r9	r25	\nl.d	r36	nd#675	\ns.d	nd#677	r36	\njr	\n"];
+	Node5 -> {Node1 }
+	Node2 [shape = box ,style=filled ,color=red];
+	Node5 [shape = polygon ,style=filled ,color=yellow];
+}

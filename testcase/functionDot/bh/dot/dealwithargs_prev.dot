@@ -1,0 +1,18 @@
+digraph G{
+	label = "dealwithargs"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_3\nli	r19	nd#109	\nslt	r20	r19	r5	\nbnez	dealwithargs.__done3\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_2\nli	r21	nd#114	\nsw	nd#116	r21	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_3\ndealwithargs.__done3:\nli	r22	nd#120	\nslt	r23	r22	r5	\nbnez	dealwithargs.__done4\n"];
+	Node4 -> {Node5 Node6 }
+	Node5 [label = "B5_2\nli	r24	nd#125	\nsw	nd#127	r24	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_1\ndealwithargs.__done4:\njr	\n"];
+	Node6 -> {Node1 }
+}

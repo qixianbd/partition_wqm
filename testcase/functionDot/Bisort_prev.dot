@@ -1,0 +1,24 @@
+digraph G{
+	label = "Bisort"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_9\nmove	r13	r5	\nmove	r12	r6	\nmove	r11	r7	\nli	r7	nd#424	\naddu	r8	r13	r7	\nlw	r9	nd#427	\nla	r10	nd#430	\nseq	r19	r9	r10	\nbeqz	Bisort.L1\n"];
+	Node2 -> {Node3 Node5 }
+	Node3 [label = "B3_8\nmove	r20	r0	\naddu	r21	r13	r20	\nlw	r22	nd#438	\nslt	r6	r12	r22	\nxor	r5	r6	r11	\nmove	r23	r0	\nsne	r24	r5	r23	\nbeqz	Bisort.__done3\n"];
+	Node3 -> {Node4 Node9 }
+	Node4 [label = "B4_8\nmove	r6	r12	\nmove	r25	r0	\naddu	r26	r13	r25	\nlw	r12	nd#451	\nmove	r27	r0	\naddu	r28	r13	r27	\nsw	nd#457	r6	\nj	Bisort.__done3\n"];
+	Node4 -> {Node9 }
+	Node5 [label = "B5_16\nBisort.L1:\nli	r5	nd#464	\naddu	r6	r13	r5	\nlw	r5	nd#467	\nli	r7	nd#471	\naddu	r8	r13	r7	\nlw	r14	nd#474	\nmove	r9	r0	\naddu	r10	r13	r9	\nlw	r6	nd#480	\nmove	r19	r0	\naddu	r15	r13	r19	\nla	r19	nd#486	\nmove	r7	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_11\nsw	nd#492	r9	\nmove	r20	r0	\nsne	r21	r11	r20	\nmove	r22	r0	\nseq	r7	r21	r22	\nla	r19	nd#501	\nmove	r5	r14	\nmove	r6	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_8\nmove	r12	r9	\nla	r19	nd#510	\nmove	r5	r13	\nmove	r6	r12	\nmove	r7	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_1\nmove	r12	r9	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_2\nBisort.__done3:\nmove	r9	r12	\njr	\n"];
+	Node9 -> {Node1 }
+}

@@ -1,0 +1,265 @@
+% -*- mode: Noweb; noweb-code-mode: c++-mode -*-
+\section{Class [[bit_vector_problem_plus]]}
+\label{secBitVectorProblemPlus}
+
+The [[bit_vector_problem_plus]] class is an attempt to replace
+[[bit_vector_problem]] for bit-vector-based DFA problems.
+
+\begin{itemize}
+\item
+It adds functionality for initializing bit sets.
+\item
+It adds standard functionality for handling splits or joins in the
+CFG.
+\item
+It only asks the user to supply Gen and Kill iterators over
+(presumably) small sets.  And walks each block once. 
+\end{itemize}
+
+<<class [[bit_vector_problem_plus]]>>=
+  <<[[bit_vector_problem_plus]] enum>>
+
+class bit_vector_problem_plus {
+private:
+  <<[[bit_vector_problem_plus]] private>>
+
+protected:
+  <<[[bit_vector_problem_plus]] protected>>
+
+public:
+  bit_vector_problem_plus(
+			  DFA_direction_type dir, 
+			  DFA_transfer at_each_instr,
+			  DFA_propagation propagation,
+			  DFA_keep_info needed_later,
+			  int bitset_size,
+			  cfg* the_cfg,
+
+			  bitset_function* entry_xfer_fn = NULL,
+			  bitset_function* exit_xfer_fn = NULL
+			  );
+  virtual ~bit_vector_problem_plus();
+
+  bit_set* in_set(cfg_node* basic_block);
+  boolean in_set_contains(cfg_node* basic_block, int bit_num);
+  bit_set* out_set(cfg_node* basic_block);
+  boolean out_set_contains(cfg_node* basic_block, int bit_num);
+
+  boolean solve(int iteration_limit = INFINITY);
+  virtual void update_bit_set_size(int);
+  void update_bit_set_for_instr(bit_set*,instruction*);
+  void print(cfg_node* bb, FILE *fp = stdout); // debugging only
+};
+@
+\noindent
+This is an attempt to parameterize the [[bit_vector_problem]] class
+so that a particular bit vector analysis can be defined using just
+some parameters to the definition of a [[bit_vector_problem]] and the
+actual per instruction generation of appropriate gen and kill sets for
+the analysis.  It allows the user to override its standard behavior to
+provide special functions for special cases, but if you find yourself
+providing too many special functions, then you probably want to write
+your own subclass of [[bit_vector_problem]].
+
+The parameters are as follows:
+\begin{itemize}
+\item [[dir]]:  
+the direction of the bit vector problem: either [[forward]] following
+edges in the control flow direction from the [[ENTRY]] node or
+[[backward]] following edges in reverse from the [[EXIT]] node.
+<<[[bit_vector_problem_plus]] enum>>=
+/* enum DFA_direction_type { forward, backward }; 
+   // defined in bit_vector_dfa.h */
+@
+
+\item [[at_each_instr]]: the transfer operation to be performed at
+each instruction $\mathtt S$ in the basic block is either
+[[standard_t]] which will cause the calculation of
+\[
+out[{\mathtt S}] =in[{\mathtt S}] - kill[{\mathtt S}] \cup gen[{\mathtt S}]
+\]
+where $in$ and $out$ depend to the direction of the problem.
+
+If you set this to [[special_t]] then you are responsible for
+overriding virtual method [[special_transfer]] which takes a pointer
+to a [[bitset_function*]] and updates the [[bitset_function*]] as needed for the
+instruction.
+!!! oops pass instruction* !!!
+
+If [[standard_t]] is used, then you must write methods
+[[gen_iterator_init]], [[gen_iterator]], [[kill_iterator_init]], and
+[[kill_iterator]].  The [[_init]] methods indicate the beginning of
+iteration, they should set up any information necessary for the
+iterator.  
+The [[_iterator]] functions return either positive bit
+numbers for use in the [[gen]] or [[kill]] sets, or a negative number
+to indicate the end of iteration.  See the [[protected]] methods for
+more information.
+<<[[bit_vector_problem_plus]] enum>>=
+enum DFA_transfer { standard_t, special_t };
+@
+
+\item [[propagation]]: 
+If [[propagation]] is [[isect_p]] then for a block $\mathtt B$.
+\[
+in[{\mathtt B}] = \bigcap_{{\mathtt P} \in pred({\mathtt B})}out[{\mathtt P}]
+\]
+If [[propagation]] is [[union_p]] then for a block $\mathtt B$.
+\[
+in[{\mathtt B}] = \bigcup_{{\mathtt P} \in pred({\mathtt B})}out[{\mathtt P}]
+\]
+where $in$, $out$, and $pred$ depend to the direction of the problem.
+
+If [[propagation]] is [[special_p]] then you must supply a function 
+[[special_propagation]] which takes a [[cfg_node_list_iter*]]
+and produces the $in[{\mathtt B}]$ [[bit_set]].
+!!! Oops, hook this up to our out sets!!!
+<<[[bit_vector_problem_plus]] enum>>=
+enum DFA_propagation { isect_p, union_p, special_p };
+@
+
+\item Special treatment of [[entry]] and [[exit]] nodes:
+By default [[bit_map_problem_plus]] sets the transfer functions for
+the [[entry]] and [[exit]] nodes of the cfg to the identity function.
+
+It also sets the following values:
+\begin{tabular}{llll}
+direction & propagation & sets & value \\
+[[forward]] & [[isect_p]] & $in[{\mathtt ENTRY}]$ & [[universal]] \\
+[[forward]] & [[union_p]] & $in[{\mathtt ENTRY}]$ & [[clear]] \\
+[[backward]] & [[isect_p]] & $in[{\mathtt EXIT}]$ & [[universal]] \\
+[[backward]] & [[union_p]] & $in[{\mathtt EXIT}]$ & [[clear]] \\
+\end{tabular}
+
+You can use [[entry_xfer_fn]] and [[exit_xfer_fn]] to set transfer
+functions more appropriate to yout particular problem.
+
+\item [[needed_later]]:
+Remember that the term [[in]] in this code refers to the bit set of
+dataflow values at the end of the block {\em entered} by the dataflow
+analysis: which will be the top of the block for a [[forward]]
+analysis and will be the bottom of the block for a [[backward]]
+analysis.
+
+Your transformation will generally require the [[in]] data, wo you
+will want to set [[needed_later]] to [[in_k]].  But [[out]] data may
+be saved with [[out_k]] and both may be saved with [[both_k]].
+<<[[bit_vector_problem_plus]] enum>>=
+enum DFA_keep_info { in_k, out_k, both_k };
+@
+\end{itemize}
+
+\noindent
+Other than initilization and deletion, the other public methods are 
+\begin{itemize}
+\item [[solve]] -- why not immediately: don't create bitsets before
+needed by user.
+<<[[bit_vector_problem_plus]] enum>>=
+/* const int INFINITY = 0x7fffffff; // defined in bit_vector_dfa.h */
+@
+
+\item [[in_set]] -- direction of analysis
+
+\item [[in_set_contains]]
+
+\item [[out_set]]
+
+\item [[out_set_contains]]
+
+\item [[update_bit_set_for_instr]] -- doesn't propagate across blocks,
+use [[solve]] again if needed.
+After creating a [[bit_vector_problem_plus]]
+\end{itemize}
+
+\noindent
+Note that nothing in class [[bit_vector_problem_plus]] dictates the
+way that properties are associated with CFG nodes.  However our
+implementation uses the following storage:
+\begin{itemize}
+\item a [[bitset_function]] for each basic block in the CFG, during [[solve]].
+\item a [[bit_set]] [[in]] for each basic block, from [[solve]]
+until the [[bit_vector_problem_plus]] object is deleted.  (Assuming
+[[needed_later]] $=$ [[in_k]]).
+\item a bit set [[out]] for each edge in the CFG, during [[solve]].
+(assuming [[needed_later]] $\neq$ [[out_k]] or [[both_k]]).
+\end{itemize}
+
+\noindent
+The protected members of [[bit_vector_problem_plus]] are declared:
+<<[[bit_vector_problem_plus]] protected>>=
+  int bitset_size;
+  virtual void gen_iterator_init(instruction*) = 0;
+  virtual int gen_iterator() = 0;
+  virtual void kill_iterator_init(instruction*) = 0;
+  virtual int kill_iterator() = 0;
+  cfg* the_cfg;
+  bitset_function* entry_xfer_fn;
+  bitset_function* exit_xfer_fn;
+  virtual bit_set* special_propagation(cfg_node_list_iter*);
+  virtual void special_transfer(bitset_function*);
+  
+  DFA_direction_type direction;
+  DFA_propagation propagation;
+  DFA_transfer transfer;
+  DFA_keep_info needed_later;
+
+  void Delete_DFAP_bit_set_array(DFAP_bit_set_array*);
+  void Delete_DFAP_bitset_function_array(DFAP_bitset_function_array*);
+@
+\begin{itemize}
+\item
+Helper functions
+\begin{quote}
+[[void Delete_DFAP_bit_set_array(DFAP_bit_set_array*)]] and\\
+[[void Delete_DFAP_bitset_function_array(DFAP_bitset_function_array*)]]
+\end{quote}
+are used by the destructor, but they are made [[protected]] so
+that they may be used by any derived class that needs to
+manipulate similar sets.
+
+\item
+Gen and kill sets are considered to be sparse, so they are calculuated
+by iterators supplied by the derived class.
+[[void gen_iterator_init(instruction*)]],
+[[int gen_iterator()]],
+[[void kill_iterator_init(instruction*)]],
+[[int kill_iterator()]]
+
+\item
+Other protected members just store data passed to the initialization routine.
+\end{itemize}
+
+\noindent
+The private members of [[bit_vector_problem_plus]] are declared:
+<<[[bit_vector_problem_plus]] private>>=
+DFAP_bitset_function_array* bb_xfer;	// transfer function: per block
+DFAP_bit_set_array* bb_in;	// in bitset: per block
+DFAP_bit_set_array* bb_out;	// out bitset: per block
+
+void meet(cfg_node*);		// code pulled out of solve for readability
+void build_local_info(int);	// code pulled out of solve for readability
+@
+
+\noindent
+<<[[bit_set_array]] declarations>>=
+DECLARE_X_ARRAY(DFAP_bit_set_array, bit_set, 100);
+DECLARE_X_ARRAY(DFAP_bitset_function_array, bitset_function, 100);
+@
+Class [[bit_vector_problem_plus]] resides in module
+[[bit_vector_dfa_plus]], which has the following header file.
+
+<<bit\_vector\_dfa\_plus.h>>=
+/* Highly parameterized bit-vector-based dataflow analysis problems */
+
+<<SUIF copyright>>
+
+#ifndef BIT_VECTOR_DFA_PLUS_H
+#define BIT_VECTOR_DFA_PLUS_H
+/* Using an enumeration and constant defined in bit_vector_dfa.h */
+#include "bit_vector_dfa.h"
+
+<<[[bit_set_array]] declarations>>
+<<class [[bit_vector_problem_plus]]>>
+
+#endif /* BIT_VECTOR_DFA_PLUS_H */
+@

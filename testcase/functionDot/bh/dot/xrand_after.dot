@@ -1,0 +1,10 @@
+digraph G{
+	label = "xrand"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7\nl.d	r38	nd#49	\nsub.d	r36	r34	r32	\nmul.d	r52	r36	r38	\nli.d	r54	nd#54	\ndiv.d	r56	r52	r54	\nadd.d	r36	r32	r56	\njr	\n"];
+	Node2 -> {Node1 }
+}

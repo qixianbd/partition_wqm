@@ -1,0 +1,16 @@
+digraph G{
+	label = "my_free"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_6\nmove	r22	r0	\naddu	r23	r5	r22	\nlh	r20	nd#164	\nli	r24	nd#167	\nseq	r25	r20	r24	\nbeqz	my_free.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_6\nli	r26	nd#172	\naddu	r27	r5	r26	\nlw	r28	nd#175	\nsw	nd#177	r28	\nsw	nd#181	r5	\nj	my_free.__done2\n"];
+	Node3 -> {Node5 }
+	Node4 [label = "B4_5\nmy_free.L1:\nli	r6	nd#186	\naddu	r6	r5	r6	\nlw	r21	nd#189	\nsw	nd#191	r21	\nsw	nd#195	r5	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_1\nmy_free.__done2:\njr	\n"];
+	Node5 -> {Node1 }
+}

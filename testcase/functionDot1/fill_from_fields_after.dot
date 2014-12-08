@@ -1,0 +1,26 @@
+digraph G{
+	label = "fill_from_fields"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_3\n# .loc\n# .loc\nla\nsne\nbeqz\n"];
+	Node2 -> {Node3 Node9 }
+	Node3 [label = "B3_3\n# .loc\nmove\nslt\nbeqz\n"];
+	Node3 -> {Node4 Node7 }
+	Node4 [label = "B4_1move\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_35\n# .loc\n# .loc\nspawn\nli\naddu\nlw\nli\nmult\nmflo\naddu\nlw\n# .loc\nli\naddu\nlw\nli\naddu\nlw\nli\nmult\nmflo\naddu\nsw\n# .loc\nli\naddu\nlw\nli\naddu\nsw\nli\naddu\ncqip\n\npslice_entry\nli\naddu\npslice_exit\nsle\nbeqz\n"];
+	Node5 -> {Node6 Node5 }
+	Node6 [label = "B6_1\nj\n"];
+	Node6 -> {Node8 }
+	Node7 [label = "B7_1\nmove\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_6\n# .loc\n# .loc\nli\naddu\nlw\n# .loc\nla\nsne\nbnez\n"];
+	Node8 -> {Node9 Node3 }
+	Node9 [label = "B9_1\n# .loc\njr\n"];
+	Node9 -> {Node1 }
+	Node5 [shape = box ,style=filled ,color=red];
+	Node5 [shape = polygon ,style=filled ,color=blue];
+}

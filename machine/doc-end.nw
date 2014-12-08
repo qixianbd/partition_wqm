@@ -1,0 +1,17 @@
+\section{Acknowledgments}
+
+This library benefited from the time and patience of many people in
+the HUBE research group at Harvard and the SUIF research group at
+Stanford.  In particular, I would like to acknowledge the help of
+Chris Wilson, Cliff Young, and Glenn Holloway.
+
+This work is supported in part by an DARPA/NSF infrastructure grant
+(NDA904-97-C-0225) and a NSF Young Investigator award (CCR-9457779).
+We also gratefully acknowledge the generous support of this research
+by Advanced Micro Devices, Digital Equipment, Hewlett-Packard,
+International Business Machines, Intel, and Microsoft.
+
+% Make \end{document} a chunk by itself to allow cross-reference info
+% to be dumped in before it (noweave -delay).
+@
+\end{document}

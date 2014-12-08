@@ -1,0 +1,163 @@
+@c This file is part of the SUIF reference manual
+
+@node File Representation, Trees, Overview, Top
+@chapter Representation of Source Files
+
+Each SUIF program has a single internal data structure, called a
+@dfn{file set}, which contains the global symbol table and a list of the
+files being compiled.  Many passes work on a single file at a time, in
+which case the file set contains only one file and is not very useful.
+Interprocedural passes, on the other hand, typically need to work on all
+of the files at once.  By using the file set, these interprocedural
+passes need not resort to combining all of the code into one big source
+file.
+
+A source file within a file set is represented by a @dfn{file set
+entry}, which contains the symbol table for the file scope and the input
+and output streams.  File sets provide the mechanism to allow multiple
+files to be read and written by a SUIF pass.
+
+The symbol tables in the file set and file set entries basically form a
+table of contents for the entire program.  They contain entries for
+every symbol and type that is declared outside of procedures.  The
+procedures and everything within them can be accessed via the procedure
+symbols in the global symbol tables.
+
+The @file{fileset.h} and @file{fileset.cc} files contain the source code
+for the file set and file set entries.
+
+@menu
+* File Set::                    The top-level of the SUIF hierarchy.
+* File Set Entries::            Operations on individual source files.
+@end menu
+
+
+@node File Set, File Set Entries,  , File Representation
+@section The File Set
+@cindex file set
+
+@tindex file_set
+@findex file_set, file_list
+@findex file_set, add_file
+@findex file_set, reset_iter
+@findex file_set, next_file
+The file set, which contains a list of file set entries, is implemented
+by the @code{file_set} class.  The list of files can be accessed
+directly using the @code{file_list} method, but most users will not need
+to do that because other methods are available to perform the common
+operations.  The @code{add_file} method adds a new file set entry to the
+list.  This method takes the names of the input file and output file and
+returns the new file set entry.  Either the input file or the output
+file may be @code{NULL}.  The @code{file_set} class also contains an
+iterator, as most SUIF programmers will want to iterate through the list
+of files.  The @code{reset_iter} method resets the iterator to the first
+file set entry.  The @code{next_file} method returns the next file set
+entry in the list.
+
+@findex file_set, globals
+Besides the list of files, the file set also contains the global symbol
+table (@pxref{Global Symbol Table}) which can be accessed using the
+@code{globals} method.  This symbol table contains the symbols and types
+that are visible in all of the source files.  Before a group of files
+can be combined into a file set, their global symbol tables must be
+merged together.  A separate SUIF linker is provided for this purpose.
+The library will complain if the files in the file set have not been
+properly linked.
+
+@vindex fileset
+Currently, only one file set is allowed per SUIF program.  This
+restriction was made so that predefined types could be entered into the
+global symbol table at initialization time.  @xref{Predefined Types}.
+If multiple file sets were permitted, these predefined types would be
+duplicated.  A single global file set is created when the SUIF library
+is initialized; the @code{fileset} global variable points to this file
+set.
+
+All of the low-level access to SUIF files is performed automatically by
+the library.  The global and file symbol tables are read from the input
+files when they are added to the file set.  Users can then read and
+write individual procedure bodies using methods on the procedure symbols
+(@pxref{Procedure Symbols}).  The global symbol tables are not written
+out until the file set is destroyed.  Throughout this process, the file
+set keeps track of the number of open files in order to avoid exceeding
+the OS limit.  If there are too many files open at once, the file set
+will automatically find one to close.  This is totally invisible to
+users.  Files that are temporarily closed are automatically reopened as
+needed.
+
+As an example of using the file set, the following code reads in the
+files @code{infile1} and @code{infile2} and writes them out to
+@code{outfile1} and @code{outfile2}, respectively, after processing them
+with the user-defined routine @code{process_file}.
+
+@example
+fileset->add_file("infile1", "outfile1");
+fileset->add_file("infile2", "outfile2");
+
+file_set_entry *fse;
+
+fileset->reset_iter();
+while (fse = fileset->next_file()) @{
+    process_file(fse);
+@}
+
+delete fileset;
+@end example
+
+
+@node File Set Entries,  , File Set, File Representation
+@section File Set Entries
+@cindex file set entries
+
+@tindex file_set_entry
+@tindex file_set_entry_list
+@findex file_set_entry, name
+@findex file_set_entry, parent
+File set entries are implemented by the @code{file_set_entry} class.
+The @code{file_set_entry_list} class is also defined to hold the file
+set entries in the file set.  A file set entry records the input and
+output streams for a source file.  Either the input or output streams
+could be empty.  The @code{name} method returns the name of the input
+file, if it exists.  Otherwise it returns the name of the output file.
+The @code{parent} method returns the file set which contains the file
+set entry.
+
+@findex file_set_entry, symtab
+The file set entry also contains the file symbol table.  @xref{File
+Symbol Tables}.  The file symbol table holds the symbols and types
+declared within the scope of the file.  This includes variables and
+functions declared with static linkage and types that are only visible
+within the file.  The file symbol table is accessed using the
+@code{symtab} method.
+
+@findex file_set_entry, reset_proc_iter
+@findex file_set_entry, next_proc
+The file set entry class provides an iterator to visit all of the
+procedures that are defined in the input file.  Note that this does not
+include procedures that are declared but whose bodies are defined
+elsewhere.  The @code{reset_proc_iter} method resets the iterator to the
+first procedure.  The @code{next_proc} method returns the next procedure
+in the input file.
+
+The following code reads each procedure in the given file set entry,
+calls the function @code{process_proc} on the procedure, and then writes
+it out.
+
+@example
+void process_file (file_set_entry *fse)
+@{
+    proc_sym *psym;
+
+    fse->reset_proc_iter();
+    while (psym = fse->next_proc()) @{
+        psym->read_proc();
+
+        process_procedure(psym);
+
+        psym->write_proc(fse);
+        psym->flush_proc();
+    @}
+@}
+@end example
+
+

@@ -1,0 +1,247 @@
+/* file "mips.data" */
+
+/*  Copyright (c) 1994 Stanford University
+
+    All rights reserved.
+
+    Copyright (c) 1996 The President and Fellows of Harvard University
+
+    All rights reserved.
+
+    This software is provided under the terms described in
+    the "suif_copyright.h" include file. */
+
+#include <suif_copyright.h>
+/*
+ * Complete listing of the MIPS assembly opcodes, pseudo-ops, and
+ * opcode extensions, and the code generator/schedulers pseudo-ops.
+ *
+ * To ensure alignment, this table collects all data about
+ * each opcode.  To use it, redefine the "xx" macro to format
+ * the appropriate fields.  Then include this file in your
+ * source file.
+ */
+
+#ifndef xx
+#define xx(opcode, string, format)
+#endif
+
+xx(mo_null,		"",		mif_xx)	/* null instr for comments */
+xx(mo_lab,		"",		mif_lab)
+xx(mo_aent,		".aent",	mif_xx)	/* alternative entry point */
+xx(mo_align,		".align",	mif_xx)	/* align location counter */
+xx(mo_ascii,		".ascii",	mif_xx)	/* assemble strings into successive locs */
+xx(mo_asciiz,		".asciiz",	mif_xx)	/* assemble strings and add null */
+xx(mo_byte,		".byte",	mif_xx)	/* assemble expressions into succ. bytes */
+xx(mo_comm,		".comm",	mif_xx)	/* global common symbol */
+xx(mo_data,		".data",	mif_xx)	/* subsequent data to data section */
+xx(mo_double,		".double",	mif_xx)	/* initializes 64-bit FP numbers */
+xx(mo_end,		".end",		mif_xx)	/* end of procedure */
+xx(mo_ent,		".ent",		mif_xx)	/* beginning of procedure */
+xx(mo_extern,		".extern",	mif_xx)	/* global undefined symbol */
+xx(mo_float,		".float",	mif_xx)	/* initializes 32-bit IEEE FP numbers */
+xx(mo_fmask,		".fmask",	mif_xx)	/* FP registers saved */
+xx(mo_frame,		".frame",	mif_xx)	/* describes the stack frame */
+xx(mo_globl,		".globl",	mif_xx)	/* makes a name external */
+xx(mo_gprel32,		".gprel32",	mif_xx)	/* truncates signed displacement to 32-bits */
+xx(mo_lcomm,		".lcomm",	mif_xx)	/* makes name's data type bss */
+xx(mo_loc,		"# .loc",	mif_xx)	/* specifies source and line number */
+xx(mo_mask,		".mask",	mif_xx)	/* GP registers saved */
+xx(mo_rdata,		".rdata",	mif_xx)	/* subsequent data to rdata section */
+xx(mo_repeat,		".repeat",	mif_xx)	/* begin repeat directive */
+xx(mo_sdata,		".sdata",       mif_xx)	/* subsequent data to sdata section */
+xx(mo_set,		".set",		mif_xx)	/* set assembler options */
+xx(mo_space,		".space",	mif_xx)	/* */
+xx(mo_text,		".text",	mif_xx)	/* subsequent code to text section */
+xx(mo_weakext,		".weakext",	mif_xx)	/* weak symbol during linking */
+xx(mo_word,		".word",	mif_xx)	/*  assemble expressions into succ. 32 bits */
+xx(mo_dword,            ".dword",       mif_xx) /*  assemble expressions into succ. 64-bits */
+xx(mo_lit4,             ".lit4",        mif_xx) /**/
+xx(mo_lit8,             ".lit8",        mif_xx) /**/
+xx(mo_bss,              ".bss",         mif_xx) /**/
+xx(mo_sbss,             ".sbss",        mif_xx) /**/
+xx(mo_section,          ".section",     mif_xx) /**/
+xx(mo_half,             ".half",        mif_xx) /**/
+xx(mo_rol,              "rol",          mif_rr) /* rotated shift left,pseudo-ops*/  
+xx(mo_ror,              "ror",          mif_rr) /* rotated shift right,pseudo-ops*/
+xx(mo_li,               "li",           mif_rr) /**/
+xx(mo_seq,              "seq",          mif_rr) /**/
+xx(mo_sge,              "sge",          mif_rr) /**/
+xx(mo_sgeu,             "sgeu",         mif_rr) /**/
+xx(mo_sgt,              "sgt",          mif_rr) /**/
+xx(mo_sgtu,             "sgtu",         mif_rr) /**/
+xx(mo_sle,              "sle",          mif_rr) /**/
+xx(mo_sleu,             "sleu",         mif_rr) /**/
+xx(mo_sne,              "sne",          mif_rr) /**/
+xx(mo_b,                "b",            mif_bj) /*unconditional jump,pseudo-ops*/
+xx(mo_beqz,             "beqz",         mif_bj) /*branch ==0,pseudo-ops*/
+xx(mo_bge,              "bge",          mif_bj) /*branch >=,pseudo-ops*/
+xx(mo_bgeu,             "bgeu",         mif_bj) /*branch if unsigned >=,pseudo-ops*/
+xx(mo_bgt,              "bgt",          mif_bj) /*branch >,pseudo-ops*/
+xx(mo_bgtu,             "bgtu",         mif_bj) /*branch if unsigned >,pseudo-ops*/
+xx(mo_ble,              "ble",          mif_bj) /*branch <=,pseudo-ops*/
+xx(mo_bleu,             "bleu",         mif_bj) /*branch if unsigned <=,pseudo-ops*/
+xx(mo_blt,              "blt",          mif_bj) /*branch <,pseudo-ops*/
+xx(mo_bltu,             "bltu",         mif_bj) /*branch if unsigned <,pseudo-ops*/
+xx(mo_bnez,             "bnez",         mif_bj) /*branch !=0,pseudo-ops*/
+xx(mo_la,               "la",           mif_rr) /*load address,pseudo-ops*/
+xx(mo_ld,               "ld",           mif_rr) /*load long long (64 bits),pseudo-ops*/
+xx(mo_ulh,              "ulh",          mif_rr) /*load half word from unaligned address,pseudo-ops*/
+xx(mo_ulhu,             "ulhu",         mif_rr) /*load unsigned half word from unaligned address,pseudo-ops*/
+xx(mo_ulw,              "ulw",          mif_rr) /*load word from unaligned address,pseudo-ops*/
+xx(mo_sd,               "sd",           mif_rr) /*store long long(64 bits),pseudo-ops*/
+xx(mo_ush,              "ush",          mif_rr) /*store half word into unaligned address,pseudo-ops*/
+xx(mo_usw,              "usw",          mif_rr) /*store word into unaligned address,pseudo-ops*/ 
+xx(mo_move,             "move",         mif_rr) /*move,pseudo-ops*/
+xx(mo_mfc1_d,           "mfc1.d",       mif_rr) /*move double float from coprocessor 1 */
+xx(mo_l_d,              "l.d",          mif_rr) /*load double float*/
+xx(mo_l_s,              "l.s",          mif_rr) /*load single  float*/
+xx(mo_s_d,              "s.d",          mif_rr) /*store double float*/
+xx(mo_s_s,              "s.s",          mif_rr) /*store single float*/
+xx(mo_lb,		"lb",		mif_rr)	/* load byte */
+xx(mo_lbu,		"lbu",		mif_rr)	/* load byte unsigned */
+xx(mo_lh,               "lh",           mif_rr) /* load half word*/
+xx(mo_lhu,              "lhu",          mif_rr) /* load half word unsigned */
+xx(mo_lw,		"lw",		mif_rr)	/* load word (32 bits) */
+xx(mo_lwl,              "lwl",          mif_rr) /* load left half word */
+xx(mo_lwr,              "lwr",          mif_rr) /* load right half word */
+xx(mo_ll,               "ll",           mif_rr) /* load word atomicly.Its usage maybe is noticeable in multicore processors!*/
+xx(mo_cg_lrec,		"cg_lrec",	mif_rr)	/* load record for 1st pass of code gen */
+xx(mo_sb,		"sb",		mif_rr)	/* store byte */
+xx(mo_sh,		"sh",		mif_rr)	/* store half word (16 bits) */
+xx(mo_sw,               "sw",           mif_rr) /* store word(32 bits)*/
+xx(mo_sc,               "sc",           mif_rr) /* Atomicly store word.Its usage maybe is noticeable in multicore processors!*/
+xx(mo_cg_srec,		"cg_srec",	mif_rr)	/* store record for 1st pass of code gen */
+xx(mo_abs,		"abs",		mif_rr)	/* absolute value */
+xx(mo_add,		"add",		mif_rr)	/* add word in registers (overflow) */
+xx(mo_addu,		"addu",	mif_rr)	/* add unsigned word number in registers (overflow) */
+xx(mo_addi,		"addi",		mif_rr)	/* add word number in a register and immediate number (overflow) */
+xx(mo_addiu,		"addiu",	mif_rr)	/* add unsigned word number in a register and immediate number (no overflow) */
+xx(mo_and,		"and",		mif_rr)	/* and */
+xx(mo_andi,		"andi",	        mif_rr)	/* logical and with immediate */
+xx(mo_clo,		"clo",	        mif_rr)	/*  */
+xx(mo_clz,		"clz",	        mif_rr)	/*  */
+xx(mo_div,		"div",          mif_rr)   /*  divide (overflow),pseudo-ops*/  
+xx(mo_divu,		"divu",	        mif_rr)	  /* divide (no overflow),pseudo-ops */
+xx(mo_mult,		"mult",		mif_rr)	/* multiply (result stored in registers lo and hi) */
+xx(mo_multu,		"multu",	mif_rr)	/* unsigned multiply  (result stored in registers lo and hi) */
+xx(mo_mul,		"mul",		mif_rr)	/* multiply (no overflow) */
+xx(mo_mulo,		"mulo",	        mif_rr)	/* multiply ,pseudo-ops (overflow)*/
+xx(mo_mulou,            "mulou",        mif_rr) /*unsigned multiply,pseudo-ops(no overflow)*/
+xx(mo_madd,             "madd",         mif_rr)  /*multiply ,then add result with 64 bit number in lohi registers */
+xx(mo_maddu,            "maddu",        mif_rr) /*unsigned multiply ,then add result with 64 bit number in lohi registers */
+xx(mo_msub,             "msub",         mif_rr) /*multiply,then sub 64 bit number in lohi registers  with result;hilo=hilo-result */
+xx(mo_msubu,            "msubu",        mif_rr) /*unsigned multiply,then sub 64 bit number in lohi registers  with result;hilo=hilo-result */
+xx(mo_neg,		"neg",		mif_rr)	/* negate (overflow),pseudo-ops */
+xx(mo_negu,		"negu",	        mif_rr)	/* negate (no overflow),pseudo-ops */
+xx(mo_nor,              "nor",          mif_rr) /**/
+xx(mo_not,		"not",		mif_rr)	/* not, pseudo-ops */
+xx(mo_or,		"or",		mif_rr)	/* or */
+xx(mo_ori,              "ori",          mif_rr) /**/
+xx(mo_rem,		"rem",		mif_rr)	/* remainder,pseudo-ops */
+xx(mo_remu,		"remu",	        mif_rr)	/* remainder unsigned,pseudo-ops */
+xx(mo_sll,		"sll",		mif_rr)	/* shift left logical */
+xx(mo_sllv,             "sllv",         mif_rr) /**/
+xx(mo_sra,		"sra",		mif_rr)	/* shift right arithmetic */
+xx(mo_srav,             "srav",         mif_rr) /**/
+xx(mo_srl,		"srl",		mif_rr)	/* shift right logical */
+xx(mo_srlv,             "srlv",         mif_rr) /**/
+xx(mo_sub,		"sub",		mif_rr)	/* subtract(overflow) */
+xx(mo_subu,		"subu",	        mif_rr)	/* subtract (no overflow) */
+xx(mo_xor,		"xor",		mif_rr)	/* exclusive or (logical difference) */
+xx(mo_xori,              "xori",        mif_rr) /*exclusive or immediate*/
+xx(mo_lui,              "lui",          mif_rr) /**/ 
+xx(mo_slt,              "slt",          mif_rr) /**/
+xx(mo_sltu,             "sltu",         mif_rr) /**/
+xx(mo_slti,             "slti",         mif_rr) /**/
+xx(mo_sltiu,            "sltiu",        mif_rr) /**/
+xx(mo_mfhi,             "mfhi",         mif_rr) /*move from hi */
+xx(mo_mflo,             "mflo",         mif_rr) /*move from lo */
+xx(mo_mthi,             "mthi",         mif_rr) /*move to hi */
+xx(mo_mtlo,             "mtlo",         mif_rr) /*move to lo */
+xx(mo_mfc0,             "mfc0",         mif_rr) /*move from coprocessor 0*/
+xx(mo_mfc1,             "mfc1",         mif_rr) /*move from coprocessor 1*/ 
+xx(mo_mtc0,             "mtc0",         mif_rr) /*move to coprocessor 0*/
+xx(mo_mtc1,             "mtc1",         mif_rr) /*move to coprocessor 1*/
+xx(mo_movn,             "movn",         mif_rr) /*move if not zero*/
+xx(mo_movz,             "movz",         mif_rr) /*move if zero*/
+xx(mo_movf,             "movf",         mif_rr) /*move if cc==0*/
+xx(mo_movt,             "movt",         mif_rr) /*move if cc==1*/ 
+xx(mo_beq,		"beq",		mif_bj)	/* branch on equal */
+xx(mo_bgez,		"bgez",		mif_bj)	/* branch >=0 */
+xx(mo_bgezal,           "bgezal",       mif_bj) /* branch and link if >=0*/
+xx(mo_bgtz,		"bgtz",		mif_bj)	/* branch > 0*/
+xx(mo_blez,		"blez",		mif_bj)	/* branch <=0 */
+xx(mo_bltzal,           "bltzal",       mif_bj) /* branch and link if <0 */
+xx(mo_bltz,		"bltz",		mif_bj)	/* branch < 0 */
+xx(mo_bne,		"bne",		mif_bj)	/* branch != */
+xx(mo_j,		"j",		mif_bj)	/* jump */
+xx(mo_jal,              "jal",          mif_bj) /* jump and link*/
+xx(mo_jalr,             "jalr",         mif_bj) /**/
+xx(mo_jr,               "jr",           mif_bj) /**/
+xx(mo_nop,              "nop",          mif_xx) /* nop operation*/
+xx(mo_lwc1,             "lwc1",         mif_rr) /* load float word */
+xx(mo_swc1,             "swc1",         mif_rr) /*store float word */
+xx(mo_sdc1,             "sdc1",         mif_rr) /*store double float word */
+xx(mo_swl,              "swl",          mif_rr) /*store left half word*/
+xx(mo_swr,              "swr",          mif_rr) /*store right half word*/
+xx(mo_add_d,		"add.d",	mif_rr)	/* double FP add  */
+xx(mo_add_s,		"add.s",	mif_rr)	/* single FP add  */
+xx(mo_ceil_w_d,         "ceil.w.d",     mif_rr) /**/
+xx(mo_ceil_w_s,         "ceil.w.s",     mif_rr) /**/
+xx(mo_c_seq_d,           "c.seq.d",       mif_rr) /* double equal comparison*/
+xx(mo_c_seq_s,           "c.seq.s",       mif_rr) /* single equal comparison*/
+xx(mo_c_le_d,           "c.le.d",       mif_rr) /* double less or equal comparison*/
+xx(mo_c_le_s,           "c.le.s",       mif_rr) /* single less or equal comparison*/
+xx(mo_c_lt_d,           "c.lt.d",       mif_rr) /* double less than comparison*/
+xx(mo_c_lt_s,           "c.lt.s",       mif_rr) /* single less than comparison*/
+xx(mo_cvt_d_s,          "cvt.d.s",      mif_rr) /* convert single to double */
+xx(mo_cvt_d_w,          "cvt.d.w",      mif_rr) /* convert integer to double*/
+xx(mo_cvt_s_d,          "cvt.s.d",      mif_rr) /* convert double to single*/
+xx(mo_cvt_s_w,          "cvt.s.w",      mif_rr) /* convert integer to single*/
+xx(mo_cvt_w_d,          "cvt.w.d",      mif_rr) /* convert double to integer*/
+xx(mo_cvt_w_s,          "cvt.w.s",      mif_rr) /* convert single to integer*/
+xx(mo_div_d,            "div.d",        mif_rr) /* double divide*/
+xx(mo_div_s,            "div.s",        mif_rr) /* single divide*/
+xx(mo_floor_w_d,        "floor.w.d",    mif_rr) /* */
+xx(mo_floor_w_s,        "floor.w.s",    mif_rr) /* */
+xx(mo_sqrt_d,           "sqrt.d",       mif_rr) /* double sqrt*/
+xx(mo_sqrt_s,           "sqrt.s",       mif_rr) /* single sqrt*/
+xx(mo_sub_d,            "sub.d",        mif_rr) /* double substract*/
+xx(mo_sub_s,            "sub.s",        mif_rr) /* single substract*/
+xx(mo_abs_d,		"abs.d",	mif_rr)	/* double FP absolute value */
+xx(mo_abs_s,            "abs.s",        mif_rr) /* single FP absolute value */
+xx(mo_mov_d,            "mov.d",        mif_rr) /* move double*/
+xx(mo_mov_s,            "mov.s",        mif_rr) /* move single*/
+xx(mo_movf_d,           "movf.d",       mif_rr) /* move double if cc==0*/
+xx(mo_movf_s,           "movf.s",       mif_rr) /* move single if cc==0*/
+xx(mo_movt_d,           "movt.d",       mif_rr) /* move double if cc==1*/
+xx(mo_movt_s,           "movt.s",       mif_rr) /* move single if cc==1*/
+xx(mo_movn_d,           "movn.d",       mif_rr) /* move double if non zero*/
+xx(mo_movn_s,           "movn.s",       mif_rr) /* move single if non zero*/
+xx(mo_movz_d,           "movz.d",       mif_rr) /* move double if zero*/
+xx(mo_movz_s,           "movz.s",       mif_rr) /* move single if zero*/
+xx(mo_mul_d,            "mul.d",        mif_rr) /* double multiply*/
+xx(mo_mul_s,            "mul.s",        mif_rr) /* single multiply*/
+xx(mo_neg_d,            "neg.d",        mif_rr) /* double negative*/
+xx(mo_neg_s,            "neg.s",        mif_rr) /* single negative*/
+xx(mo_round_w_d,        "round_w_d",    mif_rr) /**/
+xx(mo_round_w_s,        "round_w_s",    mif_rr) /**/
+xx(mo_li_d,             "li.d",         mif_rr) /*load double immediate*/
+xx(mo_li_s,             "li.s",         mif_rr) /*load single immediate*/
+xx(mo_bc1f,             "bc1f",         mif_bj) /**/
+xx(mo_bc1t,             "bc1t",         mif_bj) /**/
+xx(mo_file,		".file",	mif_xx)	/* source file name */
+xx(mo_endr,		".endr",	mif_xx)	/* end of repeat */
+xx(mo_fst,              "fst",          mif_rr) /* Fetch stack top to sp*/
+xx(mo_ust,              "ust",          mif_rr) /* update stack top*/
+xx(mo_spawn,         "spawn",     mif_bj)/*spawn a thread*/
+xx(mo_cqip,            "cqip",        mif_bj) 
+xx(mo_cancel,         "squash",    mif_bj) /* cancel a thread*/
+xx(mo_pslice_entry,   "pslice_entry", mif_bj)
+xx(mo_pslice_exit,    "pslice_exit",  mif_bj)  
+xx(mo_loopbegin,	"loopbegin", mif_bj)	/* specify the begin of a loop */
+xx(mo_loopend, 		"loopend", mif_bj)      /* specify one of the ends of a loop */                                         
+xx(mo_get,              "get",          mif_rr) /* */
+xx(mo_update,             "update",         mif_rr) /* */
+

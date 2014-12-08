@@ -1,0 +1,24 @@
+digraph G{
+	label = "dealwithargs"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_6\nmove\n# .loc\nla\nla\nmove\nfst\njalr\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_3# .loc\nli\nslt\nbnez\n"];
+	Node3 -> {Node4 Node5 }
+	Node4 [label = "B4_2# .loc\nli\nsw\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_3\n# .loc\nli\nslt\nbnez\n"];
+	Node5 -> {Node6 Node7 }
+	Node6 [label = "B6_2# .loc\nli\nsw\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_3\n# .loc\nli\nslt\nbnez\n"];
+	Node7 -> {Node8 Node9 }
+	Node8 [label = "B8_2# .loc\nli\nsw\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_1\n# .loc\njr\n"];
+	Node9 -> {Node1 }
+}

@@ -1,0 +1,18 @@
+digraph G{
+	label = "old_subindex"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7\nlw	r27	nd#206	\nsw	nd#208	r5	\nsw	nd#210	r6	\nsw	nd#212	r7	\nsw	nd#214	r8	\nmove	r9	r0	\nmove	r6	r0	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_11\nold_subindex.L4:\nloopbegin	old_subindex.L5\nold_subindex.L5:\nla	r7	nd#222	\nli	r8	nd#224	\nmult	r6	r8	\nmflo	r10	\naddu	r10	r7	r10	\nlw	r28	nd#229	\nand	r26	r28	r27	\nmove	r19	r0	\nsne	r20	r26	r19	\nbeqz	old_subindex.L3\n"];
+	Node3 -> {Node4 Node5 }
+	Node4 [label = "B4_5\nli	r21	nd#237	\nli	r22	nd#239	\naddu	r5	r6	r22	\nsra	r23	r21	r5	\naddu	r9	r9	r23	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_6\nold_subindex.L3:\nli	r24	nd#245	\naddu	r6	r6	r24	\nli	r25	nd#248	\nsle	r26	r25	r6	\nbeqz	old_subindex.L4\nloopend	old_subindex.L5\n"];
+	Node5 -> {Node6 Node3 }
+	Node6 [label = "B6_1\njr	\n"];
+	Node6 -> {Node1 }
+}

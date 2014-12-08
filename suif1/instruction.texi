@@ -1,0 +1,1063 @@
+@c This file is part of the SUIF reference manual
+
+@node Instructions, Symbols, Trees, Top
+@chapter Instructions and Expression Trees
+@cindex instructions
+
+At the leaves of the abstract syntax trees, the @code{tree_instr} nodes
+(@pxref{Instruction Nodes}) hold SUIF instructions.  Each instruction
+performs a single operation, specified by its opcode.  With just a few
+exceptions, the opcodes are simple and straightforward, similar to the
+instruction set of a typical RISC processor.  The instructions include
+arithmetic, data transfer, and control flow operations.
+
+SUIF instructions may be used in two ways.  Most high-level passes use
+expression trees, where the instructions are grouped together in trees
+that correspond to the expressions in the source programs.  Back-end
+optimization passes have traditionally worked with flat lists of
+instructions, and SUIF supports that representation as well.
+
+The files @file{instruction.h} and @file{instruction.cc} contain the
+code for the SUIF instruction classes.
+
+@menu
+* Basic Features::              Features shared by all kinds of instructions.
+* Operands::                    Instruction operands.
+* Expression Trees::            How to use expression trees.
+* Three Operand Instructions::  The @code{in_rrr} class (most instructions).
+* Branch and Jump Instructions::  The @code{in_bj} class.
+* Load Constant Instructions::  The @code{in_ldc} class.
+* Call Instructions::           The @code{in_cal} class.
+* Array Instructions::          The @code{in_array} class.
+* Multi-way Branch Instructions::  The @code{in_mbr} class.
+* Label Instructions::          The @code{in_lab} class.
+* Generic Instructions::        The @code{in_gen} class (non-standard).
+@end menu
+
+
+@node Basic Features, Operands,  , Instructions
+@section Basic Instruction Features
+@cindex instructions, basic features
+
+@tindex instruction
+All instructions share some basic features.  This section describes the
+fields in the base @code{instruction} class.  Other classes are derived
+from the @code{instruction} class to include fields that are specific to
+the different instruction formats.
+
+Besides the features below, the instructions have ID numbers that can be
+used to identify them across passes of the compiler.  This is discussed
+in detail elsewhere.  @xref{ID Numbers}.
+
+@tindex instruction_list
+The SUIF library also declares an @code{instruction_list} class for
+working with lists of pointers to instructions.  This class is not used
+much within the library itself because SUIF does not store instructions
+directly on lists.  Even with the flat list form, the instructions are
+contained in @code{tree_instr} nodes, which in turn are stored in lists.
+However, it may sometimes be convenient to work with lists of
+instruction pointers even if those instructions are actually stored in
+@code{tree_instr} nodes.
+
+@menu
+* Opcodes and Formats::         Description of opcode and format enumerations.
+* Destination Operands::        Conventions for the destination operands.
+* Result Types::                Specifying the types of the result values.
+* Parent Tree Nodes::           Back-pointers to the @code{tree_instr} nodes.
+* Source Operands::             Standard methods for accessing sources.
+* Printing Methods::            Printing instructions and operands as text.
+@end menu
+
+
+@node Opcodes and Formats, Destination Operands,  , Basic Features
+@subsection Opcodes and Formats
+@cindex opcodes
+@cindex instruction formats
+
+@tindex if_ops
+@findex if_ops_name
+@findex instruction, opcode
+@findex instruction, set_opcode
+The @code{opcode} and @code{set_opcode} methods may be used to access
+the opcode field in an instruction.  These opcodes are members of the
+@code{if_ops} enumerated type.  The internal names for the opcodes all
+begin with @code{io_}, but that prefix is omitted in this documentation.
+The @code{if_ops_name} function takes an opcode and returns a character
+string holding the opcode name (without the @code{io_} prefix).  This is
+used by the library when it prints out instructions, but you may also
+call it directly.
+
+@tindex inst_format
+@findex which_format
+@findex instruction, format
+Each opcode is associated with a particular instruction format.  The
+formats are specified by members of the @code{inst_format} enumeration.
+The @code{format} method may be used to retrieve the format for a
+particular instruction.  Alternatively, the @code{which_format} function
+takes an opcode and returns its format without reference to any
+particular instruction.  Each format corresponds to a particular derived
+instruction class:
+
+@table @code
+@item inf_rrr
+Three operand instructions use the @code{in_rrr} class.
+
+@item inf_bj
+Branch and jump instructions use the @code{in_bj} class.
+
+@item inf_ldc
+The load constant instruction uses the @code{in_ldc} class.
+
+@item inf_cal
+The call instruction uses the @code{in_cal} class.
+
+@item inf_array
+The array instruction uses the @code{in_array} class.
+
+@item inf_mbr
+The multi-way branch instruction uses the @code{in_mbr} class.
+
+@item inf_lab
+The label instruction uses the @code{in_lab} class.
+
+@item inf_gen
+Generic instructions use the @code{in_gen} class.
+@end table
+
+The @code{format} method is often used in @code{switch} statements for
+dealing with different kinds of instructions.  For example, the
+following code computes the number of source operands in an instruction
+(instead of using the @code{num_srcs} method):
+
+@example
+instruction *i;
+switch (i->format()) @{
+    case inf_rrr: @{
+        n += 2;
+        break;
+    @}
+    case inf_bj: @{
+        n += 1;
+        break;
+    @}
+    case inf_cal: @{
+        in_cal *cali = (in_cal *)i;
+        n += 1 + cali->num_args();
+        break;
+    @}
+    case inf_array: @{
+        in_array *arri = (in_array *)i;
+        n += 2 + 2 * arri->dims();
+        break;
+    @}
+    case inf_mbr: @{
+        n += 1;
+        break;
+    @}
+    case inf_gen: @{
+        in_gen *geni = (in_gen *)i;
+        n += geni->num_srcs();
+        break;
+    @}
+    default: @{
+        /* other formats (inf_ldc and inf_lab) have no source operands */
+        break;
+    @}
+@}
+@end example
+
+The opcodes and instruction formats are defined in the @file{opcodes.h}
+and @file{opcodes.cc} files.
+
+
+@node Destination Operands, Result Types, Opcodes and Formats, Basic Features
+@subsection Destination Operands
+@cindex destination operands
+@cindex operands, destination
+
+@findex instruction, dst_op
+The base @code{instruction} class includes a field for the destination
+operand, even though not all instructions use it.  The @code{dst_op}
+method returns the value of this operand.  If an instruction does not
+produce a result, the destination operand should always be a null
+operand.  Moreover, the destination may be null even if an instruction
+does produce a result.  In that case, the result value is computed and
+then discarded.
+
+If the destination operand is a variable, its type must be compatible
+with the result type of the instruction.
+
+If the result of an instruction is a temporary value, the destination
+operand is a pointer to the instruction where the value is used.  Note
+that this is different than an instruction pointer in a source operand.
+The source operands of an instruction point to the children in an
+expression tree, while the destination operand points to the parent
+instruction.
+
+@findex instruction, set_dst
+The @code{set_dst} method may be used to set the destination operand for
+an instruction.  However, there are some important restrictions on using
+this method:
+
+@itemize @bullet
+@item
+For derived classes with instructions that never produce result values,
+it is illegal to call @code{set_dst}.  This allows the library to ensure
+that the destination will always be a null operand @footnote{Note that
+for other classes it is your responsibility to make sure that the
+destination is null if the instruction does not produce a result.}.
+Trying to use @code{set_dst} for one of these instructions will cause an
+error.
+
+@item
+You may not set the destination operand to point to another instruction;
+trying to do so will cause an error.  This is to prevent inconsistent
+pointers.  The destination should only point to another instruction if
+that other instruction has a source operand that points back to it.
+Thus, the library automatically sets the destination operand when an
+instruction is used as a source operand.
+
+@item
+If the destination operand already contains a pointer to another
+instruction, you cannot use @code{set_dst} to overwrite it.  This also
+causes a run-time error.  As in the previous case, this is to prevent
+inconsistent pointers.  Instead, you must first call the instruction's
+@code{remove} method to clear the destination operand.  @xref{Source
+Operands}.
+@end itemize
+
+
+@node Result Types, Parent Tree Nodes, Destination Operands, Basic Features
+@subsection Result Types
+
+@findex instruction, result_type
+@findex instruction, set_result_type
+Each instruction also has a field to specify the result type.  The
+@code{result_type} and @code{set_result_type} methods may be used to
+access this field.  If an instruction produces a result value
+(regardless of whether the result is actually used), the type of the
+result must be indicated.  Otherwise, the result type should be the SUIF
+@code{void} type.
+
+If the instruction produces a value, the result type must be an object
+type (i.e. not a function type) with non-zero size and that size must
+be known at compile time.  This restriction is to exclude arrays with
+unknown or symbolic bounds, the only types without known sizes.
+
+
+@node Parent Tree Nodes, Source Operands, Result Types, Basic Features
+@subsection Parent Tree Nodes
+
+@findex instruction, parent
+Each instruction automatically records the @code{tree_instr} node to
+which it is attached.  The @code{parent} method retrieves this pointer.
+In an expression tree, all of the instructions share the same parent
+@code{tree_instr} node, so an instruction may not be directly connected
+to its parent node.
+
+@findex instruction, owner
+The @code{owner} method is identical to the @code{parent} method except
+for instructions that are used as operands of @code{tree_for} nodes.
+Those operands are actually attached to dummy copy instructions on lists
+attached to the @code{tree_for} nodes (@pxref{For Nodes}), but many
+users will want to treat them as if they are directly attached to the
+@code{tree_for} nodes.  Thus, for an instruction in a @code{tree_for}
+operand, the @code{owner} method will return a pointer to the
+@code{tree_for} node instead of returning the actual parent
+@code{tree_instr}.  This only works if the @code{tree_for} operand list
+contains a single expression (not a flat list); otherwise, the actual
+@code{tree_instr} parent is returned.
+
+
+@node Source Operands, Printing Methods, Parent Tree Nodes, Basic Features
+@subsection Source Operands
+@cindex source operands
+@cindex operands, source
+
+@findex instruction, num_srcs
+@findex instruction, src_op
+@findex instruction, set_src_op
+Even though the base @code{instruction} class does not contain any
+source operand fields, it does provide several methods to access the
+source operands in derived classes.  First, the @code{num_srcs} method
+returns the number of source operands in a particular instruction.  Once
+you know the number of sources, you can access them by number.  This is
+frequently useful when you need to visit all of the source operands
+without concern for how they are used in the instruction.  The
+@code{src_op} and @code{set_src_op} methods provide this access.  The
+operands are numbered beginning from zero (like arrays in C).
+Specifying an operand number that does not exist will cause an error.
+Do not use these methods to access a particular operand field in an
+instruction; the operand numbering used here is implementation-defined
+and subject to change.
+
+@findex instruction, src_map
+@tindex src_map_f
+The @code{src_map} method provides an alternate way to visit all of the
+source operands.  It applies a function that you specify to all of the
+source operands.  This can be used to implement recursive descents of
+expression trees by making the mapped function call @code{src_map} if
+the operand is an instruction.  This is similar to what the
+@code{instr_map} method in the @code{tree_instr} class does.
+@xref{Instruction Nodes}.  The mapped function must match the
+@code{src_map_f} type which has three parameters: a pointer to the
+instruction, a pointer to a copy of the operand, and a @code{void*}
+value used to pass any other information needed by the function.  If the
+function returns @code{TRUE}, the copy of the operand will be assigned
+to the actual operand field within the instruction.  If it returns
+@code{FALSE}, the source operand field is not modified.
+
+@findex operand, remove
+@findex instruction, remove
+The SUIF library requires that instruction pointers in operands be
+consistent.  That is, a source operand may only point to an instruction
+if the destination of that instruction points back to where the result
+value is used.  Because of this, you cannot simply overwrite a source
+operand that contains an instruction pointer.  Doing so would leave the
+other instruction with an inconsistent destination operand.  Instead,
+you must first use the source operand's @code{remove} method.  This
+clears the instruction pointers in both the source and destination
+operands.  If the source instruction was part of an expression tree
+(i.e. it didn't have its own parent @code{tree_instr} node),
+@code{remove} also clears its @code{parent} pointer by calling the
+parent's @code{remove_instr} method (@pxref{Instruction Nodes}).  If the
+source operand is not an instruction, the @code{remove} method does
+nothing so it is always safe to use it.  The @code{instruction} class
+also has a @code{remove} method which does the same thing.
+
+As an example, the following code clears all of the source operands in
+an instruction:
+
+@example
+for (int n = 0; n < i->num_srcs(); n++) @{
+    i->src_op(n).remove();
+    i->set_src_op(n, operand());
+@}
+@end example
+
+
+@node Printing Methods,  , Source Operands, Basic Features
+@subsection Printing Methods
+@cindex instructions, printing
+
+@findex instruction, print
+Instructions can be printed out as text using the @code{print} method.
+The optional @code{depth} parameter specifies the indentation level for
+the output.  The @code{elab} and @code{en} parameters are also optional
+and are only used when printing sub-expressions.  Most users should
+never need to worry about these extra parameters.  The @code{elab}
+parameter is the number for the label attached to the instruction, and
+the @code{en} parameter is the next number to be used for labeling
+subexpressions.
+
+
+@node Operands, Expression Trees, Basic Features, Instructions
+@section Operands
+@cindex operands
+
+@tindex operand
+Most SUIF instructions have operands that are represented by objects of
+the @code{operand} class, which is implemented in the files
+@file{operand.h} and @code{operand.cc}.  An operand may have three
+different kinds of values:
+
+@itemize @bullet
+@item
+@findex operand, is_null
+It may be a null operand.  The @code{is_null} method tests for this
+case.  Null operands occur when an operand field in an instruction is
+unused.
+
+@item
+@findex operand, is_symbol
+@findex operand, symbol
+@findex operand, set_symbol
+An operand may refer directly to the symbol for a variable.  The
+@code{is_symbol} method tests for this case.  The @code{symbol} and
+@code{set_symbol} methods access the symbol field.  A variable in a
+source operand indicates that the contents of the variable are used.  In
+a destination operand, a variable is assigned the result of the
+instruction.
+
+@item
+@findex operand, is_instr
+@findex operand, instr
+@findex operand, set_instr
+An operand may also point to another instruction.  The @code{is_instr}
+method tests for this, and the @code{instr} and @code{set_instr} methods
+access the pointer field.  This is used to implement expression trees
+and, in low-SUIF, to refer to the results of other instructions in a
+flat list.  An instruction pointer in a source operand means that the
+result of that instruction is used as the operand.  Conversely, an
+instruction pointer in a destination operand indicates that the result
+value is used by that instruction.
+@end itemize
+
+@findex operand, is_expr
+The @code{is_expr} method is very similar to @code{is_instr}.  Besides
+checking if the operand holds an instruction pointer, it also tests if
+that instruction is a subexpression that is not contained in a separate
+@code{tree_instr} node (i.e. it's not in a flat list).  This method
+should not be used for destination operands.
+
+Before changing a source operand from an instruction pointer to some
+other value, the instruction must be removed.  The @code{remove} method
+checks if the operand is an instruction, and if so, calls the
+instruction's @code{remove} method.  @xref{Source Operands}.
+
+@findex operand, type
+@findex operand, is_const_int
+The operand class includes several methods to simplify common
+operations.  One frequently needs to know the type of a particular
+operand.  This can be determined from the variable's type or the
+instruction's result type, but checking for these different kinds of
+operands and then extracting the type is cumbersome.  Instead, you can
+use the @code{type} method which performs this operation for you.  It
+returns the SUIF @code{void} type for null operands.  Another common
+operation is testing an operand to see if it contains an integer
+constant from a load constant instruction.  The @code{is_const_int}
+method checks if this is the case, and if so, it also returns the value
+of the constant.
+
+@findex operand, print
+@findex operand, print_source
+Operands have two different methods for printing themselves out to a
+file as text.  The @code{print} method is used by the library when
+printing instructions.  Because source and destination operands are
+handled differently, @code{print} requires that you specify the
+instruction that contains the operand so that it can determine how the
+operand is being used.  However, when debugging a program, you may not
+know which instruction contains an operand.  If you do know that it is
+used as a source operand, you can use the @code{print_source} method to
+print it without specifying the instruction.
+
+
+@node Expression Trees, Three Operand Instructions, Operands, Instructions
+@section Expression Trees
+@cindex expression trees
+
+SUIF supports both expression trees and flat lists of instructions.
+Procedures are always written out as flat lists.  After a procedure body
+has been read from an input file, it can be converted to expression tree
+form.  The @code{read_proc} method for the procedure symbol has a flag
+that allows you to specify this; by default it builds the expression
+trees.  You may also do the conversion manually as described below.
+When the procedure body is written out, it is automatically converted
+back to the flat list form.
+
+In the flat list form, each SUIF instruction has its own
+@code{tree_instr} node.  With expression trees, the only change is that
+all of the instructions within an expression are grouped under the same
+@code{tree_instr} node.  The instruction pointers in the operand fields
+do not change.
+
+Up to now we have implied that high-SUIF uses expression trees and that
+low-SUIF uses the flat list representation, but the decision to use
+expression trees is actually independent from the structure of the ASTs.
+SUIF allows expressions trees to be used even if all of the high-level
+control structures have been removed, and conversely the flat list
+representation works with all kinds of AST nodes (although accessing the
+@code{tree_for} operands is a little awkward).  In fact, the two
+representations can even be mixed in the same procedure!
+
+Some caution is needed here.  These two representations are not
+equivalent.  An expression tree only specifies a partial order for the
+evaluation of the instructions in the tree, whereas a flat list is a
+total ordering.  Similarly, while flat lists allow you to intermix the
+instructions from different expressions, with expression trees each
+expression must be completely evaluated before proceeding to execute the
+instructions for the next expression.  Thus, flat lists give you precise
+control of the execution order for the instructions.  Because of this,
+if you reorder the instructions in a flat list and then try to convert
+to expression trees, the library may complain and promote temporaries to
+variables in order to maintain the equivalent semantics.
+
+@findex tree_node_list, flatten
+Methods are provided in the @code{tree_node_list} class to convert back
+and forth between expression trees and flat lists.  The @code{flatten}
+method converts all of the expression trees in the list and its child
+lists to flat lists of instructions.  This is simply a matter of
+creating new @code{tree_instr} nodes to hold the subexpressions and
+inserting them into the lists.
+
+@findex tree_node_list, cvt_to_trees
+The @code{cvt_to_trees} method converts a tree node list to expression
+tree form.  This does not actually change the instructions, but rather
+collects the instructions within an expression under a single
+@code{tree_instr} node.  Only contiguous instructions can be converted
+into an expression tree.  If other instructions from outside the
+expression are intermixed, building the expression tree may change the
+behavior of the code.  Thus, if this occurs, the library will print a
+warning message and split up the expression tree so that the original
+semantics are preserved.
+
+
+@node Three Operand Instructions, Branch and Jump Instructions, Expression Trees, Instructions
+@section Three Operand Instructions
+@cindex three operand instructions
+@cindex instructions, three operand
+
+@tindex in_rrr
+The vast majority of SUIF instructions are represented by the
+@code{in_rrr} class which includes fields for two source operands.  Not
+all of the operands have to be used.  For example, @code{nop}
+instructions don't use any operands at all.
+
+@findex in_rrr, src1_op
+@findex in_rrr, src2_op
+@findex in_rrr, set_src1
+@findex in_rrr, set_src2
+The @code{src1_op} and @code{src2_op} methods retrieve the source
+operands, and the @code{set_src1} and @code{set_src2} methods assign new
+operands.  Besides the methods to directly access the two source
+operands, other methods are provided to refer to these sources according
+to their uses with specific opcodes:
+
+@itemize @bullet
+@item
+@findex in_rrr, shift_cnt_op
+@findex in_rrr, set_shift_cnt_op
+Shift and rotate instructions (@code{asr}, @code{lsl}, @code{lsr}, and
+@code{rot}) may use the @code{shift_cnt_op} and @code{set_shift_cnt_op}
+methods to access the operand that specifies the numbers of bits to
+shift or rotate.  The other source operand may be accessed with the
+@code{src_op} and @code{set_src} methods.
+
+@item
+@findex in_rrr, dst_addr_op
+@findex in_rrr, set_dst_addr_op
+Store (@code{str}) and memory copy (@code{memcpy}) instructions may use
+the @code{dst_addr_op} and @code{set_dst_addr_op} methods to access the
+source operand that holds the destination address for the memory
+reference.
+
+@item
+@findex in_rrr, src_addr_op
+@findex in_rrr, set_src_addr_op
+Load (@code{lod}) and memory copy (@code{memcpy}) instructions may use
+the @code{src_addr_op} and @code{set_src_addr_op} methods to access the
+operand that specifies the source address for the memory reference.
+Note that the actual operand field that is used is different for these
+two opcodes.
+
+@item
+@findex in_rrr, src_op
+@findex in_rrr, set_src
+Instructions that only use one of the source operands may use the
+@code{src_op} and @code{set_src} methods without specifying whether the
+first or second operand field is used.  In addition, a store
+(@code{str}) instruction may use these methods to refer to the operand
+holding the value to be stored.  They are also used by shift and rotate
+instructions as described above.
+@end itemize
+
+@noindent
+Using these opcode-specific methods with the wrong opcodes will cause
+errors.
+
+@findex in_rrr, is_unary
+For your convenience, the @code{in_rrr} class provides a method,
+@code{is_unary}, to determine if an instruction produces a result value
+using only one of the source operands.  It does not consider return
+(@code{ret}) instructions to be unary because they do not produce result
+values.  Although load (@code{lod}) instructions fit the pattern, they
+are a special case and are not considered to be unary.
+
+@findex in_rrr, is_commutative
+The @code{is_commutative} method checks the opcode of an instruction to
+determine if it is a commutative operation.  If so, the two source
+operands should be interchangeable.
+
+Some of the arithmetic instructions may generate run-time exceptions if
+the appropriate class of exceptions is enabled (@pxref{Miscellaneous
+Annotes}).  If the exceptions are not enabled, the rules for @sc{ansi} C
+are used to determine the result.
+
+The following table lists all of the three operand SUIF instructions.
+Each entry describes the operands used with that opcode and includes any
+restrictions on the operand and result types.
+
+@table @code
+@item nop
+Do nothing at all.  All of the operands for these instructions
+should be null, and the result type should be the SUIF @code{void} type.
+
+@item lod
+Load the value at the address contained in the @code{src1} operand and
+put it in the @code{dst} operand.  The result type indicates the type
+of the value being loaded and may be any type, subject to the usual
+restrictions on a result type (@pxref{Result Types}).  The type of the
+expression in @code{src1} must be a pointer to the result type.  The
+@code{src2} operand is not used.
+
+@item str
+Store the value in the @code{src2} operand at the address contained in
+the @code{src1} operand.  Both operands must be specified.  There is
+no special restriction on the type of the @code{src2} operand, though
+the restrictions on instruction result types (@pxref{Result Types})
+and variables (@pxref{Variable Symbols}) guarantee it will have a
+known, non-zero size.  The @code{src1} operand should contain an
+expression that is a pointer to the type of the operand being stored.
+The @code{dst} operand is not used.
+
+@item memcpy
+Memory to memory copy.  Load the value from the address in the
+@code{src2} operand and store it at the address in the @code{src1}
+operand.  The type of the object to be copied is subject to the same
+conditions as the result type of an instruction (@pxref{Result
+Types}), so it must have known, non-zero size.  Both of the source
+operands must be pointers to this object type.  The @code{dst} operand
+is not used.
+
+@item cpy
+Copy the @code{src1} operand to the @code{dst} operand.  The
+@code{src2} operand is not used.  The result type must be the same as
+the type of the source operand.  The restrictions on instruction
+result types (@pxref{Result Types}) guarantee that the object being
+copied has known, non-zero size.
+
+@item cvt
+Convert the @code{src1} operand to the result type and put it in the
+@code{dst} operand.  The @code{src2} operand is not used.  Nothing can
+can be converted to or from a @code{struct}, @code{union},
+@code{array}, or @code{void} type.  Pointer types can only be
+converted to and from integer types and other pointer types.
+
+@item neg
+Negation.  Change the sign of the value in the @code{src1} operand and
+put the result in the @code{dst} operand.  The @code{src2} operand is
+unused.  The result type and the type of the operand must be the same
+signed integer or floating-point type.
+
+@item add
+Add the values in the @code{src1} and @code{src2} operands and put the
+result in the @code{dst} operand.  Except for pointer additions, the
+result type and the types of the operands must be the same integer or
+floating-point types.  Pointer addition is a special case.  One of the
+source operands may have a pointer type, as long as the other source
+operand has signed or unsigned integer type of any size; the result
+type must also be a pointer type, but need not be the same as the
+source pointer type.
+
+@item sub
+Subtract the value in the @code{src2} operand from the value in the
+@code{src1} operand and put the result in the @code{dst} operand.
+Except for pointer subtractions, the result type and the types of the
+operands must be the same integer or floating-point types.  There are
+two special cases for pointer subtractions.  In either case, the
+@code{src1} operand must have a pointer type.  First, the @code{src2}
+operand may have any integer type, in which case the result type may
+be any pointer type, not necessarily the same as the source pointer
+type.  Second, the @code{src2} operand's type may be another pointer,
+in which case the result type must be type_ptr_diff.
+
+@item mul
+@itemx div
+Multiply or divide the value in the @code{src1} operand by the value in
+the @code{src2} operand and put the result in the @code{dst} operand.
+The result type and the types of the operands must be the same integer
+or floating-point type.  Integer multiplication and division are
+defined according to the rules for @sc{ansi} C.
+
+@item rem
+@itemx mod
+Remainder and modulus.  These two instructions are very similar.  Both
+divide the value in the @code{src1} operand by the value in the
+@code{src2} operand to find the remainder or modulus.  The @code{rem}
+instruction is identical to the modulus operator in @sc{ansi} C.  That
+is, if either source operand is negative, the sign of the result is
+undefined and depends on the semantics of integer division.  The
+@code{mod} instruction is the same except that its result is always
+guaranteed to be positive.  The result type and the types of the
+destination and source operands must be the same integer type.
+
+@item not
+Bit-wise inversion.  Compute the one's complement negation of the value
+in the @code{src1} operand and put the result in the @code{dst} operand.
+The @code{src2} operand is not used.  The result type and the types of
+the operand must be the same unsigned integer type.
+
+@item and
+@itemx ior
+@itemx xor
+Compute the bit-wise AND, inclusive OR, or exclusive OR of the values in
+the @code{src1} and @code{src2} operands and put the result in the
+@code{dst} operand.  The result type and the type of the operands must
+be the same unsigned integer type.
+
+@item asr
+@itemx lsr
+@itemx lsl
+Shift the value in the @code{src1} operand right or left by the amount
+specified in the @code{src2} operand.  The variable in the @code{src2}
+operand must always have an unsigned integer type.  The @code{asr}
+instruction performs sign extension and requires that the result type
+and the type @code{src1} operand be the same signed integer type.  The
+@code{lsr} instructions does not perform sign extension and requires
+that the result type and type of the @code{src1} operand be the same
+unsigned integer type.  Sign extension is not an issue for left
+shifts, so the @code{lsl} instruction only requires that the result
+type and the type of the @code{src1} operand be the same integer type.
+
+@item divfloor
+@itemx divceil
+Division combined with floor and ceiling operations.  The
+@code{divfloor} opcode means take the rational quotient of the
+@code{src1} operand by the @code{src2} operand and apply the floor
+operation (i.e. round to the nearest integer less than or equal to the
+quotient).  The @code{divceil} opcode means take the rational quotient
+of the @code{src1} operand by the @code{src2} operand and apply the
+ceiling operation (i.e. round to the nearest integer greater than or
+equal to the quotient).  The result type and the operand types must be
+the same integer type.
+
+@item min
+@itemx max
+Minimum and maximum.  The result value is the minimum or maximum,
+respectively, of the two source operands.  The result type and the
+operand types must be the same integer or floating-point types.
+
+@item abs
+Absolute value.  Compute the absolute value of the @code{src1} operand.
+The @code{src2} operand is unused.  The result type and the source
+operand type must be the same integer or floating-point type.
+
+@item rot
+Rotate the value in the @code{src1} operand left or right by the amount
+specified in the @code{src2} operand.  The variable in the @code{src2}
+operand must always have a signed integer type.  If the shift
+amount is positive, the value is rotated to the left (toward the
+most-significant bit); if it is negative, the value is rotated to the
+right.  The result type and the type of the @code{src1} operand must
+be the same integer type.
+
+@item seq
+@itemx sne
+@itemx sl
+@itemx sle
+Comparison instructions.  If the @code{src1} operand is equal, not
+equal, less than, or less than or equal, respectively, to the
+@code{src2} operand, assign the integer value one to the @code{dst}
+operand.  Otherwise, set the @code{dst} operand to zero.  The result
+type must always be a signed integer type.  The source operands must
+have integer, enumerated, floating point, or pointer type.
+
+@item ret
+Return from a procedure.  Only the @code{src1} operand is used and it
+is optional.  If specified, it is the return value and may contain an
+operand of any type except array or function types.  If the
+procedure's function type has void return type, the operand must be
+null; otherwise the operand must not be null and must have the same
+type as the return type of the procedure.
+
+@item mrk
+This pseudo-instruction only marks a position in the program and is used
+to hold miscellaneous annotations such as line numbers.  It is
+functionally equivalent to a @code{nop} instruction.  All of the
+operands for these instructions should be null, and the result type
+should be the SUIF @code{void} type.
+@end table
+
+
+@node Branch and Jump Instructions, Load Constant Instructions, Three Operand Instructions, Instructions
+@section Branch and Jump Instructions
+@cindex branch and jump instructions
+@cindex instructions, branch and jump
+
+@tindex in_bj
+@findex in_bj, target
+@findex in_bj, set_target
+@findex in_bj, src_op
+@findex in_bj, set_src_op
+The @code{in_bj} class is used to hold branch and jump instructions.
+This class includes a field to specify the label symbol at the branch
+target and an optional source operand that is used for conditional
+branches.  The @code{target} and @code{set_target} methods are used to
+access the label symbol for the branch target.  This label must be
+defined in the scope where the branch occurs, and it must be within the
+same procedure.  The @code{src_op} and @code{set_src_op} methods access
+the optional source operand field.  The @code{dst} operand is unused for
+all branch and jump instructions and the result type should always be
+the SUIF @code{void} type.  The branch and jump opcodes are described
+below:
+
+@table @code
+@item jmp
+Unconditional jump.  The source operand is unused.  The flow of control
+is unconditionally transferred to the code at the target label.
+
+@item btrue
+Branch if true.  If the source operand, which must have an signed
+integer type, contains a true (non-zero) value, the flow of control is
+transferred to the code at the target label.  Otherwise, it continues
+with the next instruction in sequential order.
+
+@item bfalse
+Branch if false.  If the source operand contains a false (zero) value,
+the flow of control is transferred to the code at the target label.
+Otherwise, it continues with the next instruction in sequential order.
+The source operand must have an signed integer type.
+@end table
+
+
+@node Load Constant Instructions, Call Instructions, Branch and Jump Instructions, Instructions
+@section Load Constant Instructions
+@cindex load constant instructions
+@cindex instructions, load constant
+
+@tindex in_ldc
+@findex in_ldc, value
+@findex in_ldc, set_value
+Rather than allowing constant values to be used directly as operands,
+SUIF uses separate @code{ldc} instructions to load constant values.  The
+@code{in_ldc} class holds these instructions.  Instead of the usual
+source operands, this class has an immediate value field
+(@pxref{Immeds}).  The @code{value} and @code{set_value} methods may be
+used to access this field.
+
+Only certain kinds of immediate values are supported in an @code{ldc}
+instruction:
+
+@table @asis
+@item Symbolic addresses (@pxref{Symbolic Addresses})
+The result type of the instruction must be a pointer type.
+
+@item Integers
+The result type must be an integer or pointer type.  Pointer types are
+allowed so that the null pointer can be loaded as the integer value
+zero.
+
+@item Floating-point values
+The result type must be a floating-point type.
+@end table
+
+@noindent
+Other kinds of immediate values may be stored in the @code{value} field
+of an @code{ldc} instruction, but most SUIF passes and certain library
+functions will not be able to handle them.
+
+
+@node Call Instructions, Array Instructions, Load Constant Instructions, Instructions
+@section Call Instructions
+@cindex call instructions
+@cindex instructions, call
+
+@tindex in_cal
+@findex in_cal, addr_op
+@findex in_cal, set_addr_op
+SUIF uses a special @code{cal} instruction to represent procedure calls.
+This high-level representation hides the details of various linkage
+conventions.  The @code{in_cal} class is used to represent these call
+instructions.  A call instruction contains a source operand to hold a
+pointer to the procedure to be called.  The @code{addr_op} and
+@code{set_addr_op} methods access this operand field.
+
+@findex in_cal, num_args
+@findex in_cal, set_num_args
+@findex in_cal, argument
+@findex in_cal, set_argument
+The actual parameters for the procedure are stored in an array of
+operands.  The @code{num_args} method returns the number of elements in
+this array.  The size of the array can be changed at any time using the
+@code{set_num_args} method.  If necessary, the array will be
+reallocated.  Elements of the argument array may be accessed using the
+@code{argument} and @code{set_argument} methods.  You must specify the
+array index.  The first argument is at index zero.
+
+Call instructions must obey some conventions on the types of the
+operands.  The @code{addr} operand must hold a pointer to a function
+type which is compatible with the type of the procedure being called.
+The result type of the call instruction must match the return type of
+the procedure.  The restrictions on instruction result types
+(@pxref{Result Types}) guarantee that the return type will either be
+void or have known, non-zero size.  If the function type specifies the
+number of arguments, it must match the number of actual parameters
+(unless the function takes a variable number of arguments).  Moreover,
+each operand in the argument array must be compatible with the type of
+the corresponding formal parameter.  Whether or not the function type
+specifies the argument types, the restrictions on instruction result
+types (@pxref{Result Types}) and variables (@pxref{Variable Symbols})
+guarantee that all arguments will have known, non-zero size.
+
+
+@node Array Instructions, Multi-way Branch Instructions, Call Instructions, Instructions
+@section Array Instructions
+@cindex array instructions
+@cindex instructions, array
+
+@tindex in_array
+Because many SUIF passes focus on analyzing and optimizing Fortran code,
+a high-level representation of array references is crucial.  SUIF
+provides @code{array} instructions which retain all of the high-level
+information in combination with other fields needed to generate code for
+the address computations.  The @code{in_array} class is used to hold
+these array instructions.
+
+@findex in_array, base_op
+@findex in_array, offset
+@findex in_array, elem_size
+@findex in_array, set_base_op
+@findex in_array, set_offset
+@findex in_array, set_elem_size
+Array instructions include a number of fields.  First, a pointer to the
+base of the array is specified in an operand field that can be accessed
+with the @code{base_op} and @code{set_base_op} methods.  If the array
+elements are structures, a constant offset within the selected element
+may be included.  This optional integer offset can be accessed using the
+@code{offset} and @code{set_offset} methods.  The element size is needed
+to generate low-level code for the array address calculation.  The
+@code{elem_size} method returns the element size in bits.  The
+@code{set_elem_size} method may be used to change the element size.
+
+@findex in_array, offset_op
+@findex in_array, set_offset_op
+Because Fortran arrays do not always begin with index zero, an optional
+operand, which is referenced using the @code{offset_op} and
+@code{set_offset_op} methods, is provided to specify an offset.  Since
+there is a single offset operand, the offsets for all of the dimensions
+must be combined into a single value.  The arrays are stored in
+row-major form, so the offset for the first dimension is multiplied by
+the size of the remaining dimensions, etc.  If the offset operand is
+provided, it must have an integer type.
+
+@findex in_array, dims
+@findex in_array, index
+@findex in_array, bound
+@findex in_array, set_dims
+@findex in_array, set_index
+@findex in_array, set_bound
+Array instructions can treat arrays of arrays as multidimensional
+arrays, even though the type system does not support that directly.
+Each array instruction includes a field to specify the number of
+dimensions in the array.  This field may be accessed with the
+@code{dims} and @code{set_dims} methods.  The indexes for the array
+reference are stored in an array of source operands, one for each
+dimension.  These index operands can be accessed using the @code{index}
+and @code{set_index} methods.  The dimensions are numbered beginning
+with zero.  Similarly, the number of elements in each dimension are
+stored in another array of source operands, which can be accessed with
+the @code{bound} and @code{set_bound} methods.
+
+@findex in_array, elem_type
+The result type of an array instruction must be a pointer.  However, it
+need not be a pointer to the element type.  If the elements are
+structures, the result type may be a pointer to one of the structure
+fields.  SUIF does not actually require that the result type match
+anything within the array element type, although that is highly
+recommended.  The @code{elem_type} method can be used to determine the
+actual type of the element being addressed.
+
+The types of the array instruction operands must follow some
+conventions.  The index and bound operands must all have integer types.
+The base operand must be a pointer to an array.  If the array
+instruction has multiple dimensions, the base must point to a nested
+array (an array of arrays of arrays...) with the same depth as the
+number of dimensions.  For each dimension, if the bound operand is a
+constant, it must match the number of elements specified in the
+corresponding array type.  (If the lower and upper bounds in the array
+type are not both constant, then the bound operand may have any value.)
+The bound operand for the first dimension is optional and may be null.
+Finally, the element size must match the size of the elements in the
+array type.
+
+
+@node Multi-way Branch Instructions, Label Instructions, Array Instructions, Instructions
+@section Multi-way Branch Instructions
+@cindex multi-way branch instructions
+@cindex instructions, multi-way branch
+
+@tindex in_mbr
+Fortran computed @code{goto} statements and C @code{switch} statements
+are represented in SUIF by multi-way branch (@code{mbr}) instructions.
+These are easier to analyze than the equivalent series of conditional
+branches, and they can easily be used to generate efficient jump table
+code.  The @code{in_mbr} class holds these multi-way branch
+instructions.
+
+@findex in_mbr, num_labs
+@findex in_mbr, set_num_labs
+@findex in_mbr, label
+@findex in_mbr, set_label
+The @code{in_mbr} class contains a field with a pointer to an array of
+label symbols.  The @code{num_labs} method returns the number of labels
+in the array.  The size of the array can be changed at any time using
+the @code{set_num_labs} method; if necessary the array will be
+reallocated.  A particular element within the array can be accessed
+using the @code{label} and @code{set_label} methods.  You must specify
+the array index, and, as usual, the elements are numbered beginng with
+zero.
+
+@findex in_mbr, src_op
+@findex in_mbr, set_src
+@findex in_mbr, lower
+@findex in_mbr, set_lower
+@findex in_mbr, default_lab
+@findex in_mbr, set_default_lab
+A multi-way branch instruction transfers control to one of the target
+labels depending on the value in the source operand.  This operand must
+have an integer type.  It can be accessed using the @code{src_op} and
+@code{set_src} methods.  The value of the source operand is combined
+with an integer offset to determine the target label.  The offset can be
+accessed with the @code{lower} and @code{set_lower} methods.  The offset
+is subtracted from the value in the source operand and the result is
+used to index into the array of target labels.  If the index is within
+the range of the array, the instruction branches to the label at that
+position in the array; otherwise, it branches to the default target
+label.  The @code{default_lab} and @code{set_default_lab} methods access
+this default label field.  The destination operand of a multi-way branch
+is unused and trying to set it will cause an error.  The result type
+should always be the SUIF @code{void} type.
+
+
+@node Label Instructions, Generic Instructions, Multi-way Branch Instructions, Instructions
+@section Label Instructions
+@cindex label instructions
+@cindex instructions, label
+
+@tindex in_lab
+@findex in_lab, label
+@findex in_lab, set_label
+SUIF uses special pseudo-instructions to mark the positions of labels
+within the lists of instructions.  These label (@code{lab}) instructions
+are represented by the @code{in_lab} class, which contains a single
+field holding the symbol for a label.  The @code{label} and
+@code{set_label} methods access this field.
+
+No operation is performed by a label instruction.  Its only purpose is
+to mark the location of a label symbol in an instruction list.  The
+@code{label} field must be a pointer to the symbol for the label, which
+must be defined within the scope where the label instruction occurs.
+The destination operand is unused and trying to set it will cause an
+error.  The result type should always be the SUIF @code{void} type.
+
+
+@node Generic Instructions,  , Label Instructions, Instructions
+@section Generic Instructions
+@cindex generic instructions
+@cindex instructions, generic
+
+@tindex in_gen
+To help support special-purpose extensions to SUIF, we have provided a
+generic class of instructions.  This is implemented in the @code{in_gen}
+class.  These generic instructions contain arbitrarily large arrays of
+source operands and a character string field to hold user-defined names
+that function as ``sub-opcodes''.  Generic instructions are not part of
+standard SUIF and most SUIF passes will not handle them.
+
+@findex in_gen, name
+@findex in_gen, set_name
+Because it is difficult to add new opcodes to SUIF at run-time, the
+generic instructions all share the same @code{gen} opcode.  Instead,
+they are distinguished by user-defined names.  The @code{name} and
+@code{set_name} methods may be used to access these character string
+fields.  The @code{set_name} method automatically enters the name in the
+lexicon (@pxref{Lexicon}).
+
+@findex in_gen, set_num_srcs
+A generic instruction contains a pointer to an array of source operands.
+The base class @code{num_srcs} method may be used to determine the size
+of this array.  The size may be changed at any time using the
+@code{set_num_srcs} method.  If necessary, the array will be
+reallocated.  The elements of the source operand array can be accessed
+using the standard base class @code{src_op} and @code{set_src_op}
+methods.  @xref{Source Operands}.

@@ -1,0 +1,272 @@
+@c This file is part of the SUIF reference manual
+
+@node Generics, Other, Fortran, Top
+@chapter Generic Data Structures
+@cindex generic data structures
+@cindex data structures, generic
+
+The SUIF library includes a number of generic data structure classes.
+Some of these are used extensively by the library itself, while others
+are only provided for your convenience.  Since most of these data
+structures are quite easy to understand, this section only gives a brief
+description of each one and points out the unusual and potentially
+confusing features.
+
+@menu
+* Generic Lists::               Generic lists (base list class).
+* Move-to-front Lists::         Move-to-front lists.
+* Association Lists::           Lists with search keys.
+* Doubly-Linked Lists::         Doubly-linked lists.
+* Bit Vectors::                 Bit vectors.
+* Hash Tables::                 Hash tables.
+* Extensible Arrays::           Variable-size arrays.
+@end menu
+
+
+@node Generic Lists, Move-to-front Lists,  , Generics
+@section Generic Lists
+@cindex generic lists
+@cindex lists, generic
+@cindex linked lists
+
+@tindex glist
+While linked lists are not very efficient data structures, they are
+flexible and work well for a research compiler like SUIF.  Various kinds
+of lists are used throughout the SUIF library and most SUIF programs.
+Almost all of these lists are derived from the @code{glist} base class.
+The files @file{glist.h} and @file{glist.cc} contain the declaration and
+implementation of this class.
+
+@tindex glist_e
+The individual elements of these lists are derived from the
+@code{glist_e} class.  The base class only contains a pointer to the
+next element.  To make a useful list, a derived class must add data
+fields to the list elements.  For doubly-linked lists, the list elements
+are further extended to include backwards pointers (@pxref{Doubly-Linked
+Lists}).
+
+The @code{glist} class includes pointers to the head and tail elements.
+This makes it possible to efficiently add elements at either end of the
+list.  A variety of methods are provided to insert and remove individual
+elements, as well as to combine entire lists in different ways.  All of
+these operations are straightforward and are clearly documented in the
+code.
+
+@tindex glist_iter
+@cindex iterators, list
+The SUIF library also provides iterators for lists.  This allows you to
+write code at a higher level of abstraction.  Instead of rewriting the
+same code everywhere that your program traverses lists, you can just use
+the built-in iterators.  The base iterator class is @code{glist_iter}.
+An iterator is initialized with a pointer to a particular list.  It then
+returns successive elements from the list (via the @code{step} method)
+until the @code{is_empty} method returns @code{TRUE}.  Other methods are
+available to access the current and next list elements without advancing
+the iterator.
+
+@findex DECLARE_LIST_CLASS
+To make a list with a particular type of elements, one must derive new
+list classes that inherit from the base classes described above.  While
+this is not difficult, it is cumbersome and time consuming.  Instead of
+explicitly declaring these derived classes, the
+@code{DECLARE_LIST_CLASS} macro may be used to declare them
+automatically.  This macro takes two arguments: the name of the new list
+class and the type for the data in the list elements.  It then creates
+classes derived from @code{glist}, @code{glist_e}, and @code{glist_iter}
+that use the specified type for the element data @footnote{C++ templates
+would be a better solution, but at the time when this was developed, we
+did not have a C++ compiler with a robust implementation of templates.}.
+For example, @code{DECLARE_LIST_CLASS(string_list, char*)} generates
+classes named @code{string_list}, @code{string_list_e}, and
+@code{string_list_iter}.  The @code{string_list_e} class includes a
+@code{contents} field with type @code{char*}.  The methods in all of
+these classes are changed to use the @code{char*} type where appropriate
+and some new methods are added.  (Once the element data type is known,
+it is possible to provide methods, such as @code{copy}, that must access
+the data fields.)
+
+The @code{DECLARE_LIST_CLASS} macro is implemented by other macros, one
+for each kind of class.  Using these other macros directly gives you
+more control over the names of the new classes and allows you to add
+more methods in the derived classes.  There are several examples of this
+in the library code.  Another advanced feature of the
+@code{DECLARE_LIST_CLASS} macro is the virtual @code{set_elem} method
+which is included in the generated list class.  This method is called
+for every element that is added to a list.  The base @code{set_elem}
+method does nothing, but a derived class can change this method to
+automatically update information in list elements when they are
+added to a list.
+
+
+@node Move-to-front Lists, Association Lists, Generic Lists, Generics
+@section Move-to-front Lists
+@cindex move-to-front lists
+@cindex lists, move-to-front
+
+@tindex mtflist
+@findex DECLARE_MTFLIST_CLASS
+The move-to-front list class @code{mtflist} is just a minor variation of
+the @code{glist} class.  @xref{Generic Lists}.  The user must provide a
+function that compares a list element with some other unspecified
+object.  The @code{mtflist} class then provides a @code{lookup} method
+that uses the comparison function to search for a particular element.
+After every successful lookup, the returned element is moved to the
+front of the list.  This works well for applications with good locality.
+The @code{DECLARE_MTFLIST_CLASS} macro works just like the
+@code{DECLARE_LIST_CLASS} macro, but it generates move-to-front list
+classes.  The code for the @code{mtflist} class is in the files
+@file{mtflist.h} and @file{mtflist.cc}.
+
+
+@node Association Lists, Doubly-Linked Lists, Move-to-front Lists, Generics
+@section Association Lists
+@cindex association lists
+@cindex lists, association
+
+@tindex alist
+@tindex alist_e
+An association list element contains both a key and a data pointer.  The
+data associated with a particular key can be retrieved with a simple
+lookup method.  The key and data fields are both @code{void*} pointers.
+Association lists are implemented by the @code{alist} and @code{alist_e}
+classes in the files @file{alist.h} and @file{alist.cc}.  These classes
+are derived from the generic list classes (@pxref{Generic Lists}) and
+behave similarly.
+
+@tindex amtflist
+The @code{amtflist} class has the same interface as the @code{alist}
+class and provides the same functionality.  The only difference is that
+it is based on the move-to-front list class.  @xref{Move-to-front
+Lists}.  You may want to use this if you expect your application to
+access list elements with a high degree of locality.
+
+@tindex alist_iter
+Like all of the other SUIF lists, the association lists have iterators
+to make it easy for you to traverse them.  The @code{alist_iter} class
+uses the same interface as the generic list iterator and works for both
+@code{alist} and @code{amtflist} objects.
+
+
+@node Doubly-Linked Lists, Bit Vectors, Association Lists, Generics
+@section Doubly-Linked Lists
+@cindex doubly-linked lists
+@cindex lists, doubly-linked
+
+@tindex dlist
+@tindex dlist_e
+@tindex dlist_iter
+@findex DECLARE_DLIST_CLASS
+For some applications, especially those where it is necessary to
+traverse lists in both directions, doubly-linked lists work much better
+than singly-linked lists.  The @code{dlist} class provides doubly-linked
+lists with the same interface as the generic lists.  @xref{Generic
+Lists}.  Thus you can interchange these data structures without having
+to rewrite your code.  The @code{dlist_e} elements are derived from the
+generic list element class but they also include the backwards link
+fields.  The @code{dlist_iter} iterator works like the standard
+@code{glist_iter} iterator, and the @code{DECLARE_DLIST_CLASS} macro is
+the same as the @code{DECLARE_LIST_CLASS} macro except that it produces
+doubly-linked lists.  All of these things are implemented in the
+@file{dlist.h} and @file{dlist.cc} files.
+
+
+@node Bit Vectors, Hash Tables, Doubly-Linked Lists, Generics
+@section Bit Vectors
+@cindex bit vectors
+@cindex bit sets
+
+@tindex bit_set
+Bit vectors are frequently used in compilers to represent sets of
+integers, particularly for data flow analysis.  The SUIF library
+includes a @code{bit_set} class with an extensive collection of methods.
+This class is implemented in the @file{bitset.h} and @file{bitset.cc}
+files.  When you create a new @code{bit_set}, you must specify the range
+of integers which it may contain.
+
+@tindex bit_set_iter
+@cindex iterators, bit set
+The @code{bit_set_iter} class provides an easy and efficient way to
+iterate through the entries in a @code{bit_set}.  This iterator is
+slightly different than the SUIF list iterators.  You must call the
+@code{is_empty} method once before each call to the @code{step} method.
+Other than that, it is straightforward.
+
+
+@node Hash Tables, Extensible Arrays, Bit Vectors, Generics
+@section Hash Tables
+@cindex hash tables
+
+@tindex hash_table
+@tindex hash_chain
+@tindex hash_e
+SUIF hash tables are implemented by the @code{hash_table} class in the
+files @file{hash.h} and @file{hash.cc}.  Each hash table is a fixed-size
+array of @code{hash_chain} buckets.  A @code{hash_chain} is just a
+move-to-front list.  @xref{Move-to-front Lists}.  The entries in a hash
+table are derived from the @code{hash_e} class, which contains a single
+unsigned value used as the signature.
+
+If you wish to store pointers in a hash table, you can use the
+@code{hash_e} class directly (assuming that the pointers can fit into
+the unsigned signature fields).  Otherwise, you need to create a derived
+@code{hash_e} class.  The only other thing needed is a function to
+compare two @code{hash_e} entries to determine if they are equal.  You
+can then create a new @code{hash_table} object.  Even if you are using a
+derived @code{hash_e} class, it may be easier to just type cast the
+pointers than to derive a new @code{hash_table} class that includes the
+correct type casts.
+
+@findex hash_table, enter
+@findex hash_table, lookup
+The hash table @code{enter} method tries to add a new entry.  If the
+entry was already in the table it returns @code{TRUE} and does not enter
+a duplicate; otherwise, it adds the new entry and returns @code{FALSE}.
+The @code{lookup} method checks to see if a particular entry is in the
+table.  If so, it returns the pointer to the entry.
+
+
+@node Extensible Arrays,  , Hash Tables, Generics
+@section Extensible Arrays
+@cindex extensible arrays
+
+Arrays are very efficient data structures but they can only be used when
+their size is known in advance.  For situations where the number of
+elements is not even known at run-time, most programmers resort to using
+linked lists.  SUIF provides a compromise.  Extensible arrays provide
+almost the same efficiency as arrays without requiring a bound on the
+number of elements.  They are not as flexible as linked lists, however,
+because it is still not possible to insert new elements in the middle of
+an extensible array.
+
+@tindex x_array
+@findex x_array, ub
+Extensible arrays are implemented by the @code{x_array} class in the
+files @file{xarray.h} and @file{xarray.cc}.  When an @code{x_array} is
+first created, you must specify the number of elements to be allocated
+in the first chunk of memory.  If more elements are needed later,
+additional chunks of the same size will be allocated automatically.  The
+@code{ub} method returns the number of elements that are currently in an
+@code{x_array}.
+
+@findex x_array, extend
+The elements of an @code{x_array} cannot be referenced until they are
+added to the array.  New elements can only be added at the end of an
+array by using the @code{extend} method.  In this way an @code{x_array}
+behaves like a linked list.  Elements must be appended (with
+@code{extend}) to the end of an array before they can be used.
+
+@findex x_array, operator[]
+The @code{x_array} class also provides an @code{operator[]} method so
+that once an element has been entered in an @code{x_array} it can be
+referenced using the standard array reference syntax.  This works
+regardless of which chunk of memory contains the element.
+
+@findex DECLARE_X_ARRAY
+Each element of an @code{x_array} is a @code{void*} pointer.  You can
+cast these pointers to any other type that fits in the same amount of
+storage.  A better solution is to use the @code{DECLARE_X_ARRAY} macro
+to derive a subclass of @code{x_array} with elements that are pointers
+to the correct type.  This macro takes three arguments: the name of the
+derived class, the type to which the elements should point, and the
+default chunk size.  As with the macros for creating new list classes,
+this is just a cheap substitute for templates.

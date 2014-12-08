@@ -1,0 +1,54 @@
+digraph G{
+	label = "CheckIntersect"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_9\nmove	r13	r5	\nmove	r12	r6	\nmove	r11	r7	\nla	r19	nd#548	\naddu	r5	r13	r11	\naddu	r6	r12	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_5\nmove	r28	r0	\nsne	r5	r9	r28	\nmove	r6	r0	\nseq	r26	r5	r6	\nbnez	CheckIntersect.L3\n"];
+	Node3 -> {Node4 Node5 }
+	Node4 [label = "B4_1\nCheckIntersect.L11:\nj	CheckIntersect.__done9\n"];
+	Node4 -> {Node13 }
+	Node5 [label = "B5_6\nCheckIntersect.L3:\nla	r19	nd#562	\naddu	r5	r13	r11	\nsubu	r6	r12	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_5\nmove	r7	r0	\nsne	r8	r9	r7	\nmove	r9	r0	\nseq	r26	r8	r9	\nbnez	CheckIntersect.L2\n"];
+	Node6 -> {Node7 Node8 }
+	Node7 [label = "B7_1\nCheckIntersect.L12:\nj	CheckIntersect.__done8\n"];
+	Node7 -> {Node13 }
+	Node8 [label = "B8_6\nCheckIntersect.L2:\nla	r19	nd#576	\nsubu	r5	r13	r11	\nsubu	r6	r12	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_5\nmove	r10	r0	\nsne	r19	r9	r10	\nmove	r20	r0	\nseq	r26	r19	r20	\nbnez	CheckIntersect.L1\n"];
+	Node9 -> {Node10 Node11 }
+	Node10 [label = "B10_1\nCheckIntersect.L13:\nj	CheckIntersect.__done7\n"];
+	Node10 -> {Node13 }
+	Node11 [label = "B11_6\nCheckIntersect.L1:\nla	r19	nd#590	\nsubu	r5	r13	r11	\naddu	r6	r12	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_4\nmove	r21	r0	\nsne	r22	r9	r21	\nmove	r23	r0	\nseq	r26	r22	r23	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_1\nCheckIntersect.__done7:\nCheckIntersect.__done8:\nCheckIntersect.__done9:\nbeqz	CheckIntersect.L4\n"];
+	Node13 -> {Node14 Node15 }
+	Node14 [label = "B14_2\nli	r9	nd#606	\njr	\n"];
+	Node14 -> {Node1 }
+	Node15 [label = "B15_6\nCheckIntersect.L4:\nla	r19	nd#611	\naddu	r5	r13	r11	\naddu	r6	r12	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node15 -> {Node16 }
+	Node16 [label = "B16_7\nmove	r14	r9	\nla	r19	nd#619	\naddu	r5	r13	r11	\nsubu	r6	r12	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_7\naddu	r14	r14	r9	\nla	r19	nd#627	\nsubu	r5	r13	r11	\nsubu	r6	r12	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node17 -> {Node18 }
+	Node18 [label = "B18_7\naddu	r14	r14	r9	\nla	r19	nd#635	\nsubu	r5	r13	r11	\naddu	r6	r12	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node18 -> {Node19 }
+	Node19 [label = "B19_4\naddu	r24	r14	r9	\nli	r25	nd#644	\nseq	r27	r24	r25	\nbeqz	CheckIntersect.L5\n"];
+	Node19 -> {Node20 Node21 }
+	Node20 [label = "B20_1\nCheckIntersect.L14:\nj	CheckIntersect.__done10\n"];
+	Node20 -> {Node22 }
+	Node21 [label = "B21_2\nCheckIntersect.L5:\nli	r26	nd#650	\nseq	r27	r24	r26	\n"];
+	Node21 -> {Node22 }
+	Node22 [label = "B22_1\nCheckIntersect.__done10:\nbeqz	CheckIntersect.L6\n"];
+	Node22 -> {Node23 Node24 }
+	Node23 [label = "B23_2\nmove	r9	r0	\njr	\n"];
+	Node23 -> {Node1 }
+	Node24 [label = "B24_2\nCheckIntersect.L6:\nli	r9	nd#660	\njr	\n"];
+	Node24 -> {Node1 }
+}

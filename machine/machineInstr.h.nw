@@ -1,0 +1,1026 @@
+\section{Machine instructions}
+\label{secMachInstr}
+
+As in the SUIF [[instruction]] class, all machine instructions share
+some basic features.  This section describes the fields in the base
+[[machine_instr]] class defined in the file {\em machineInstr.h}.
+Again as in the SUIF [[instruction]] class, the [[machine_instr]]
+class is an abstract class from which classes for specific instruction
+formats are derived.  The derived classes are organized hierarchically
+according to whether the instruction modifies the PC and/or writes to
+memory.  After Section~\ref{secEAopnds} describes our approach for
+handling effective address calculations, Sections~\ref{secMiRR} through
+\ref{secMiXX} provide the details for the derived classes.  
+
+<<machineInstr.h>>=
+/* file "machineInstr.h" */
+
+<<SUIF copyright>>
+
+#ifndef MACHINE_INSTR_H
+#define MACHINE_INSTR_H
+
+<<machine string constants>>
+
+<<machine annotation definitions>>
+
+/*
+ *  Helper functions related to the generic machine instruction class.
+ */
+<<machine library initialization>>
+<<machine file I/O>>
+<<machine print helpers>>
+<<machine operand helpers>>
+
+/*
+ *  Machine instruction classes.
+ */
+<<class machine\_instr>>
+<<list class for machine\_instr>>
+
+<<class mi\_lab>>
+<<class mi\_rr>>
+<<class mi\_bj>>
+<<class mi\_xx>>
+
+#endif
+@ 
+
+We derive a [[machine_instr]] from an [[in_gen]].  The
+[[machine_instr]] class is an abstract class and cannot be directly
+instantiated.  We use the [[name]] field in the [[in_gen]] class to
+store the architecture string for this particular machine instruction.
+(See Section~\ref{secArchInfo.h} for a more detailed discussion of the
+target-architecture-specific information used in the machine library.)
+Though we implement our own clone and print methods, the methods for
+[[machine_instr]] look very much like the methods for any other SUIF
+instruction.  This is not by chance; [[machine_instr]] and its
+derived classes contain only methods that are useful to routines
+that are independent of the target machine architecture.  We
+designed the machine instruction classes to handle both RISC-like
+and CISC-like architectures, though the constructors given assume
+a more RISC-like architecture.
+
+<<class machine\_instr>>=
+class machine_instr: public in_gen {
+    int m_op;				/* architecture-specific opcode */
+    /* opcode extensions are included as annotations */
+
+  protected:
+    /* The base SUIF instruction class defaults to: io_nop, type_void,
+     * inum = 0, par = NULL, and dst = operand(). */
+    machine_instr():in_gen(k_null_string, type_void, operand(), 0)
+	{ m_op = io_null; set_result_type(type_void); }
+    machine_instr(char *a, int op):in_gen(a, type_void, operand(), 0)
+	{ m_op = op; set_result_type(type_void); }
+
+    void clone_base(machine_instr *i, replacements *r, boolean no_copy); 
+
+  public:
+    ~machine_instr() {}
+
+    /* normal assembly instruction information */
+    char *architecture()		{ return name(); }
+    virtual inst_format format()	{ return inf_none; }
+
+    /* opcode stuff including ugly hack to override opcode return type */
+    if_ops opcode()			{ return (if_ops)m_op; }
+    char *op_string();
+    void set_opcode(if_ops o);
+    void set_opcode(int o)		{ set_opcode((if_ops)o); }
+
+    /* comment field operations */
+    boolean has_comment() { return (peek_annote(k_comment) != NULL); }
+    void append_comment(immed_list *);
+    void delete_comment() { get_annote(k_comment); }
+
+    /* clone helper methods */
+    virtual instruction *clone_helper(replacements *r, 
+					boolean no_copy = FALSE)=0; 
+    virtual void find_exposed_refs(base_symtab *dst_scope, replacements *r)=0; 
+
+    /* print methods */
+    virtual void print(FILE *o_fd=stdout);
+    void print_comment(FILE *o_fd, char *comment_char);
+};
+
+@
+
+The [[machine_instr]] class has an [[opcode()]] method that overrides
+the [[instruction]] class [[opcode()]] method.  The machine library
+stores machine opcodes separately from the SUIF opcodes so that the
+SUIF I/O stream routines and other routines that do not know about
+machine instructions simply see them as [[io_gen]]'s.  Currently, we
+perform an ugly cast to handle the return type problem on the
+[[opcode()]] and [[set_opcode(int)]] methods.  We expect this
+``extensible enumeration'' problem to be solved in later releases of
+SUIF.
+
+In addition to SUIF's usual concept of opcodes, the machine library
+also allows for opcode extensions.  For example, we use
+opcode extensions to capture the VAX/IEEE rounding mode qualifiers on
+Alpha floating-point instructions.
+Any opcode (or instruction) may
+have an extension.  Opcode extensions are represented by integer
+values and are architecture specific.  They consume the integers
+following the integers consumed by the instruction set architecture's
+opcodes.  Opcode extensions are associated with an instruction through
+the use of the [[k_instr_op_exts]] annotation.  An instruction can
+have more than one opcode extension, and the order of the annotation
+list containing the opcode extensions is unimportant or architecture
+specific.
+
+The [[machine_instr]] class includes methods to
+simplify the placement of an assembly-language comment on a machine
+instruction.  A comment is stored internally as a [[k_comment]]
+annotation.
+
+Please note that the print routines for the machine instruction
+classes default to a SUIF-style ASCII output.  Print routines are
+considered to be machine-specific routines and are kept separate from
+the base classes.  Section~\ref{secHelpArchSpecific} illustrates how these
+generic print routines are massaged to yield Alpha-specific
+assembly-language output.
+
+The machine library declares the [[milist]] class for working with
+lists of pointers to machine instructions.  Like the [[instruction_list]]
+class, this class exists only for convenience.  The machine library and the
+SUIF system store machine instructions in [[tree_instr]] nodes since
+they are simply [[instruction]] pointers.  We have also supplied a
+helper function for printing lists of machine instructions.
+
+<<list class for machine\_instr>>=
+DECLARE_DLIST_CLASS(milist, machine_instr *);
+extern void Print_milist(FILE *, milist *);
+@
+
+
+\subsection{Effective address (EA) operands}
+\label{secEAopnds}
+
+As described in our ``basesuif-changes'' document, an operand of
+a [[machine_instr]] may have any of the kinds in [[operand_kinds]],
+but a machine operand that
+is an [[OPER_INSTR]] has a special meaning.  The SUIF system uses
+operands that point to other instructions as single-use, single-def
+compiler temporaries.  Since the machine library extensions add
+registers as a first-class operand kind, we can define a set of
+compiler temporary registers using the register operand kind.  The
+SUIF system also uses instruction-pointer operands to construct
+expression trees.  Since machine-specific optimizations such as
+global instruction scheduling fix an instruction ordering, the usual
+representation for a list of instructions in the back-end of a
+compiler is a flat list.  Thus, instruction-pointer operands may not
+seem very useful.  On the contrary, we have found them to be quite
+useful as placeholders for operands that are immediate values
+or that live in memory.
+
+In the machine library, instruction-pointer operands represent either
+an effective address (EA) calculation or a {\em simple} immediate
+value.  EA calculations are [[io_ldc]] instructions that always have a
+pointer
+type as the destination type.  {\em Simple} immediate values then are
+any immediate value whose type is {\bf not} a pointer type.  The
+proper sequence of checks to perform to differentiate a simple
+immediate operand from an EA calculation in the machine library is as
+follows: if the operand in question is an [[OPER_INSTR]] kind, then
+use the {\em machsuif} helper function [[Is_ea_operand(operand)]] to
+differentiate operands representing EA calculations from simple
+immediate operands.  You may not need the extra check (i.e. the
+[[is_immed()]] operand method is sufficient) in some contexts.  For
+example, the second operand of a base+displacement form of an
+EA calculation is a simple immediate.
+
+Memory operands are accessed through the generation of an EA, and the
+generation of an EA can be quite complicated in some instruction set
+architectures.  For example, the x86 instruction set architecture can
+specify the address of a memory operand through a single base
+register, or through a base register plus a signed 16-bit immediate,
+or through a base register plus a scaled index register plus a signed
+immediate, etc.  Let us assume that we have an x86 add operation that
+has two source operands and a single destination operand.  Either of
+the source operands can be an operand that lives in memory.  If we
+were to make each of the components of the EA calculation a SUIF
+[[operand]] in the machine instruction, we would not be able to tell
+easily where one x86 add operand ended and the next started.
+Alternatively, we would have to define a special add opcode for every
+combination of EA modes and operands.
+
+The machine library uses SUIF instruction-pointer [[operand]]'s to
+compartmentalize the arbitrary complexity of EA calculations.  In
+other words, the operand that causes the helper function
+[[Is_ea_operand(operand)]] to return [[TRUE]] is a memory operand.
+The operand is in fact an expression tree of SUIF instructions that
+define the EA calculation for this memory operand.  The instructions
+within this expression tree rooted at the memory operand are true SUIF
+instructions.  For example, the representation of the EA for a memory
+operand at the top of the stack is represented by a SUIF [[io_add]]
+operation whose first operand is a register representing the stack
+pointer and whose second operand is an immediate with a value of zero
+(in actuality, another instruction-pointer pointing to a SUIF
+[[in_ldc]] instruction).  The EA representation for an operand
+located at label ``foo'' in memory is represented by a SUIF
+[[io_ldc]] operation whose immediate value is the [[sym_addr]]
+``foo''.  Recall that the result type of the [[in_ldc]] instruction
+differentiates [[in_ldc]]'s that represent EA calculations (result
+type must be a pointer type) from those that represent immediate
+values (result type cannot be a pointer type).
+Section~\ref{secEaHelper.h} describes a set of helper routines that we
+provide in Machine SUIF to simplify the process of creating, querying
+about, and accessing parts of EA calculations.
+
+Representing memory operands with SUIF instructions implies that
+machine instruction files are actually a collection of SUIF and
+machine instructions.  These files are read as expression trees
+however, so that only machine instructions are directly connected to
+[[tree_instr]] nodes (assuming a fully translated machine file).
+Please see [[<<machine file I/O>>]] for more information on reading
+and writing SUIF machine instruction files.
+
+The machine library assumes that memory operands
+contain only the EA calculation for that memory operand and no other
+side effects.  If the addressing mode is post-increment, that
+information is not encoded in the expression tree.\footnote{Note that
+a pre-increment operation would be included in the expression tree,
+but the information that the result of the pre-increment modifies the
+user-visible state (i.e. is written back) is not.}  We currently
+encode information like post-increment in an opcode extension.
+Similarly, one should not use instruction-pointer operands to express
+the operations in a complex operation.  That information should be
+specified entirely by the opcode.
+
+\begin{openissue}
+Should we use opcode extensions to indicate a post-increment operation
+on an index register in an EA calculation? It seems that it would be
+better if the post-increment indicator was on the EA operand.
+\end{openissue}
+
+
+\subsection{Non-control-transfer instructions}
+\label{secMiRR}
+
+Like the SUIF [[in_rrr]] instruction class, the vast majority of
+machine instructions are represented by the [[mi_rr]] class.  This
+class includes all ALU, load-constant, and memory operations.  Because
+of our extensions to the SUIF [[operand]] class, we do not need a
+separate class to handle load constant operations.  An operation is
+{\bf not} part of this class if it is a control transfer instruction,
+i.e. it explicitly changes the value of the program counter.
+
+<<class mi\_rr>>=
+/* Class for almost all operations.  Called 'rr' for historical reasons. */
+class mi_rr: public machine_instr {
+
+  public:
+    mi_rr();
+    /* constructor for instructions that do NOT write memory */
+    mi_rr(mi_ops o,
+	  operand d = operand(),	/* destination */
+	  operand s1 = operand(),	/* source 1 */
+	  operand s2 = operand());	/* source 2 */
+    /* constructor for instructions that DO write memory */
+    mi_rr(mi_ops o,
+	  instruction *ea,		/* store effective address */
+	  operand s1 = operand(),	/* source 1 */
+	  operand s2 = operand());	/* source 2 */
+
+    virtual inst_format format()	{ return (inst_format)mif_rr; }
+
+    /* by convention, we keep the store EA, if it exists, in srcs[0] */
+    operand store_addr_op(unsigned n);
+    void set_store_addr_op(unsigned n, operand r);
+    void remove_store_addr_op(unsigned n);
+
+    virtual instruction *clone_helper(replacements *r, boolean no_copy=FALSE);
+    virtual void find_exposed_refs(base_symtab *dst_scope, replacements *r); 
+
+    virtual void print(FILE *o_fd=stdout);
+};
+
+@
+
+We define two constructors for the class [[mi_rr]]: one for
+instructions that do and one for instructions that do not write
+memory.  A [[mi_rr]] operation may have any number of source and
+destination operands, though the machine library currently defines
+constructors only for the typical two-source/one-destination
+operation.  You must incrementally build an instruction with a larger
+number of sources and/or destinations by using the methods
+[[set_num_dsts(unsigned)]], [[set_dst(unsigned, operand)]],
+[[set_num_srcs(unsigned)]], and [[set_src_op(unsigned, operand)]].
+
+Like the source operands, a destination operand may be a memory
+(rather than a register) operand.  Since the operands of the EA
+calculation for a destination memory operand are effectively source
+operands of the operation, we place a store's EA calculation in the
+source operand list.  Although it might seem intuitive to have store
+EA operands on the destination side of an instruction that writes to
+memory, machsuif puts them on the source side because they describe
+some of the instruction's inputs (such as base registers).  Thus an
+analyzer never looks for instruction sources in a destination operand.
+
+We use the [[k_is_store_ea]] annotation to
+distinguish EA calculations for loads from those for stores.  The
+three methods [[store_addr_op(int)]],
+[[set_store_addr_op(int,operand)]], and [[remove_store_addr_op(int)]]
+handle the bookkeeping
+for the [[k_is_store_ea]] annotation.  The
+[[remove_store_addr_op(int)]] method will work even if you remove the
+operand (i.e. set it to [[NULL]]) before calling this method.  By
+convention, we use [[src_op(0)]] to hold the store EA in our code.
+This is only a convention; helper functions like
+[[Write_memory(instruction *)]] described in
+Section~\ref{secIOhelpers} work correctly in the general case.  In
+summary, a destination operand is either a register, a symbol, or
+null, but never an EA calculation.
+
+
+\subsection{Control-transfer instructions}
+
+The [[mi_bj]] class is a superset of the functionality of the
+[[mi_rr]] class.  The additional functionality being that operations
+in the [[mi_bj]] class modify the program counter and those in the
+[[mi_rr]] class do not.  This classification includes conditional and
+unconditional branches, calls and returns, etc.  This class handles
+both jumps to symbolic targets and jumps through register sources.
+
+<<class mi\_bj>>=
+/* Branch/jump class.  Instructions in this class may also perform
+ * alu operations and/or read/write memory.  */
+class mi_bj: public mi_rr {
+    sym_node	*targ;		/* may be NULL */
+
+  public:
+    mi_bj();
+    mi_bj(mi_ops o,
+	  sym_node *t,			/* target symbol */
+	  operand d = operand(),	/* destination */
+	  operand s1 = operand(),	/* src1 or tgt-reg */
+	  operand s2 = operand());	/* source 2 */
+    mi_bj(mi_ops o,
+	  instruction *ea,		/* store ea */
+	  sym_node *t,			/* target symbol */
+	  operand d = operand(),	/* destination */
+	  operand s1 = operand(),	/* src1 or tgt-reg */
+	  operand s2 = operand());	/* source 2 */
+
+    inst_format format()		{ return (inst_format)mif_bj; }
+
+    sym_node *target()			{ return targ; }
+    void set_target(sym_node *t)	{ targ = t; }
+    boolean is_indirect()		{ return (targ == NULL); }
+
+    instruction *clone_helper(replacements *r, boolean no_copy = FALSE);
+    void find_exposed_refs(base_symtab *dst_scope, replacements *r); 
+
+    void print(FILE *o_fd=stdout);
+};
+
+@
+
+If the control transfer operation specifies a symbolic target, the
+[[target()]] and [[set_target(sym_node *)]] methods are used to access
+and define the target symbol.  Unlike the SUIF [[in_bj]] class, the
+symbolic target of a [[mi_bj]] is a [[sym_addr]] since this target can
+be a procedure symbol (e.g. in a call operation).
+
+If the control transfer operation modifies the contents of the program
+counter with the contents of a general-purpose register, [[target]] is
+set to [[NULL]].  The location in the source operand array for the
+register that updates the program counter can be unique to each
+architecture, though we usually use [[src_op(0)]].
+
+Our code generators attach a [[k_instr_mbr_tgts]] annotation on
+each [[mi_bj]] instruction that represents a SUIF [[in_mbr]]
+instruction.  This annotation maintains the array of target symbols
+from the [[in_mbr]] operation.  The [[k_instr_mbr_tgts]] annotation
+is a flat annotation where the first list entry is the number of
+labels in the multi-way branch and the rest of the list entries are
+the labels.  Our code generators also attach a [[k_instr_ret]]
+annotation on each [[mi_bj]] instruction that represents a SUIF
+[[io_ret]] operation.  The [[k_instr_ret]] is a flat annotation with
+at most one list entry: a ``[[type_node *]]'' representing the return
+value type if any.  This annotation is necessary since some
+instruction set architectures do not have an opcode that
+differentiates procedure return instructions from other
+register-indirect jump instructions.
+
+
+\subsection{Label instructions}
+
+The [[mi_lab]] class is equivalent to the SUIF [[in_lab]] class.
+This re-implementation of the label class is necessary so that we can
+associate an architecture identifier with a label pseudo-op.  The
+printing methods use the architecture identifier to determine the
+appropriate syntax for the printing of labels.
+
+The label class contains only text labels.  Assembly-language data
+label statements are never stored internally.  These are generated
+only when printing the ASCII assembly language program.  Until that
+point, the information about data labels is contained in the SUIF
+symbol table.  To support the printing of data labels, we have
+included a short-cut routine in the helper functions for printing out
+data labels in the same syntax as a text label (see
+[[Print_data_label()]] in Section~\ref{secPrintHelpers},
+[[<<machine print helpers>>]]).
+
+<<class mi\_lab>>=
+/* Label instructions. */
+class mi_lab: public machine_instr {
+    label_sym	*lab;
+
+  public:
+    mi_lab():machine_instr(k_null_string,io_lab) { lab = NULL; }
+    mi_lab(mi_ops o, label_sym *s);
+    mi_lab(mi_ops o, in_lab *i);
+
+    inst_format format()		{ return (inst_format)mif_lab; }
+
+    label_sym *label()			{ return lab; }
+    void set_label(label_sym *l)	{ lab = l; }
+
+    unsigned num_dsts()			{ return 0; }
+    operand dst_op(unsigned n=0)	{ return operand(); }
+    void set_num_dsts(unsigned)		{ return; }	/* dummy method */
+    void set_dst(operand)		{ no_dst_error(); }
+    void set_dst(unsigned, operand)	{ no_dst_error(); }
+
+    instruction *clone_helper(replacements *r, boolean no_copy = FALSE);
+    void find_exposed_refs(base_symtab *dst_scope, replacements *r); 
+
+    void print(FILE *o_fd=stdout);
+};
+
+@
+
+
+\subsection{Pseudo-op instructions}
+\label{secMiXX}
+
+The [[mi_xx]] class is the catch-all class for all other
+architecture-specific pseudo-op or assembler directive statements.
+No machine-level
+operation is performed by these instructions.  The operands of a
+[[mi_xx]] operation are kept on an [[immed_list]], like the values of
+a flat annotation.  The library provides [[append_operand(immed)]] and
+[[pop_operand()]] list methods to manipulate the immediate list.  The
+destination operand is unused and trying to set it will cause an
+error.
+
+<<class mi\_xx>>=
+/* Pseudo-op class. */
+class mi_xx: public machine_instr {
+    immed_list	il;			/* list of pseudo-op operands */
+
+  public:
+    mi_xx():machine_instr(k_null_string, io_null) {}
+    mi_xx(mi_ops o);
+    mi_xx(mi_ops o, immed i);
+
+    inst_format format()		{ return (inst_format)mif_xx; }
+
+    unsigned num_dsts()			{ return 0; }
+    operand dst_op(unsigned n=0)	{ return operand(); }
+    void set_num_dsts(unsigned)		{ return; }	/* dummy method */
+    void set_dst(operand)		{ no_dst_error(); }
+    void set_dst(unsigned, operand)	{ no_dst_error(); }
+
+    /* pseudo-op instruction operations */
+    boolean has_operands()		{ return !il.is_empty(); }
+    void append_operand(immed i)	{ il.append(i); }
+    immed pop_operand()			{ return il.pop(); }
+
+    instruction *clone_helper(replacements *r, boolean no_copy = FALSE);
+    void find_exposed_refs(base_symtab *dst_scope, replacements *r); 
+
+    void print(FILE *o_fd=stdout);
+};
+@
+
+
+\section{Library initialization}
+
+If you use a standard SUIF makefile, a SUIF program needs only to link
+with the machine library to take
+advantage of the machine library functionality.  In this scenario, the
+machine library code is registered automatically with the SUIF library
+and its initialization functions are called automatically by
+[[init_suif()]].  The routine [[exit_machine()]] is called
+during [[exit_suif()]].  Please note that, though these routines
+are declared in {\em machineInstr.h}, their implementations are kept
+in {\em machineUtil.h} since they include architecture-specific code.
+
+<<machine library initialization>>=
+extern void init_machine(int &argc, char *argv[]);
+extern void exit_machine(void);
+@
+
+We also added one new SUIF string constant, [[k_null_string]], whose
+value is initialized automatically by the machine library.
+
+<<machine string constants>>=
+EXPORTED_BY_MACHINE char *k_null_string;
+@
+
+
+\section{Annotations}
+
+We define several new annotations to aid in file I/O and the
+communication of information between {\em machsuif} passes.  All of
+these are flat annotations.  We begin with an explanation
+of the annotations used by all machine instructions and move toward
+those annotations defined for only specific instructions or particular
+purposes.
+
+<<machine annotation definitions>>=
+/*
+ *  Flat annotations used by machsuif passes.
+ */
+EXPORTED_BY_MACHINE char *k_comment;
+EXPORTED_BY_MACHINE char *k_instr_op_exts;
+EXPORTED_BY_MACHINE char *k_hint;
+EXPORTED_BY_MACHINE char *k_reloc;
+
+/* ... following are used during file I/O (attached to instructions) */
+EXPORTED_BY_MACHINE char *k_machine_instr;
+EXPORTED_BY_MACHINE char *k_instr_xx_sources;
+EXPORTED_BY_MACHINE char *k_instr_bj_target;
+
+/* ... following keep extra high-level info with instruction */
+EXPORTED_BY_MACHINE char *k_instr_ret;
+EXPORTED_BY_MACHINE char *k_incomplete_proc_exit;
+EXPORTED_BY_MACHINE char *k_instr_mbr_tgts;
+EXPORTED_BY_MACHINE char *k_mbr_index_def;
+EXPORTED_BY_MACHINE char *k_regs_defd;
+EXPORTED_BY_MACHINE char *k_regs_used;
+EXPORTED_BY_MACHINE char *k_is_store_ea;
+
+/* ... following are markers in text list (attached to *o_null instrs) */
+EXPORTED_BY_MACHINE char *k_proc_entry;		/* marks entry point to proc */
+
+/* ... following are attached to file_set_entry's */
+EXPORTED_BY_MACHINE char *k_target_arch;	/* arch and machine info */
+EXPORTED_BY_MACHINE char *k_next_free_reloc_num;
+
+/* ... following are attached to tree_proc's */
+EXPORTED_BY_MACHINE char *k_vreg_manager;	/* should be in proc_symtab */
+EXPORTED_BY_MACHINE char *k_stack_frame_info;/* used by *gen, ra*, and *fin */
+
+/* ... following are attached to sym_node's */
+EXPORTED_BY_MACHINE char *k_vsym_info;	/* extra info for this var_sym */
+
+/* ... following identify instructions added by *fin */
+EXPORTED_BY_MACHINE char *k_header_trailer; /* header/trailer code/pseudo-op */
+@
+
+
+\subsection{Annotations attached to any [[instruction]]'s}
+
+If a machine instruction has a comment in the output assembly language
+file, this comment string is stored in a [[k_comment]] annotation. The
+[[machine_instr]] class methods [[has_comment()]],
+[[append_comment(immed_list *)]], and [[delete_comment()]] manipulate
+this annotation.  If the instruction uses opcode extensions, the
+[[k_instr_op_exts]] annotation holds this extension information.  The
+annotation is an unordered list of integers representing the opcode
+extensions associated with the instruction.  If the instruction uses
+hint information (currently only supported under Alpha), the [[k_hint]]
+annotation holds this information.
+
+If the instruction requires relocation processing, the [[k_reloc]]
+annotation holds this information.  The contents and ordering of this
+annotation's fields are specific to the target machine.  Typically,
+the first field corresponds to the relocation type, and the second
+field indicates the relocation sequence number (used to match
+relocation pairs if necessary.  If the annotation is attached to an
+instruction, the last field corresponds to the number of the source
+operand to be relocated.  Remeber that we cannot annotate operands.
+
+
+\subsection{Annotations attached to particular [[instruction]]'s}
+
+We use the next set of annotations to store machine-specific
+information during file I/O.  Recall that {\em machsuif} instructions
+are read and written as SUIF [[io_gen]] instructions, and thus there
+is no place for {\em machsuif}-specific information such as the
+machine opcode.  The following annotations appear on [[io_gen]]
+instructions only.  The [[k_machine_instr]] annotation records first
+the architecture string and then the machine opcode information.  The
+machine opcode information consists of the integer representation of
+that opcode followed by its ASCII equivalent.  The ASCII equivalent is
+redundant information that simply makes it easier to read the
+printsuif output of a {\em machsuif} binary file.  A [[mi_bj]] instruction
+records its target symbol in the [[k_instr_bj_target]] annotation.  A
+[[mi_xx]] instruction records its [[immed]] source list in a
+[[k_instr_xx_sources]] annotation.  No other special annotations are
+necessary for file I/O as SUIF [[io_gen]] instructions can carry all
+of the rest of the {\em machsuif} information.
+
+We define several annotations to maintain high-level information
+associated with control-transfer instructions.  Attaching a [[k_instr_ret]]
+annotation to a control-transfer instruction indicates that this
+instruction is a procedure return instruction.  The annotation lists
+the type of the return value.  The [[k_incomplete_proc_exit]]
+annotation is attached to return operations to indicate that the
+procedure exit code, e.g. saved register restores, have not been
+generated yet.  This annotation is removed by the finishing passes.
+The [[k_instr_mbr_tgts]]
+annotation lists the [[label_sym]] pointers of a multiway branch
+instruction.  The [[immed_list]] for this annotation first
+contains an integer, the number of targets, and then the label
+list in order.  The [[k_mbr_index_def]] annotation marks the
+index generation instruction for the next multiway branch in
+the instruction stream.  This annotation enables an instrumentation
+pass to quickly and easily find the jump table associated with the
+multiway branch instruction.
+
+By design, all {\em machsuif} instructions are explicit about their
+register definitions and uses.  This makes it straightforward to
+analyze the dependences between instructions, independent of their
+actual machine-specific encoding.  Unfortunately, there is somewhat of
+an exception to this rule (heck, what good rule doesn't have some sort
+of exception).  We'd like to know what argument registers are used and
+what result registers are written by a called procedure.  Notice that
+the call instruction itself does not actually read any parameter
+registers nor does it actually write any result registers, and
+therefore it doesn't make sense to put this information explicitly in
+the source and destination operand arrays.  However, this information
+is useful during register allocation, for example.  To solve this
+problem, we have defined two annotations: [[k_regs_used]] and
+[[k_regs_defd]].  Both are attached only to calls---{\sl these annotations
+are not to be used to circumvent the rule that all {\em machsuif}
+instructions explicitly list their source and destination operands}.
+The [[immed_list]] of the first annotation records the argument
+registers (if any) used in the call operation; the [[immed_list]] of
+the second annotation records the result registers (if any) written
+during the call operation.  The register values are our abstract
+register names, not the machine-specific numbers.
+
+\begin{openissue}
+Is [[agen]] the only code generator to include the [[k_regs_*]]
+annotations at this time?
+\end{openissue}
+
+The annotation [[k_is_store_ea]] is placed on SUIF instructions that
+write memory.  The annotation differentiates EA calculations for loads
+from those for stores, since store EA calculations are placed in the
+source operand list.  The [[immed_list]] of this annotation contains
+the indices of those source operands that contain an EA calculation
+that results in a write to memory.
+
+To support a code generation environment that is split across many
+separate {\em machsuif} passes, we have defined several markers that
+are placed in the instruction list to remember specific points
+of interest in that list.  All of the following annotations
+are attached to [[*o_null]] instructions.
+
+The annotation [[k_proc_entry]] marks the entry point into the
+procedure.  Normally, SUIF implicitly assumes that the first
+instruction in the instruction list is the procedure entry point.  Our
+procedure layout optimizations invalidate this assumption.  The
+[[k_proc_entry]] annotation has an empty [[immed_list]].  It is
+created by the {\em *gen} passes, maintained by all intermediate {\em
+machsuif} passes, and then consumed by {\em printmachine} (which
+translates this instruction into the appropriate procedure-entry
+pseudo-ops).
+
+
+\subsection{Annotations attached to [[file_set_entry]]'s}
+\label{secAnnoteTargetArch}
+
+The annotation [[k_target_arch]] records the machine-specific target
+information for this particular back-end compilation.  We explain the
+full details of this annotation and the associated machine library
+classes in Sections~\ref{secArchInfo.h} and~\ref{secRegs}.  We attach
+this annotation to the [[file_set_entry]] with the assumption that all
+of the procedures and instructions in a single [[file_set_entry]] have
+the same target architecture.
+
+The annotation [[k_next_free_reloc_num]] has a single value in its
+immediate list corresponding to the next free relocation number
+for this file.  If this annotation does not exist, the file does
+not contain any relocations. 
+
+
+\subsection{Annotations attached to [[tree_proc]]'s}
+
+The annotation [[k_vreg_manager]] records the information needed by
+the virtual register manager.  This information should be kept in the
+[[proc_symtab]] with the other numbering managers for this procedure.
+It will eventually move there when {\em basesuif} includes basic
+support for {\em machsuif}.  Currently, the only information recorded
+in this annotation is a single integer.  The value of this integer is
+the next unused virtual register number.  Currently, this annotation
+is read by [[Read_machine_proc()]] and written by
+[[Write_machine_proc()]], which are defined in [[<<machine file I/O>>]].
+
+The annotation [[k_stack_frame_info]] records the stack frame information
+needed to create the stack frame and its associated instructions.  We
+require this annotation because the generation of the stack frame is
+spread across several {\em machsuif} passes.  The [[*gen]] code generator
+passes create the initial version of this annotation.\footnote{Actually,
+{\em swighnflew} generates a partial [[k_stack_frame_info]] annote to
+mark procedures that use varargs.  Code generators should pop off this
+annote before creating their own.}  The [[ra*]]
+register allocation passes modify this annotation to include, for
+example, information about which callee-save registers were used.  Other
+passes, such as an instruction scheduling pass that reallocates
+registers, may also modify this annotation.  The [[*fin]] finishing
+passes read the information on this annotation and create the
+actual stack frame instructions in the procedure preludes and postludes.
+Currently, the [[*fin]] passes delete the annote after reading its
+information.
+
+The [[k_stack_frame_info]] annotation is a list of the following fields:
+
+\begin{tabular}{l@{\hspace{.3in}}c@{\hspace{.3in}}l}
+[[immed]] \#0 & [[int]] & {\em is\_leaf}        \\
+[[immed]] \#1 & [[int]] & {\em is\_varargs}     \\
+[[immed]] \#2 & [[int]] & {\em framesize}       \\
+[[immed]] \#3 & [[int]] & {\em frameoffset}     \\
+[[immed]] \#4 & [[int]] & {\em max\_arg\_area}  \\
+[[immed]] \#5 & [[int]] & {\em 1st\_saved\_reg} \\
+[[immed]] \#6 & [[int]] & {\em 2nd\_saved\_reg} \\
+... & & \\
+\end{tabular}\\[\parskip]
+The boolean {\em is\_leaf} is [[TRUE]] if this procedure does not
+contain any call instructions.  If this boolean is [[TRUE]], the
+[[immed]]'s numbered greater than 3 may not appear.  The boolean {\em
+is\_varargs} is [[TRUE]] if this procedure is a VARARGS procedure.  The
+field {\em framesize} records the total size of the stack frame in
+bytes, if known; [[0]] otherwise.  The field {\em frameoffset}
+records the frame offset, also in bytes.  It's interpretation is
+architecture dependent, though it is often negative.  The value of
+this field is garbage if {\em framesize} is [[0]].  The field
+{\em max\_arg\_area} records the maximum size of the call argument area
+in bytes for procedures that are not leaves.  Finally, the remaining
+fields list the saved registers used in this procedure.  Typically,
+they are listed in the order required by the stack frame rules, though
+this is not necessary.  The register values are our abstract register
+names, not the machine-specific numbers.
+
+
+\subsection{Annotations attached to [[sym_node]]'s}
+\label{secVsyminfo}
+
+We place the annotation [[k_vsym_info]] on [[sym_node]]'s that are
+automatic variables.  This annotation records several pieces of
+information that are not currently recorded in the [[sym_node]]
+structure.  For example, we use this annotation to record the offset
+from the stack pointer of this variable's stack home.  As described in
+Section~\ref{secAnnoteHelper.h}, the file {\em annoteHelper.h} defines
+several helper routines that manipulate and access the information in
+this annotation.  This file also provides helper routines to access
+the other related information kept in the [[sym_node]] structure.
+For more details, please see Section~\ref{secAnnoteHelper.h},
+[[<<annoteHelper.h>>]].
+
+The following defines the three fields of the [[k_vsym_info]] annotation:
+
+\begin{tabular}{l@{\hspace{.3in}}c@{\hspace{.3in}}l}
+[[immed]] \#0 & [[int]] & {\em sp\_offset}   \\
+[[immed]] \#1 & [[int]] & {\em usage\_count} \\
+[[immed]] \#2 & [[int]] & {\em param\_reg}   \\
+\end{tabular}\\[\parskip]
+The field {\em sp\_offset} records the offset in bytes from the stack
+pointer to the stack home of this [[sym_node]].  The field {\em
+usage\_count} is a scratch-pad field.  We sometimes use it during
+register allocation to record the static number of references to this
+[[sym_node]] during the procedure.  The final field, {\em param\_reg},
+exists only if the [[sym_node]] is a parameter that is passed in a
+parameter register.  The value of this field indicates which parameter
+register is used.  Again, the register values are our abstract
+register names, not the machine-specific numbers.  The [[k_vsym_info]]
+annotation has only two fields if the [[sym_node]] is not a parameter
+variable passed in a register.
+
+\begin{openissue}
+This organization of this information is not very pretty.  This whole
+issue needs to be revisited.
+\end{openissue}
+
+
+\section{Helper functions}
+\label{secMachLibHelperFcns}
+
+The machine library defines several kinds of helper functions to make
+it easier to write {\em machsuif} passes, especially passes that
+perform machine-specific optimizations in a machine-independent
+manner.  This section describes each set of helper functions in turn.
+
+Please note that these functions are distributed across four different
+machine files: {\em machineInstr.h}, {\em machineUtil.h}, {\em
+annoteHelper.h}, and {\em archInfo.h}.  Basically, {\em machineUtil.h}
+contains all of the helper routines that check a {\em machsuif}
+instruction in a machine-specific way or return a machine-specific
+opcode to perform a generic action.  The files {\em annoteHelper.h}
+and {\em archInfo.h} contain helper routines for the machine library
+annotations, while {\em machineInstr.h} is the catch-all for the rest
+of the low-level helper routines.
+
+
+\subsection{I/O helpers (and the virtual-register manager)}
+\label{secIOhelpers}
+
+Because we have extended the basic SUIF instruction class but have
+not changed the underlying SUIF I/O methods, we have created wrappers
+for the SUIF [[proc_sym::read_proc()]] and [[proc_sym::write_proc()]]
+methods.  Our wrappers are declared below.  Both routines are ``robust''
+in that they can read and write [[tree_proc]] bodies
+that do not contain any machine instructions.
+
+<<machine file I/O>>=
+
+class mproc_symtab {
+  private:
+    proc_symtab *st;	/* where we'd like this info */
+    int next_vrnum;	/* next unused virtual register number */
+
+  public:
+    mproc_symtab(proc_symtab *t)	{ st = t; next_vrnum = -1; }
+    ~mproc_symtab()			{}
+
+    proc_symtab *pst()			{ return st; }
+
+    int vreg_num()			{ return next_vrnum; }
+    int next_vreg_num()			{ return next_vrnum--; }
+    void set_vreg_num(int n)		{ assert(n < 0); next_vrnum = n; }
+
+    void renumber_vregs();	/* renumbers vr's uses in tree_proc body */
+};
+ 
+extern mproc_symtab *Read_machine_proc(proc_sym *, boolean /* exp_trees */,
+				       boolean /* use_fortran_form */);
+extern void Write_machine_proc(proc_sym *, file_set_entry *);
+@
+
+The [[Read_machine_proc()]] routine reads a list of [[in_gen]]
+instructions and reconstructs the appropriate machine instructions
+from the machine library annotations on the [[in_gen]] instructions.
+This routine returns a [[mproc_symtab]] pointer which is our hack to
+make a sensible place to put the virtual register manager without
+actually hacking any more of {\em basesuif}.  We make the returned
+pointer into a global variable, [[cur_psymtab]], that can be accessed
+anywhere in our passes.  This allows us to get at the virtual register
+manager easily.
+
+The virtual register manager is simply a few methods in the
+[[mproc_symtab]] class.  Notice that this class just wraps the real
+[[proc_symtab]]; [[mproc_symtab]] is {\bf not} derived from
+[[proc_symtab]].  We have included the [[mproc_symtab::pst()]] method
+for accessing the methods in the real [[proc_symtab]] class.
+However, it is our convention to have a global variable
+[[proc_sym *cur_psym]], and we always generate a pointer to the
+procedure symbol table off this variable.  This convention will
+(hopefully) make it easier to transition our code when the virtual
+register manager moves into {\em basesuif}.
+
+To hide the details of virtual-register-number generation, we use
+a macro called [[NEW_VREG]].  For all passes but those that translate
+low-suif into {\em machsuif}, we define this macro to be
+
+[[#define NEW_VREG cur_psymtab->next_vreg_num()]]
+
+\noindent
+so that we invoke the virtual register manager to give us a new
+virtual register number.  This macro relies on the fact that we
+declared our [[mproc_symtab]] variable returned by
+[[Read_machine_proc()]] using the name [[cur_psymtab]].  Note that
+you put this [[#define]] into your pass's code; it is {\bf not}
+part of the library.
+
+On the other hand, if the pass in question is a {\em *gen} pass,
+then we define the macro to be
+
+[[#define NEW_VREG (-(int)cur_psym->block()->proc_syms->next_instr_num())]]
+
+\noindent
+so that we invoke the instruction number manager in {\em basesuif}.
+We use the instruction numbering system to generate virtual register
+numbers in {\em *gen} passes because instruction-pointer operands are
+turned into virtual registers by negating the instruction number of
+the defining instruction.  Why do we do this?  Because we don't have
+to do any extra work to maintain the mapping between this virtual
+register's definition and its use.  Notice that you {\bf cannot} use the
+virtual register manager in a {\em *gen} pass because the numbering
+spaces could potentially overlap.  Since we build our {\em *gen}
+passes so that they can add low-suif code during the generation
+process, we cannot guarantee that the number spaces would never
+overlap even with some weird initialization of the virtual register
+numbers based on the [[next_instr_num]].  If you want to remove this
+lazy approach from the system, remember that the [[k_vreg_manager]]
+annotation does not exist before the {\em *gen} passes.
+
+Also, please remember that the machine library's virtual register numbers
+are negative.  Unlike the SUIF instruction number manager, we allow
+you to set the next unused virtual register number.  This
+functionality allows one to build passes, like a procedure inliner,
+that reallocate virtual register numbers.  Again, please remember that
+virtual register numbers are unique only within a procedure.
+
+The [[Write_machine_proc()]] routine creates a list of SUIF [[in_gen]]
+instructions with machine library annotations from a list of machine
+instructions.  Normally, you would call
+[[mproc_symtab::renumber_vregs()]] before [[Write_machine_proc()]].
+The routine [[renumber_vregs()]] compacts the virtual register
+numbering space.  You can call this routine at any time.  You can
+delete your [[mproc_symtab]] variable after [[Write_machine_proc()]]
+has completed.  [[Write_machine_proc()]] calculates the
+[[next_vreg_num]] value for the [[k_vreg_manager]] annotation without
+use of the virtual register manager, so you don't have to allocate a
+[[mproc_symtab]] pointer variable if your pass doesn't create new
+virtual register operands.
+
+
+\subsection{Print helpers}
+\label{secPrintHelpers}
+
+The following routines exist simply to make it easier to print
+a SUIF object in a machine-specific manner.  They all require
+a file pointer as the first argument.
+
+<<machine print helpers>>=
+
+extern void Print_data_label(FILE *, sym_node *, char);
+extern void Print_raw_immed(FILE *, immed);
+extern void Print_symbol(FILE *, sym_node *);
+
+EXPORTED_BY_MACHINE boolean skip_printing_of_unwanted_annotes;
+DECLARE_LIST_CLASS(nonprinting_annotes_list, char *);
+EXPORTED_BY_MACHINE nonprinting_annotes_list *nonprinting_annotes;
+@
+
+The routine [[Print_data_label()]] prints a [[sym_node]] name with the
+appropriate trailing character, specified by the third parameter, so
+that the string is interpreted as a data label in the output assembly
+language file.
+
+The routine [[Print_raw_immed()]] prints an [[immed]] in the ``rawest''
+manner possible.  For example, we don't want any double quotes around
+strings or other such SUIF-specific printing rules being applied.
+Also, the offset fields of symbols are printed in bytes, not bits.
+
+The routine [[Print_symbol()]] is a slight modification to the
+[[sym_node::print()]] method.  Here, we don't want the leading
+``.'' printed by the default SUIF print routine.  This is typically
+an undesirable feature in an assembly language label.
+
+These routines are used by the machine-specific print helper routines
+invoked by the [[mi_*::print()]] methods.  See
+Section~\ref{secHelpArchSpecific} for examples.
+
+The global variable [[skip_printing_of_unwanted_annotes]] provides a
+convenient mechanism to disable the printing of certain annotations.
+We use this mechanism in {\em printmachine} to remove clutter from the
+resulting assembly listing files.  This variable is set to [[FALSE]]
+by the machine library (i.e., enable printing of all annotations).
+The list [[nonprinting_annotes]] contains the annotations that
+should not be printed when [[skip_printing_of_unwanted_annotes]]
+is [[TRUE]].
+
+
+\subsection{Operand helpers}
+\label{secOpndHelpers}
+
+In the machine library, instruction-pointer operands represent either
+an effective address (EA) calculation or a {\em simple} immediate
+value.  Section~\ref{secEAopnds} provides a detailed discussion of 
+EA calculation operands and the [[Is_ea_operand(operand)]] helper
+routine.\footnote{Earlier prototype versions of the machine library
+contained an
+immediate operand kind.  The [[OPERAND_IMMED]] kind of operand has
+been removed.  Instead, the machine library now represents immediate
+operands in the same way as the rest of SUIF.  Immediate operands are
+stored in SUIF [[in_ldc]] instructions, and then this [[in_ldc]]
+instruction is attached to an immediate instruction as the immediate
+operand.}
+
+<<machine operand helpers>>=
+extern boolean Is_ea_operand(operand);
+extern operand Immed_operand(immed &, type_node *);
+@
+
+Along with the immediate operand kind in the earlier versions of the
+machine library, there also existed a constructor for immediate
+operands.  To replace this constructor, we have created a helper
+routine called [[Immed_operand(immed &, type_node *)]].  This
+routine takes an [[immed]] and a [[type_node]] pointer as input
+parameters and returns an instruction pointer to an [[in_ldc]]
+instruction with the specified immediate value.
+
+Please note that [[Immed_operand(immed &, type_node *)]] is meant to
+be used to create {\bf simple} immediates, not effective address
+calculations.  One should never call [[Immed_operand()]] with
+a [[type_node]] that is a [[ptr_type]].
+
+An additional helper for operands is:
+<<machine operand helpers>>=
+extern void
+Map_operand(instruction *in, operand (*fun)(operand, boolean, void *), void *x);
+@
+This utility maps function [[fun]] over the operands of instruction [[in]],
+passing three arguments: the operand, a flag that is true for source
+operands and false for destinations, and the pointer [[x]].  Each leaf
+operand to which [[fun]] is applied is replaced by the result of the call.
+Non-leaf operands (EA's and immediates) are expected to be returned
+unchanged.

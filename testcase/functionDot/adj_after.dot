@@ -1,0 +1,56 @@
+digraph G{
+	label = "adj"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_3\nmove	r7	r0	\nslt	r8	r5	r7	\nbnez	adj.L1\n"];
+	Node2 -> {Node3 Node25 }
+	Node3 [label = "B3_3\nli	r9	nd#445	\nslt	r10	r9	r5	\nbnez	adj.L1\n"];
+	Node3 -> {Node4 Node25 }
+	Node4 [label = "B4_3\nmove	r19	r0	\nseq	r20	r5	r19	\nbnez	adj.L2\n"];
+	Node4 -> {Node5 Node9 }
+	Node5 [label = "B5_3\nli	r21	nd#452	\nseq	r22	r5	r21	\nbnez	adj.L6\n"];
+	Node5 -> {Node6 Node17 }
+	Node6 [label = "B6_3\nli	r23	nd#456	\nseq	r24	r5	r23	\nbnez	adj.L4\n"];
+	Node6 -> {Node7 Node13 }
+	Node7 [label = "B7_3\nli	r25	nd#460	\nseq	r26	r5	r25	\nbnez	adj.L8\n"];
+	Node7 -> {Node8 Node21 }
+	Node8 [label = "B8_1\nadj.L15:\nj	adj.L1\n"];
+	Node8 -> {Node25 }
+	Node9 [label = "B9_4\nadj.L2:\nmove	r27	r6	\nli	r9	nd#469	\nseq	r9	r27	r9	\nbeqz	adj.L3\n"];
+	Node9 -> {Node10 Node11 }
+	Node10 [label = "B10_1\nadj.L16:\nj	adj.__done11\n"];
+	Node10 -> {Node12 }
+	Node11 [label = "B11_2\nadj.L3:\nmove	r10	r0	\nseq	r9	r6	r10	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_1\nadj.__done11:\njr	\n"];
+	Node12 -> {Node1 }
+	Node13 [label = "B13_4\nadj.L4:\nmove	r28	r6	\nli	r5	nd#482	\nseq	r9	r28	r5	\nbeqz	adj.L5\n"];
+	Node13 -> {Node14 Node15 }
+	Node14 [label = "B14_1\nadj.L17:\nj	adj.__done12\n"];
+	Node14 -> {Node16 }
+	Node15 [label = "B15_2\nadj.L5:\nli	r7	nd#488	\nseq	r9	r6	r7	\n"];
+	Node15 -> {Node16 }
+	Node16 [label = "B16_1\nadj.__done12:\njr	\n"];
+	Node16 -> {Node1 }
+	Node17 [label = "B17_4\nadj.L6:\nmove	r5	r6	\nli	r7	nd#496	\nseq	r9	r5	r7	\nbeqz	adj.L7\n"];
+	Node17 -> {Node18 Node19 }
+	Node18 [label = "B18_1\nadj.L18:\nj	adj.__done13\n"];
+	Node18 -> {Node20 }
+	Node19 [label = "B19_2\nadj.L7:\nli	r8	nd#502	\nseq	r9	r6	r8	\n"];
+	Node19 -> {Node20 }
+	Node20 [label = "B20_1\nadj.__done13:\njr	\n"];
+	Node20 -> {Node1 }
+	Node21 [label = "B21_4\nadj.L8:\nmove	r7	r6	\nli	r27	nd#510	\nseq	r9	r7	r27	\nbeqz	adj.L9\n"];
+	Node21 -> {Node22 Node23 }
+	Node22 [label = "B22_1\nadj.L19:\nj	adj.__done14\n"];
+	Node22 -> {Node24 }
+	Node23 [label = "B23_2\nadj.L9:\nmove	r28	r0	\nseq	r9	r6	r28	\n"];
+	Node23 -> {Node24 }
+	Node24 [label = "B24_1\nadj.__done14:\njr	\n"];
+	Node24 -> {Node1 }
+	Node25 [label = "B25_2\nadj.L1:\nmove	r9	r0	\njr	\n"];
+	Node25 -> {Node1 }
+}

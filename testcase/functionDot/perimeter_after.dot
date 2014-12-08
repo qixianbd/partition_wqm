@@ -1,0 +1,104 @@
+digraph G{
+	label = "perimeter"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_10\nmove	r13	r5	\nspawn	perimeter.L20\nmove	r12	r6	\nmove	r11	r0	\nmove	r10	r0	\naddu	r19	r13	r10	\nlbu	r20	nd#1443	\nli	r21	nd#1446	\nseq	r21	r20	r21	\nbeqz	perimeter.L1\n"];
+	Node2 -> {Node3 Node8 }
+	Node3 [label = "B3_9\nli	r22	nd#1451	\naddu	r23	r13	r22	\nlw	r5	nd#1454	\nla	r19	nd#1458	\nli	r24	nd#1460	\ndiv	r6	r12	r24	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_10\naddu	r11	r11	r9	\nli	r25	nd#1468	\naddu	r26	r13	r25	\nlw	r5	nd#1471	\nla	r19	nd#1475	\nli	r27	nd#1477	\ndiv	r6	r12	r27	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_10\naddu	r11	r11	r9	\nli	r28	nd#1485	\naddu	r5	r13	r28	\nlw	r5	nd#1488	\nla	r19	nd#1492	\nli	r6	nd#1494	\ndiv	r6	r12	r6	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_10\naddu	r11	r11	r9	\nli	r7	nd#1502	\naddu	r8	r13	r7	\nlw	r5	nd#1505	\nla	r19	nd#1509	\nli	r9	nd#1511	\ndiv	r6	r12	r9	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_2\naddu	r11	r11	r9	\nj	perimeter.__done15\n"];
+	Node7 -> {Node45 }
+	Node8 [label = "B8_6\nperimeter.L1:\nmove	r10	r0	\naddu	r19	r13	r10	\nlbu	r21	nd#1523	\nmove	r20	r0	\nseq	r21	r21	r20	\nbeqz	perimeter.__done15\n"];
+	Node8 -> {Node9 Node45 }
+	Node9 [label = "B9_9\ncqip	perimeter.L20\nperimeter.L20:\npslice_entry	perimeter.L20\npslice_exit	perimeter.L20\nla	r19	nd#1530	\nmove	r6	r0	\nmove	r5	r13	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_5\nspawn	perimeter.L21\nmove	r5	r9	\nla	r22	nd#1539	\nseq	r22	r5	r22	\nbeqz	perimeter.L3\n"];
+	Node10 -> {Node11 Node12 }
+	Node11 [label = "B11_1\nperimeter.L16:\nj	perimeter.__done1\n"];
+	Node11 -> {Node13 }
+	Node12 [label = "B12_5\nperimeter.L3:\nmove	r23	r0	\naddu	r24	r5	r23	\nlbu	r23	nd#1548	\nli	r25	nd#1551	\nseq	r22	r23	r25	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_1\nperimeter.__done1:\nbeqz	perimeter.L4\n"];
+	Node13 -> {Node14 Node15 }
+	Node14 [label = "B14_2\naddu	r11	r11	r12	\nj	perimeter.__done2\n"];
+	Node14 -> {Node18 }
+	Node15 [label = "B15_6\nperimeter.L4:\nmove	r26	r0	\naddu	r27	r5	r26	\nlbu	r24	nd#1563	\nli	r28	nd#1566	\nseq	r6	r24	r28	\nbeqz	perimeter.__done2\n"];
+	Node15 -> {Node16 Node18 }
+	Node16 [label = "B16_10\nla	r24	nd#1571	\nli	r25	nd#1573	\nli	r26	nd#1575	\nmove	r6	r25	\nmove	r7	r26	\nmove	r8	r12	\nmove	r4	r2	\nfst	r2	\nmove	r19	r24	\njalr	\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_1\naddu	r11	r11	r9	\n"];
+	Node17 -> {Node18 }
+	Node18 [label = "B18_9\nperimeter.__done2:\ncqip	perimeter.L21\nperimeter.L21:\npslice_entry	perimeter.L21\npslice_exit	perimeter.L21\nla	r19	nd#1587	\nli	r6	nd#1589	\nmove	r5	r13	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node18 -> {Node19 }
+	Node19 [label = "B19_5\nspawn	perimeter.L22\nmove	r5	r9	\nla	r6	nd#1597	\nseq	r25	r5	r6	\nbeqz	perimeter.L6\n"];
+	Node19 -> {Node20 Node21 }
+	Node20 [label = "B20_1\nperimeter.L17:\nj	perimeter.__done3\n"];
+	Node20 -> {Node22 }
+	Node21 [label = "B21_5\nperimeter.L6:\nmove	r7	r0	\naddu	r8	r5	r7	\nlbu	r26	nd#1606	\nli	r9	nd#1609	\nseq	r25	r26	r9	\n"];
+	Node21 -> {Node22 }
+	Node22 [label = "B22_1\nperimeter.__done3:\nbeqz	perimeter.L7\n"];
+	Node22 -> {Node23 Node24 }
+	Node23 [label = "B23_2\naddu	r11	r11	r12	\nj	perimeter.__done4\n"];
+	Node23 -> {Node27 }
+	Node24 [label = "B24_6\nperimeter.L7:\nmove	r10	r0	\naddu	r19	r5	r10	\nlbu	r27	nd#1621	\nli	r20	nd#1624	\nseq	r21	r27	r20	\nbeqz	perimeter.__done4\n"];
+	Node24 -> {Node25 Node27 }
+	Node25 [label = "B25_9\nla	r27	nd#1629	\nli	r28	nd#1631	\nmove	r7	r0	\nmove	r6	r28	\nmove	r8	r12	\nmove	r4	r2	\nfst	r2	\nmove	r19	r27	\njalr	\n"];
+	Node25 -> {Node26 }
+	Node26 [label = "B26_1\naddu	r11	r11	r9	\n"];
+	Node26 -> {Node27 }
+	Node27 [label = "B27_9\nperimeter.__done4:\ncqip	perimeter.L22\nperimeter.L22:\npslice_entry	perimeter.L22\npslice_exit	perimeter.L22\nla	r19	nd#1643	\nli	r6	nd#1645	\nmove	r5	r13	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node27 -> {Node28 }
+	Node28 [label = "B28_5\nspawn	perimeter.L23\nmove	r5	r9	\nla	r22	nd#1653	\nseq	r28	r5	r22	\nbeqz	perimeter.L9\n"];
+	Node28 -> {Node29 Node30 }
+	Node29 [label = "B29_1\nperimeter.L18:\nj	perimeter.__done5\n"];
+	Node29 -> {Node31 }
+	Node30 [label = "B30_5\nperimeter.L9:\nmove	r23	r0	\naddu	r24	r5	r23	\nlbu	r6	nd#1662	\nli	r25	nd#1665	\nseq	r28	r6	r25	\n"];
+	Node30 -> {Node31 }
+	Node31 [label = "B31_1\nperimeter.__done5:\nbeqz	perimeter.L10\n"];
+	Node31 -> {Node32 Node33 }
+	Node32 [label = "B32_2\naddu	r11	r11	r12	\nj	perimeter.__done6\n"];
+	Node32 -> {Node36 }
+	Node33 [label = "B33_6\nperimeter.L10:\nmove	r26	r0	\naddu	r27	r5	r26	\nlbu	r6	nd#1677	\nli	r28	nd#1680	\nseq	r6	r6	r28	\nbeqz	perimeter.__done6\n"];
+	Node33 -> {Node34 Node36 }
+	Node34 [label = "B34_10\nla	r9	nd#1685	\nmove	r7	r0	\nli	r8	nd#1688	\nmove	r6	r7	\nmove	r7	r8	\nmove	r8	r12	\nmove	r4	r2	\nfst	r2	\nmove	r19	r9	\njalr	\n"];
+	Node34 -> {Node35 }
+	Node35 [label = "B35_1\naddu	r11	r11	r9	\n"];
+	Node35 -> {Node36 }
+	Node36 [label = "B36_9\nperimeter.__done6:\ncqip	perimeter.L23\nperimeter.L23:\npslice_entry	perimeter.L23\npslice_exit	perimeter.L23\nla	r19	nd#1700	\nli	r6	nd#1702	\nmove	r5	r13	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node36 -> {Node37 }
+	Node37 [label = "B37_4\nmove	r5	r9	\nla	r6	nd#1710	\nseq	r7	r5	r6	\nbeqz	perimeter.L12\n"];
+	Node37 -> {Node38 Node39 }
+	Node38 [label = "B38_1\nperimeter.L19:\nj	perimeter.__done7\n"];
+	Node38 -> {Node40 }
+	Node39 [label = "B39_5\nperimeter.L12:\nmove	r7	r0	\naddu	r8	r5	r7	\nlbu	r8	nd#1719	\nli	r9	nd#1722	\nseq	r7	r8	r9	\n"];
+	Node39 -> {Node40 }
+	Node40 [label = "B40_1\nperimeter.__done7:\nbeqz	perimeter.L13\n"];
+	Node40 -> {Node41 Node42 }
+	Node41 [label = "B41_2\naddu	r11	r11	r12	\nj	perimeter.__done15\n"];
+	Node41 -> {Node45 }
+	Node42 [label = "B42_6\nperimeter.L13:\nmove	r10	r0	\naddu	r19	r5	r10	\nlbu	r9	nd#1734	\nli	r20	nd#1737	\nseq	r21	r9	r20	\nbeqz	perimeter.__done15\n"];
+	Node42 -> {Node43 Node45 }
+	Node43 [label = "B43_10\nla	r9	nd#1742	\nli	r10	nd#1744	\nli	r19	nd#1746	\nmove	r6	r10	\nmove	r7	r19	\nmove	r8	r12	\nmove	r4	r2	\nfst	r2	\nmove	r19	r9	\njalr	\n"];
+	Node43 -> {Node44 }
+	Node44 [label = "B44_1\naddu	r11	r11	r9	\n"];
+	Node44 -> {Node45 }
+	Node45 [label = "B45_2\nperimeter.__done15:\nmove	r9	r11	\njr	\n"];
+	Node45 -> {Node1 }
+	Node2 [shape = box ,style=filled ,color=red];
+	Node10 [shape = box ,style=filled ,color=red];
+	Node19 [shape = box ,style=filled ,color=red];
+	Node28 [shape = box ,style=filled ,color=red];
+	Node9 [shape = polygon ,style=filled ,color=yellow];
+	Node18 [shape = polygon ,style=filled ,color=yellow];
+	Node27 [shape = polygon ,style=filled ,color=yellow];
+	Node36 [shape = polygon ,style=filled ,color=yellow];
+}

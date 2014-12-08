@@ -1,0 +1,38 @@
+digraph G{
+	label = "initialize_graph"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_6\nmove	r13	r5	\nla	r19	nd#644	\nla	r5	nd#646	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_5\nla	r19	nd#652	\nlw	r5	nd#654	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_7\nmove	r12	r9	\nla	r19	nd#661	\nmove	r5	r12	\nlw	r6	nd#664	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_5\nla	r19	nd#670	\nlw	r5	nd#672	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_7\nmove	r11	r9	\nla	r19	nd#679	\nmove	r5	r11	\nlw	r6	nd#682	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_8\nla	r19	nd#688	\nlw	r5	nd#690	\nmove	r6	r11	\nlw	r7	nd#694	\nlw	r8	nd#696	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_8\nla	r19	nd#702	\nlw	r5	nd#704	\nmove	r6	r12	\nlw	r7	nd#708	\nlw	r8	nd#710	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_5\nla	r19	nd#716	\nlw	r5	nd#718	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_5\nla	r19	nd#725	\nlw	r5	nd#727	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_6\nla	r19	nd#734	\nlw	r5	nd#736	\nlw	r6	nd#739	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node11 -> {Node12 }
+	Node12 [label = "B12_6\nla	r19	nd#745	\nlw	r5	nd#747	\nlw	r6	nd#750	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_12\nspawn	initialize_graph.L1\nla	r26	nd#756	\nlw	r27	nd#758	\nsw	nd#761	r27	\nla	r28	nd#765	\nlw	r5	nd#767	\nsw	nd#770	r5	\nla	r19	nd#774	\nmove	r5	r12	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node13 -> {Node14 }
+	Node14 [label = "B14_8\ncqip	initialize_graph.L1\ninitialize_graph.L1:\npslice_entry	initialize_graph.L1\npslice_exit	initialize_graph.L1\nla	r19	nd#781	\nmove	r5	r11	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node14 -> {Node15 }
+	Node15 [label = "B15_7\nla	r6	nd#789	\nla	r7	nd#791	\nlw	r8	nd#794	\nlw	r9	nd#797	\nsw	nd#800	r8	\nsw	nd#803	r9	\njr	\n"];
+	Node15 -> {Node1 }
+	Node13 [shape = box ,style=filled ,color=red];
+	Node14 [shape = polygon ,style=filled ,color=yellow];
+}

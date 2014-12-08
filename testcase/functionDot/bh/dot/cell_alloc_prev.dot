@@ -1,0 +1,20 @@
+digraph G{
+	label = "cell_alloc"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_5\nmove	r11	r5	\nla	r24	nd#316	\nlw	r25	nd#319	\nsne	r26	r25	r24	\nbeqz	cell_alloc.L1\n"];
+	Node2 -> {Node3 Node4 }
+	Node3 [label = "B3_7\nlw	r9	nd#324	\nlw	r22	nd#327	\nli	r27	nd#329	\naddu	r28	r22	r27	\nlw	r21	nd#332	\nsw	nd#335	r21	\nj	cell_alloc.__done4\n"];
+	Node3 -> {Node5 }
+	Node4 [label = "B4_5\ncell_alloc.L1:\nla	r19	nd#340	\nli	r5	nd#342	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_8\ncell_alloc.__done4:\nmove	r5	r0	\naddu	r6	r9	r5	\nli	r7	nd#351	\nsh	nd#353	r7	\nli	r8	nd#357	\naddu	r10	r9	r8	\nsw	nd#360	r11	\nmove	r10	r0	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_13\ncell_alloc.L5:\nli	r19	nd#367	\naddu	r23	r9	r19	\nli	r20	nd#370	\nmult	r10	r20	\nmflo	r21	\naddu	r22	r23	r21	\nla	r23	nd#375	\nsw	nd#378	r23	\nli	r24	nd#381	\naddu	r10	r10	r24	\nli	r25	nd#384	\nsle	r26	r25	r10	\nbeqz	cell_alloc.L5\n"];
+	Node6 -> {Node7 Node6 }
+	Node7 [label = "B7_1\njr	\n"];
+	Node7 -> {Node1 }
+}

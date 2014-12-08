@@ -1,0 +1,46 @@
+digraph G{
+	label = "make_neighbors"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_7\nmove	r14	r6	\nmove	r13	r7	\nmove	r12	r8	\nmove	r11	r5	\nla	r19	nd#584	\nsne	r20	r11	r19	\nbeqz	make_neighbors.L4\n"];
+	Node2 -> {Node3 Node18 }
+	Node3 [label = "B3_10\nmake_neighbors.L3:\nloopbegin	make_neighbors.L18\nmake_neighbors.L18:\nli	r21	nd#591	\naddu	r15	r11	r21	\nla	r19	nd#594	\nli	r22	nd#596	\nmultu	r12	r22	\nmflo	r5	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_4\nsw	nd#603	r9	\nmove	r23	r0	\nslt	r24	r23	r12	\nbeqz	make_neighbors.L15\n"];
+	Node4 -> {Node5 Node16 }
+	Node5 [label = "B5_1\nmove	r15	r0	\n"];
+	Node5 -> {Node6 }
+	Node6 [label = "B6_6\nmake_neighbors.L9:\nloopbegin	make_neighbors.L19\nmake_neighbors.L19:\nla	r19	nd#614	\nmove	r5	r13	\nmove	r4	r2	\nfst	r2	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_8\nli	r25	nd#620	\nmult	r9	r25	\nmflo	r26	\naddu	r27	r14	r26	\nlw	r16	nd#625	\nmove	r28	r0	\nslt	r5	r28	r15	\nbeqz	make_neighbors.L13\n"];
+	Node7 -> {Node8 Node12 }
+	Node8 [label = "B8_1\nmove	r6	r0	\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_12\nmake_neighbors.L14:\nloopbegin	make_neighbors.L21\nspawn	make_neighbors.L22\nmake_neighbors.L21:\nli	r7	nd#635	\naddu	r8	r11	r7	\nlw	r9	nd#638	\nli	r10	nd#641	\nmult	r6	r10	\nmflo	r19	\naddu	r20	r9	r19	\nlw	r21	nd#646	\nseq	r22	r16	r21	\nbnez	make_neighbors.__done15\n"];
+	Node9 -> {Node10 Node13 }
+	Node10 [label = "B10_11\nli	r23	nd#652	\naddu	r6	r6	r23	\nsle	r24	r15	r6	\ncqip	make_neighbors.L22\nmake_neighbors.L22:\npslice_entry	make_neighbors.L22\nli	r23	nd#0	\naddu	r6	r6	r23	\nsle	r24	r15	r6	\npslice_exit	make_neighbors.L22\nbeqz	make_neighbors.L14\nloopend	make_neighbors.L21\n"];
+	Node10 -> {Node11 Node9 }
+	Node11 [label = "B11_2\nmake_neighbors.L16:\nspawn	make_neighbors.L20\nj	make_neighbors.__done15\n"];
+	Node11 -> {Node13 }
+	Node12 [label = "B12_1\nmake_neighbors.L13:\nmove	r6	r0	\n"];
+	Node12 -> {Node13 }
+	Node13 [label = "B13_2\nmake_neighbors.__done15:\nslt	r25	r6	r15	\nbnez	make_neighbors.L9\n"];
+	Node13 -> {Node14 Node6 }
+	Node14 [label = "B14_22\nli	r26	nd#666	\naddu	r27	r11	r26	\nlw	r28	nd#669	\nli	r5	nd#672	\nmult	r15	r5	\nmflo	r6	\naddu	r7	r28	r6	\nsw	nd#677	r16	\nli	r8	nd#681	\naddu	r9	r16	r8	\nlw	r10	nd#684	\nli	r19	nd#687	\naddu	r20	r10	r19	\nsw	nd#690	r20	\ncqip	make_neighbors.L20\nmake_neighbors.L20:\npslice_entry	make_neighbors.L20\npslice_exit	make_neighbors.L20\nli	r21	nd#693	\naddu	r15	r15	r21	\nsle	r22	r12	r15	\nbeqz	make_neighbors.L9\nloopend	make_neighbors.L19\n"];
+	Node14 -> {Node15 Node6 }
+	Node15 [label = "B15_1\nmake_neighbors.L17:\nj	make_neighbors.__done17\n"];
+	Node15 -> {Node17 }
+	Node16 [label = "B16_1\nmake_neighbors.L15:\nmove	r15	r0	\n"];
+	Node16 -> {Node17 }
+	Node17 [label = "B17_7\nmake_neighbors.__done17:\nli	r23	nd#705	\naddu	r24	r11	r23	\nlw	r11	nd#708	\nla	r25	nd#712	\nsne	r26	r11	r25	\nbnez	make_neighbors.L3\nloopend	make_neighbors.L18\n"];
+	Node17 -> {Node18 Node3 }
+	Node18 [label = "B18_1\nmake_neighbors.L4:\njr	\n"];
+	Node18 -> {Node1 }
+	Node9 [shape = box ,style=filled ,color=red];
+	Node11 [shape = box ,style=filled ,color=red];
+	Node10 [shape = polygon ,style=filled ,color=yellow];
+	Node14 [shape = polygon ,style=filled ,color=yellow];
+}

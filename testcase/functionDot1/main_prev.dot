@@ -1,0 +1,34 @@
+digraph G{
+	label = "main"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_4\n# .loc\nla\nmove\nfst\njalr\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_5# .loc\nla\nla\nmove\nfst\njalr\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_7# .loc\nla\n\nla\nlw\nlw\n\nmove\nfst\njalr\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_4# .loc\nmove\nlw\nslt\nbeqz\n"];
+	Node5 -> {Node6 Node13 }
+	Node6 [label = "B6_1move\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_6\n# .loc\nla\nla\nlw\nmove\nfst\njalr\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_6# .loc\nla\nla\nlw\nmove\nfst\njalr\n"];
+	Node8 -> {Node9 }
+	Node9 [label = "B9_6# .loc\nla\nla\nmove\nmove\nfst\njalr\n"];
+	Node9 -> {Node10 }
+	Node10 [label = "B10_7# .loc\nla\n\nla\nlw\nlw\n\nmove\nfst\njalr\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_5li\naddu\nlw\nsle\nbeqz\n"];
+	Node11 -> {Node12 Node7 }
+	Node12 [label = "B12_1\nj\n"];
+	Node12 -> {Node14 }
+	Node13 [label = "B13_1\nmove\n"];
+	Node13 -> {Node14 }
+	Node14 [label = "B14_2\n# .loc\nmove\njr\n"];
+	Node14 -> {Node1 }
+}

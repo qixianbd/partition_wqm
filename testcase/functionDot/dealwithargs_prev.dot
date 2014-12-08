@@ -1,0 +1,10 @@
+digraph G{
+	label = "dealwithargs"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_4\nli	r25	nd#48	\nsw	nd#50	r25	\nli	r9	nd#53	\njr	\n"];
+	Node2 -> {Node1 }
+}

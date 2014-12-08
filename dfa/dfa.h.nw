@@ -1,0 +1,58 @@
+\section{Connecting to the DFA Library}
+\label{secConnecting}
+
+File [[dfa.h]] is the only header file that a client module needs to
+include.  The name of the library archive is [[libdfa.h]], so add a
+[[-ldfa]] switch to those seen by the linker.  This may need to appear
+early in the list of library switches.  For example, a pass may make no use
+of hash tables, but may need the operand bit manager, which does use
+hashing.  In that case, [[-ldfa]] must precede [[-lsuif1]], since
+[[libsuif1.a]] provides the hash table module.
+
+<<dfa.h>>=
+/*  Top-level Dataflow Analysis Header File */
+
+<<SUIF copyright>>
+
+#ifndef DFA_H
+#define DFA_H
+
+/*
+ *  Use a macro to include files so that they can be treated differently
+ *  when compiling the library than when compiling an application.
+ */
+
+#ifdef DFALIB
+#define DFAINCLFILE(F) #F
+#else
+#define DFAINCLFILE(F) <dfa/ ## F ## >
+#endif
+
+#include DFAINCLFILE(bit_vector_dfa.h)
+#include DFAINCLFILE(operand_bit_manager.h)
+#include   DFAINCLFILE(live_var.h)
+#include     DFAINCLFILE(live_var_more.h)  /* For scheduling. To be moved. */
+#include   DFAINCLFILE(unset_var.h)
+#include   DFAINCLFILE(def_teller.h)
+#include     DFAINCLFILE(def_catalog.h)
+#include       DFAINCLFILE(reaching_def.h)
+#include DFAINCLFILE(bitset_function.h)
+#include  DFAINCLFILE(bit_vector_dfa_plus.h)
+#include  DFAINCLFILE(live_varAD.h)
+#include  DFAINCLFILE(instr_catalog.h)
+
+#endif /* DFA_H */
+@
+\noindent
+All of the code is protected by the following copyright notice.
+
+<<SUIF copyright>>=
+/*  Copyright (c) 1996,1997 The President and Fellows of Harvard University
+
+    All rights reserved.
+
+    This software is provided under the terms described in
+    the "suif_copyright.h" include file. */
+
+#include <suif_copyright.h>
+@

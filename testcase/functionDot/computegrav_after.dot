@@ -1,0 +1,24 @@
+digraph G{
+	label = "computegrav"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_12\nmove	r12	r5	\nmove	r11	r6	\nli	r22	nd#299	\naddu	r23	r12	r22	\nl.d	r40	nd#302	\nli.d	r42	nd#306	\nmove	r24	r0	\nli	r25	nd#310	\nlw	r26	nd#312	\nsubu	r27	r26	r25	\nsle	r28	r24	r27	\nbeqz	computegrav.L3\n"];
+	Node2 -> {Node3 Node7 }
+	Node3 [label = "B3_3\nli	r5	nd#317	\nlw	r6	nd#319	\nsubu	r13	r6	r5	\n"];
+	Node3 -> {Node4 }
+	Node4 [label = "B4_19\ncomputegrav.L4:\nloopbegin	computegrav.L7\nspawn	computegrav.L8\ncomputegrav.L7:\nli	r7	nd#324	\naddu	r8	r12	r7	\nlw	r7	nd#327	\nli	r9	nd#331	\naddu	r21	r12	r9	\nli	r10	nd#334	\nmult	r13	r10	\nmflo	r19	\naddu	r20	r21	r19	\nlw	r8	nd#339	\nla	r19	nd#343	\nmov.d	r32	r40	\nmove	r4	r2	\nfst	r2	\nsw	nd#348	r11	\ns.d	nd#351	r42	\njalr	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_13\nli	r21	nd#355	\naddu	r13	r13	r21	\nmove	r22	r0	\nslt	r23	r13	r22	\ncqip	computegrav.L8\ncomputegrav.L8:\npslice_entry	computegrav.L8\nli	r21	nd#0	\naddu	r13	r13	r21	\nmove	r22	r0	\nslt	r23	r13	r22	\npslice_exit	computegrav.L8\nbeqz	computegrav.L4\nloopend	computegrav.L7\n"];
+	Node5 -> {Node6 Node4 }
+	Node6 [label = "B6_1\ncomputegrav.L6:\nj	computegrav.__done5\n"];
+	Node6 -> {Node8 }
+	Node7 [label = "B7_3\ncomputegrav.L3:\nli	r24	nd#364	\nlw	r25	nd#366	\nsubu	r13	r25	r24	\n"];
+	Node7 -> {Node8 }
+	Node8 [label = "B8_1\ncomputegrav.__done5:\njr	\n"];
+	Node8 -> {Node1 }
+	Node4 [shape = box ,style=filled ,color=red];
+	Node5 [shape = polygon ,style=filled ,color=yellow];
+}

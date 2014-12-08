@@ -1,0 +1,30 @@
+digraph G{
+	label = "walksub"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_50\nl.d	r42	nd#1696	\nlw	r13	nd#1698	\nmove	r12	r5	\nmove	r11	r6	\nmtc1	r34	r7	\nmtc1	r35	r8	\nmov.d	r40	r34	\nla	r19	nd#1706	\nmove	r5	r11	\nmov.d	r34	r40	\nmfc1	r7	r34	\nmfc1	r8	r35	\nmove	r4	r2	\nfst	r2	\ns.d	nd#1714	r42	\nla	r27	nd#1718	\nla	r14	nd#1720	\nlw	r28	nd#1723	\nlw	r6	nd#1726	\nlw	r9	nd#1729	\nsw	nd#1732	r28	\nsw	nd#1735	r6	\nsw	nd#1738	r9	\nlw	r9	nd#1741	\nlw	r10	nd#1744	\nlw	r20	nd#1747	\nsw	nd#1750	r9	\nsw	nd#1753	r10	\nsw	nd#1756	r20	\nlw	r10	nd#1759	\nlw	r20	nd#1762	\nlw	r21	nd#1765	\nsw	nd#1768	r10	\nsw	nd#1771	r20	\nsw	nd#1774	r21	\nlw	r21	nd#1777	\nlw	r22	nd#1780	\nlw	r23	nd#1783	\nsw	nd#1786	r21	\nsw	nd#1789	r22	\nsw	nd#1792	r23	\nlw	r24	nd#1795	\nlw	r25	nd#1798	\nlw	r26	nd#1801	\nsw	nd#1804	r24	\nsw	nd#1807	r25	\nsw	nd#1810	r26	\nlw	r27	nd#1813	\nsw	nd#1816	r27	\njalr	\n"];
+	Node2 -> {Node3 }
+	Node3 [label = "B3_3\nmove	r28	r0	\nsne	r5	r9	r28	\nbeqz	walksub.L1\n"];
+	Node3 -> {Node4 Node9 }
+	Node4 [label = "B4_1\nmove	r14	r0	\n"];
+	Node4 -> {Node5 }
+	Node5 [label = "B5_11\nwalksub.L6:\nloopbegin	walksub.L8\nwalksub.L8:\nli	r6	nd#1828	\naddu	r25	r11	r6	\nli	r7	nd#1831	\nmult	r14	r7	\nmflo	r8	\naddu	r9	r25	r8	\nlw	r6	nd#1836	\nla	r10	nd#1840	\nsne	r19	r6	r10	\nbeqz	walksub.L4\n"];
+	Node5 -> {Node6 Node7 }
+	Node6 [label = "B6_48\nla	r19	nd#1846	\nli.d	r38	nd#1848	\ndiv.d	r34	r40	r38	\nli	r20	nd#1851	\naddu	r15	r13	r20	\nla	r5	nd#1854	\nmfc1	r7	r34	\nmfc1	r8	r35	\nmove	r4	r2	\nfst	r2	\ns.d	nd#1860	r42	\nla	r17	nd#1864	\nla	r16	nd#1866	\nspawn	walksub.L9\nlw	r21	nd#1869	\nlw	r22	nd#1872	\nlw	r23	nd#1875	\nsw	nd#1878	r21	\nsw	nd#1881	r22	\nsw	nd#1884	r23	\nlw	r24	nd#1887	\nlw	r25	nd#1890	\nlw	r26	nd#1893	\nsw	nd#1896	r24	\nsw	nd#1899	r25	\nsw	nd#1902	r26	\nlw	r27	nd#1905	\nlw	r28	nd#1908	\nlw	r9	nd#1911	\nsw	nd#1914	r27	\nsw	nd#1917	r28	\nsw	nd#1920	r9	\nlw	r9	nd#1923	\nlw	r10	nd#1926	\nlw	r20	nd#1929	\nsw	nd#1932	r9	\nsw	nd#1935	r10	\nsw	nd#1938	r20	\nlw	r9	nd#1941	\nlw	r10	nd#1944	\nlw	r20	nd#1947	\nsw	nd#1950	r9	\nsw	nd#1953	r10	\nsw	nd#1956	r20	\nlw	r20	nd#1959	\nsw	nd#1962	r20	\nsw	nd#1966	r15	\njalr	\n"];
+	Node6 -> {Node7 }
+	Node7 [label = "B7_9\nwalksub.L4:\ncqip	walksub.L9\nwalksub.L9:\npslice_entry	walksub.L9\npslice_exit	walksub.L9\nli	r21	nd#1971	\naddu	r14	r14	r21	\nli	r22	nd#1974	\nsle	r23	r22	r14	\nbeqz	walksub.L6\nloopend	walksub.L8\n"];
+	Node7 -> {Node8 Node5 }
+	Node8 [label = "B8_1\nj	walksub.__done7\n"];
+	Node8 -> {Node11 }
+	Node9 [label = "B9_4\nwalksub.L1:\nla	r24	nd#1982	\nlw	r26	nd#1984	\nsne	r25	r11	r26	\nbeqz	walksub.__done7\n"];
+	Node9 -> {Node10 Node11 }
+	Node10 [label = "B10_38\nla	r19	nd#1990	\nla	r5	nd#1992	\nmove	r6	r11	\nla	r26	nd#1996	\nlw	r7	nd#1998	\nlw	r8	nd#2001	\nmove	r4	r2	\nfst	r2	\nla	r27	nd#2006	\nlw	r28	nd#2009	\nsw	nd#2012	r28	\nlw	r9	nd#2015	\nsw	nd#2018	r9	\nlw	r9	nd#2021	\nsw	nd#2024	r9	\nlw	r9	nd#2027	\nsw	nd#2030	r9	\nlw	r9	nd#2033	\nsw	nd#2036	r9	\nlw	r9	nd#2039	\nsw	nd#2042	r9	\nlw	r10	nd#2045	\nsw	nd#2048	r10	\nlw	r20	nd#2051	\nsw	nd#2054	r20	\nlw	r20	nd#2057	\nsw	nd#2060	r20	\nlw	r21	nd#2063	\nsw	nd#2066	r21	\nlw	r22	nd#2069	\nsw	nd#2072	r22	\nlw	r23	nd#2075	\nsw	nd#2078	r23	\nlw	r24	nd#2081	\nsw	nd#2084	r24	\nlw	r25	nd#2087	\nsw	nd#2090	r25	\njalr	\n"];
+	Node10 -> {Node11 }
+	Node11 [label = "B11_35\nwalksub.__done7:\nla	r26	nd#2098	\nla	r27	nd#2100	\nlw	r28	nd#2103	\nlw	r5	nd#2106	\nlw	r6	nd#2109	\nsw	nd#2112	r28	\nsw	nd#2115	r5	\nsw	nd#2118	r6	\nlw	r7	nd#2121	\nlw	r8	nd#2124	\nlw	r9	nd#2127	\nsw	nd#2130	r7	\nsw	nd#2133	r8	\nsw	nd#2136	r9	\nlw	r10	nd#2139	\nlw	r19	nd#2142	\nlw	r20	nd#2145	\nsw	nd#2148	r10	\nsw	nd#2151	r19	\nsw	nd#2154	r20	\nlw	r21	nd#2157	\nlw	r22	nd#2160	\nlw	r23	nd#2163	\nsw	nd#2166	r21	\nsw	nd#2169	r22	\nsw	nd#2172	r23	\nlw	r24	nd#2175	\nlw	r25	nd#2178	\nlw	r28	nd#2181	\nsw	nd#2184	r24	\nsw	nd#2187	r25	\nsw	nd#2190	r28	\nlw	r28	nd#2193	\nsw	nd#2196	r28	\njr	\n"];
+	Node11 -> {Node1 }
+	Node6 [shape = box ,style=filled ,color=red];
+	Node7 [shape = polygon ,style=filled ,color=yellow];
+}

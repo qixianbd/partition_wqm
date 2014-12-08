@@ -1,0 +1,10 @@
+digraph G{
+	label = "SwapValue"	style = "dashed";
+	color = purple;
+	Node0 [label = "Begin"];
+	Node0 -> {Node2 }
+	Node1 [label = "End"];
+	Node1 -> {}
+	Node2 [label = "B2_13\nmove	r7	r0	\naddu	r7	r5	r7	\nlw	r8	nd#109	\nmove	r9	r0	\naddu	r10	r6	r9	\nlw	r19	nd#115	\nmove	r20	r0	\naddu	r21	r6	r20	\nsw	nd#121	r8	\nmove	r22	r0	\naddu	r23	r5	r22	\nsw	nd#127	r19	\njr	\n"];
+	Node2 -> {Node1 }
+}
