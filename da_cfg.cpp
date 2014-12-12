@@ -10,6 +10,7 @@
 #include "misc.h"
 #include "min_cut_fun.h"
 
+
 /*
  *da_cfg::da_cfg() --- constructor of cfg contains data analysis 
  */

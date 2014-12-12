@@ -1,6 +1,7 @@
 TARGET =	partition
 SUPER_PACKAGES_PATH = machsuif
-LIBS =		-ldfa -lsuif1 -luseful -lmachine -lcfg -lm
+LIBS =		-lfl -ldfa -lsuif1 -luseful -lmachine -lcfg -lm -lfl
+LDFLAGS = -lfl
 SRCS =		da_cfg.cpp  		\
 		loop_block.cpp  	\
 		main.cpp  		\
